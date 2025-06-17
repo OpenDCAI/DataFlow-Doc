@@ -40,7 +40,12 @@ bash ReasoningPipeline/pipeline_withoutGT.sh
 bash ReasoningPipeline/pipeline_full.sh
 ```
 
-> 这三个脚本会调用对应的 YAML 配置，依次执行各算子，并在指定的目录下生成各阶段中间文件。
+我们也同时支持一键合成大规模的预训练数据：
+```bash
+bash ReasoningPipeline/pipeline_Pretrain.sh
+```
+
+> 这四个脚本会调用对应的 YAML 配置，依次执行各算子，并在指定的目录下生成各阶段中间文件。
 
 ---
 
@@ -259,4 +264,18 @@ bash ReasoningPipeline/pipeline_full.sh
        --yaml_path ReasoningPipeline/yaml/ReasonerNgramFilter_withoutGT.yaml \
        --step_name AnswerNgramFilter \
        --step_type process
+     ```
+
+### 4.5 无标准答案处理算子
+
+这部分算子主要做最终的格式转换，以支持特定下游任务的接口格式。
+
+1. **问答格式（SFT）转预训练格式（PT） (Pretrain_FormatConvert_sft2pt)**  
+   - 功能：将问答对格式的数据转换为预训练格式，即仅包含`text`键
+   - 命令：
+     ```bash
+     python pipeline_step.py \
+       --yaml_path ReasoningPipeline/yaml/Pretrain_FormatConvert_sft2pt.yaml \
+       --step_name Pretrain_FormatConvert_sft2pt \
+       --step_type generator
      ```

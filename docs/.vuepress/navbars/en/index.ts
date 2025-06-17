@@ -43,7 +43,24 @@ export const enNavbar = defineNavbarConfig([
                         icon: 'material-symbols-light:download-rounded',
                         activeMatch: '^/guide/'
                     },
-
+                    {
+                        text: "Text Pipeline",
+                        link: '/en/notes/guide/quickstart/TextPipeline.md',
+                        icon: 'mdi:file-text',
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "Reasoning Pipeline",
+                        link: "/en/notes/guide/quickstart/ReasoningPipeline.md",
+                        icon: "mdi:brain",
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "Text-to-SQL Pipeline",
+                        link: "/en/notes/guide/quickstart/Text2SqlPipeline.md",
+                        icon: "material-symbols-light:checkbook-outline-rounded",
+                        activeMatch: '^/guide/'
+                    },
                 ]
             },
         ]

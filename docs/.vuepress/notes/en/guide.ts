@@ -22,6 +22,7 @@ export const Guide: ThemeNote = defineNoteConfig({
             prefix: 'quickstart',
             items: [
                 'install',
+                `TextPipeline`,
                 'ReasoningPipeline',
                 'Text2SqlPipeline'
                 // 'usage',

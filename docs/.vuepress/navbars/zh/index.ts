@@ -43,6 +43,24 @@ export const zhNavbar = defineNavbarConfig([
                         icon: 'material-symbols-light:download-rounded',
                         activeMatch: '^/guide/'
                     },
+                    {
+                        text: "纯文本流水线",
+                        link: '/zh/notes/guide/quickstart/TextPipeline.md',
+                        icon: 'mdi:file-text',
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text:"强推理数据合成流水线",
+                        link:"/zh/notes/guide/quickstart/ReasoningPipeline.md",
+                        icon: "mdi:brain",
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "Text-to-SQL数据合成流水线",
+                        link: "/zh/notes/guide/quickstart/Text2SqlPipeline.md",
+                        icon: "material-symbols-light:checkbook-outline-rounded",
+                        activeMatch: '^/guide/'
+                    }
                 ]
             },
 
