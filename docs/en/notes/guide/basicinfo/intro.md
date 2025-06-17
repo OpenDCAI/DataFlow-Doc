@@ -14,7 +14,7 @@ To address these challenges, we propose **DataFlow** — a high-efficiency data 
 
 ## DataFlow: A High-Quality Data Preparation System
 
-**DataFlow** is a data evaluation and processing system designed to **clean, enhance, and assess** noisy data sources (e.g., PDFs, plain text, low-quality QA pairs) to produce high-quality training data. This curated data can then be used to improve large language model performance through targeted training approaches, including pre-training, supervised fine-tuning, and reinforcement learning, across both general domains (e.g., reasoning and retrieval) and specialized fields (e.g., healthcare, finance, and law).
+**DataFlow** is a data evaluation and processing system designed to **clean, enhance, and evaluate** noisy data sources (e.g., PDFs, plain text, low-quality QA pairs) to produce high-quality training data. This curated data can then be used to improve large language model performance through targeted training approaches, including pre-training, supervised fine-tuning, and reinforcement learning, across both general domains (e.g., reasoning and retrieval) and specialized fields (e.g., healthcare, finance, and law).
 
 Specifically, we have developed a diverse set of **operators**, built on rule-based methods, deep learning models, large language models (LLMs), and LLM APIs. These operators are systematically integrated into six independent data processing pipelines, collectively forming the complete **DataFlow system**.
 

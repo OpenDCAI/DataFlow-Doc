@@ -10,9 +10,9 @@ permalink: /en/guide/framework/
 
 # Framework Design
 
-The architecture of DataFlow is primarily divided into two layers: the **Operator Layer** and the **Pipeline Layer**.
+The architecture of DataFlow is primarily divided into two layers: the **Operators** and the **Pipelines**.
 
-To enable AI-assisted data processing, we introduce an additional module—**Agent for DataFlow**. The Agent is capable of:  
+Moreover, to enable AI-assisted data processing, we introduce an additional module—**Agent for DataFlow**. The Agent is capable of:  
 (1) automatically orchestrating operators,  
 (2) generating custom data operators, and  
 (3) solving data analysis tasks autonomously.
