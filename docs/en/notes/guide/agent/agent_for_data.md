@@ -1,6 +1,6 @@
 ---
-title: Agent数据治理
-icon: material-symbols:auto-transmission-sharp
+title: DataFlow-Agent Governance
+icon: material-symbols:robot-2-outline
 createTime: 2025/06/17 15:56:00
 permalink: /en/guide/agent/agent_for_data/
 ---

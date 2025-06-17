@@ -28,6 +28,15 @@ export const Guide: ThemeNote = defineNoteConfig({
             ],
         },
         {
+            text: "Dataflow-Agent数据治理",
+            collapsed: false,
+            icon: '',
+            prefix: 'agent',
+            items: [
+                "agent_for_data"
+            ]
+        },
+        {
             text: "算子",
             collapsed: false,
             icon: "",

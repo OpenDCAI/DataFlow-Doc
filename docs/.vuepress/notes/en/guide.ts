@@ -36,6 +36,15 @@ export const Guide: ThemeNote = defineNoteConfig({
             ],
         },
         {
+            text: "DataFlow-Agent",
+            collapsed: false,
+            icon: '',
+            prefix: 'agent',
+            items: [
+                "agent_for_data"
+            ]
+        },
+        {
             text: 'Operators',
             collapsed: false,
             icon: '',
