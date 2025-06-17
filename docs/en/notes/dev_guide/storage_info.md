@@ -46,45 +46,55 @@ Writing data:
 
 ### Interface and Parameter Descriptions
 
+### Read Interfaces
+
 - `read_str(self, key_list: list[str], **kwargs)`: Use when `data` is of string type. `key_list` is a list of fields to read. Required `kwargs`:
   * `category`: Data type (e.g., "reasoning", "text", "code")
-  * `format`: Data format, as in the table
-  * `syn`: Synthetic data format - choose from "", "syn", "syn_q", "syn_a", "syn_qa"
   * `pipeline_id`: Current pipeline ID (from config)
   * `stage`: Current operator stage (from config)
   * `eval_stage`: Number of eval columns to read (from config)
     + `maxmin_scores`: If `eval_stage` > 0, provide score filters as `read_min_score` and `read_max_score` in `list[float]` format. Example:
-    ```python
-    maxmin_scores = [dict(zip(['min_score', 'max_score'], list(_))) for _ in zip(self.read_min_score, self.read_max_score)]
-    ```
+    ``maxmin_scores = [dict(zip(['min_score', 'max_score'], list(_))) for _ in zip(self.read_min_score, self.read_max_score)]
+    ``
+  * !`format`: Data format, as in the table
+  * !`!syn`: Synthetic data format - choose from "", "syn", "syn_q", "syn_a", "syn_qa"
+
 
 Returns data as a `list[dict]` with default `id` as the primary key.
 
 - `read_json(self, key_list: list[str], **kwargs)`: Use when `data` is JSON. Same as `read_str`, but returns `data` as a `dict`.
 
-- `read_str_by_stage(self, key_list: list[str], **kwargs)`: Use when `data` is string. No need to specify `format` and `syn`.
+### Write Interfaces
 
-- `read_json_by_stage(self, key_list: list[str], **kwargs)`: Use when `data` is JSON. No need to specify `format` and `syn`.
+- `write_str(self, data: list[dict], **kwargs)`: The `data` parameter contains the data to be written. In the dictionary, the key `id` corresponds to the ID of the original data, and the data under the `data` key must be of type `str`. The required parameters in `**kwargs` are as follows:
+    * `category`: The type of data, such as "reasoning", "text", "code"
+    * `format`: Data format, refer to the table structure
+    * `syn`: Whether the data is synthetic. Choose from "" (not synthetic), "syn" (synthetic), "syn_q" (synthetic question), "syn_a" (synthetic answer), "syn_qa" (synthetic QA pair)
+    * `pipeline_id`: The ID of the current pipeline, must be provided in the config file
+    * `stage`: The position of the current operator in the pipeline + 1, must be provided in the config file
 
-Write interfaces:
+This method will add new rows to the database. The eval columns for the new data will be cleared.
 
-- `write_str(self, data: list[dict], **kwargs)`: Data should be in `str` format. Required `kwargs`:
-  * `category`, `format`, `syn`, `pipeline_id`, `stage` (+1)
-Inserts new rows into the DB. Clears `eval` columns for new data.
+- `write_json(self, data: list[dict], **kwargs)`: The `data` parameter contains the data to be written. In the dictionary, the key `id` corresponds to the ID of the original data, and the data under the `data` key must be of type `dict`. The required parameters in `**kwargs` are as follows:
+    * `category`: The type of data, such as "reasoning", "text", "code"
+    * `format`: Data format, refer to the table structure
+    * `syn`: Whether the data is synthetic. Choose from "" (not synthetic), "syn" (synthetic), "syn_q" (synthetic question), "syn_a" (synthetic answer), "syn_qa" (synthetic QA pair)
+    * `pipeline_id`: The ID of the current pipeline, must be provided in the config file
+    * `stage`: The position of the current operator in the pipeline + 1, must be provided in the config file
 
-- `write_json(self, data: list[dict], **kwargs)`: Data should be in `dict` format. Same `kwargs` as above. Also clears `eval` columns for new entries.
+This method will add new rows to the database. The eval columns for the new data will be cleared.
 
-- `write_eval(self, data: list[dict], **kwargs)`: Used for writing eval scores and info. Required `kwargs`:
-  * `stage`: operator stage +1
-  * `score_key`: Key for score in `data` (e.g., 'score1')
-  * `algo_name`: Operator name, typically `self.__class__.__name__`
-  * `info_key`: Optional, for writing additional information (e.g., 'info1')
+- `write_eval(self, data: list[dict], **kwargs)`: The `data` parameter includes the original data ID and the new score (of type float) and information (of type str). The required parameters in `**kwargs` are as follows:
+    * `stage`: The position of the current operator in the pipeline + 1, must be provided in the config file    
+    * `score_key`: The key corresponding to the score in the data parameter. If the data field is in the form `[{'id': xxx, 'score1': xxx}]`, this should be `'score1'`
+    * `algo_name`: Name of the operator, can default to `self.__class__.__name__`
+    * `info_key`: Extra information to be stored. If the data field is in the form `[{'id': xxx, 'score1': xxx, 'info1': xxx}]`, this should be `'info1'`
 
-Modifies `eval` columns of existing data rows.
+This method modifies the eval columns of the existing row in the database.
 
-- `write_data(self, data: list[dict], **kwargs)`: Used to overwrite `data` field. Required `kwargs`:
-  * `stage`: operator stage +1
-  * Additional keys can be modified by passing extra `kwargs`
-    + Note: `syn` should be changed to `Synthetic`, otherwise it will raise an error.
+- `write_data(self, data: list[dict], **kwargs)`: The `data` parameter includes the original data ID and the new content for the `data` field. The required parameters in `**kwargs` are as follows:
+    * `stage`: The position of the current operator in the pipeline + 1, must be provided in the config file
+    * `__some_keys__`: If other non-eval fields in the data need to be modified, they can be passed in as additional keyword arguments
+        + Note: The `syn` parameter here should be changed to `Synthetic`, otherwise an error will be raised.
 
-Modifies `data` field in the database.
+This method modifies the `data` column of the existing row in the database.

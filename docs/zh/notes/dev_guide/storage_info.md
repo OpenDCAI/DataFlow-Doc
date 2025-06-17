@@ -66,14 +66,16 @@ DataFlow数据表的结构如下
 
 ### 接口及其参数介绍
 
+读取数据的接口如下:
 - ``read_str(self, key_list: list[str], **kwargs)``: data字段为string类型时使用，key_list为想要读取出的字段组成的列表，类型限制为``list[str]``，可变参数中必须含有以下几种参数：
     * ``category``: 数据的类型，如"reasoning", "text", "code"
-    * ``format``: 数据格式，参考表结构
-    * ``syn``: 是否为合成数据，合成数据的具体格式，在""（非合成数据）, "syn"（合成数据）, "syn_q"（合成问题数据）, "syn_a"（合成答案数据）, "syn_qa"（合成QA对数据）中选择 
     * ``pipeline_id``: 当前pipeline的id，要求在配置文件中传入。
     * ``stage``: 当前算子在pipeline中的位置，要求在配置文件中传入。
     * ``eval_stage``: 当前算子想要读出的数据中含有eval数据的列数，要求在配置文件中传入。
         + !``maxmin_scores``: 若``eval_stage``大于0，读入时可能需要对分数进行最大值和最小值的筛选，要求在配置文件中传入list[float]形式的read_min_score和read_max_score。传入时的格式可以参考``maxmin_scores=[dict(zip(['min_score', 'max_score'], list(_))) for _ in list(zip(self.read_min_score, self.read_max_score))]``
+    * !``format``: 数据格式，参考表结构
+    * !``syn``: 是否为合成数据，合成数据的具体格式，在""（非合成数据）, "syn"（合成数据）, "syn_q"（合成问题数据）, "syn_a"（合成答案数据）, "syn_qa"（合成QA对数据）中选择 
+
 
 返回的数据为list[dict]类型,其中默认带有主键,存储在id关键字下。
 
