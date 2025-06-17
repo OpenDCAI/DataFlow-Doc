@@ -1,36 +1,39 @@
 ---
-title: Pull Request规范
+title: Pull Request Guidelines
 createTime: 2025/06/13 10:42:46
 permalink: /en/dev_guide/pull_request/
 ---
-# Pull Request 规范
 
-开发者在准备开发前，请fork本仓库到自己的账号下，并git clone 到本地。
+# Pull Request Guidelines
 
-完成clone操作后，设置上游仓库为本仓库
+Before starting development, please fork this repository to your own GitHub account and clone it to your local machine.
+
+After cloning, set the upstream repository to the main DataFlow repo:
 
 ```
 git remote add upstream <DataFlow URL>
 ```
 
-在提交修改前，请将仓库与上游仓库同步：
+Before submitting your changes, sync your local repository with the upstream repository:
 
 ```
 git pull upstream main
 ```
-同步后进行提交：
+
+After syncing, push your changes:
+
 ```
 git push origin main
 ```
 
-在提交修改到自己账户的fork仓库后，发起pull request。
+Once your changes are pushed to your forked repository, create a pull request.
 
-如果不熟悉git相关操作，请在进行操作时遵循如下注意事项:
+If you're not familiar with Git operations, please follow these guidelines:
 
-1. ``git add`` : 对修改过的文件/文件夹逐个执行``git add``, 不要执行 ``git add .``。如果该命令运行时间过长，**极大概率是将大文件放入了暂存区**，请立即停止并进行检查。
+1. `git add`: Add modified files/folders one by one using `git add <file>`. **Do not use** `git add .`. If this command takes too long, it’s **very likely you’ve added large files to the staging area**. Stop immediately and check.
 
-2. ``git commit`` : 提交信息尽量清晰准确。
+2. `git commit`: Make your commit messages as clear and accurate as possible.
 
-3. ``git push``:  执行该指令时，请指明push到的远程仓库及分支，如果不熟悉git相关操作，请在push之前执行``git remote -v`` 查看每个远程仓库的别名对应的URL以明确。
+3. `git push`: When pushing, specify the remote repository and branch. If you're unsure, run `git remote -v` before pushing to confirm the URL of each remote alias.
 
-4. 发起PR: 发起PR前请点击``Files changed``仔细检查是否有不应该提交的文件修改。
+4. Creating a PR: Before submitting a PR, click on `Files changed` and carefully check whether there are any files that should not be included in the submission.

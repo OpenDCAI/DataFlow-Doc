@@ -1,22 +1,23 @@
 ---
-title: 新算子
+title: New Operator
 createTime: 2025/06/12 12:00:00
 permalink: /en/dev_guide/new_algo/
 ---
 
 ## New Algorithm
 
-DataFlow算子在具体实现上分为两种
-1. 有统一基类的算子，位于``dataflow/Eval``或``dataflow/process``下，这些算子需要实现基类所需的固定方法（如``__init__()``, ``evaluate_batch()``, ``filter_func()``等）
+DataFlow operators are implemented in two forms:
 
-2. 没有统一基类的算子，位于``dataflow/generator/algorithm``文件夹，这些算子必须实现``__init__``和``run()``方法。
+1. Operators with a unified base class, located under `dataflow/Eval` or `dataflow/process`. These operators are required to implement specific methods defined by the base class, such as `__init__()`, `evaluate_batch()`, `filter_func()`, etc.
 
-如果想要在DataFlow中添加新算子，在实现算子及其所包含的方法后需要进行如下操作：
+2. Operators without a unified base class, located in the `dataflow/generator/algorithm` directory. These operators must implement the `__init__` and `run()` methods.
 
-1. 在算子所在文件夹下添加包含算子类的文件
+To add a new operator to DataFlow, follow these steps after implementing the operator and its required methods:
 
-2. 在该文件中导入Registry实例，并用``register()``方法修饰
+1. Add a new file containing the operator class under the appropriate directory.
 
-3. 在算子所在文件夹下的__init__.py文件中，向``_import_structure``变量添加算子指向的相对路径。
+2. Import the `Registry` instance in that file and decorate the operator class using the `register()` method.
 
-如果有必要添加新的算子文件夹，需要在``dataflow/utils/registry.py``中进行相应修改。
+3. In the `__init__.py` file of the operator's directory, add the relative path to the operator file in the `_import_structure` variable.
+
+If you need to add a new operator directory, you must also modify `dataflow/utils/registry.py` accordingly.
