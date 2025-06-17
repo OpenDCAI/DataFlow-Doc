@@ -2,7 +2,7 @@
 title: Agent数据治理
 icon: material-symbols:auto-transmission-sharp
 createTime: 2025/06/17 15:56:00
-permalink: /zh/guide/agent/agent_for_data.md
+permalink: /en/guide/agent/agent_for_data/
 ---
 
 ### 1. **Planning Phase (Planning Agent)**

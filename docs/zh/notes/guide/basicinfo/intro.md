@@ -2,7 +2,7 @@
 title: 简介
 icon: mdi:tooltip-text-outline
 createTime: 2025/06/13 14:51:34
-permalink: /zh/guide/intro/
+permalink: /zh/guide/intro/basicinfo/intro/
 ---
 # 简介
 近年来，大模型的发展主要由大型科技公司主导，其领先的核心原因在于掌握了规模庞大且高质量的数据资源。然而，这些公司通常并不公开其原始数据及数据处理工具，使得学术界在大模型训练数据的构建与优化方面难以追赶，受制甚深。

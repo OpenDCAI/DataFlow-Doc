@@ -2,7 +2,7 @@
 title: Framework Design  
 icon: material-symbols:auto-transmission-sharp
 createTime: 2025/06/13 14:59:56  
-permalink: /en/guide/framework/  
+permalink: /en/guide/basicinfo/framework
 ---  
 # Framework Design  
 
@@ -17,7 +17,7 @@ Moreover, to enable AI-assisted data processing, we introduce an additional modu
 (2) generating custom data operators, and  
 (3) solving data analysis tasks autonomously.
 
-![Reasoning-Pipeline](/Reasoning_Pipeline.jpg)
+![Reasoning-Pipeline](/Reasoning_Pipeline.png)
 
 ## DataFlow Operators
 

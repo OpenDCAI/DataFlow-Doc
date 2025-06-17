@@ -2,7 +2,7 @@
 title: 框架设计
 icon: material-symbols:auto-transmission-sharp
 createTime: 2025/06/13 14:59:56
-permalink: /zh/guide/framework/
+permalink: /zh/guide/basicinfo/framework/
 ---
 ![Dataflow-Framework](/dataflow_framework.jpg)
 # 框架设计
@@ -10,7 +10,7 @@ Dataflow的框架主要分为算子层和Pipeline层。
 
 为了使用AI辅助数据处理，我们额外添加了Agent for Dataflow模块。Agent可以(1)自动编排算子 (2)自动编写数据算子 (3)Agent自动解决数据分析任务。
 
-![Reasoning-Pipeline](/Reasoning_Pipeline.jpg)
+![Reasoning-Pipeline](/Reasoning_Pipeline.png)
 
 ## DataFlow 算子
 
