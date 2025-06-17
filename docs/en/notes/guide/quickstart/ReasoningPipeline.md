@@ -42,6 +42,11 @@ For **mixed** scenarios:
 bash ReasoningPipeline/pipeline_full.sh
 ```
 
+We also support synthesis large-scale **pre-trained** data:
+```bash
+bash ReasoningPipeline/pipeline_Pretrain.sh
+```
+
 > Each script loads its corresponding YAML config, invokes each operator in sequence, and writes intermediate files to the designated directories.
 
 ---
@@ -263,3 +268,17 @@ Executed only on the “without golden answer” branch
      --step_name AnswerNgramFilter \
      --step_type process
    ```
+
+### 4.5 Format Conversion Operator
+
+This part of the operators mainly performs the final format conversion to support the interface format of specific downstream tasks.
+
+1. **Pretrain_FormatConvert_sft2pt**  
+   - Function: Convert question-answer formatted data into pretraining format
+   - Command:
+     ```bash
+     python pipeline_step.py \
+       --yaml_path ReasoningPipeline/yaml/Pretrain_FormatConvert_sft2pt.yaml \
+       --step_name Pretrain_FormatConvert_sft2pt \
+       --step_type generator
+     ```
