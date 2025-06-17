@@ -1,7 +1,7 @@
 ---
 title: testcase
 createTime: 2025/06/09 11:39:11
-permalink: /en/article/xtcxv1w3/
+permalink: /en/dev_guide/testcase/
 ---
 
 ## Testcase

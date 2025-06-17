@@ -1,7 +1,7 @@
 ---
 title: logging
 createTime: 2025/06/09 11:39:11
-permalink: /en/article/25rhx6ij/
+permalink: /en/dev_guide/logging/
 ---
 
 ## Logger

@@ -24,9 +24,9 @@ The structure of a DataFlow data table is as follows:
 | format               | categorical        | Data format (PT, SFT_Single, SFT_Multi, RLHF, etc.)                         |
 | Operator_Type        | categorical        | Type of operator (Text/Math-specific or general)                            |
 | Synthetic            | categorical        | Whether the data is synthetic (fully synthetic/synthetic answer/question/none) |
-| eval_score_{$i}      | float / BOOL / int | Content added by algorithm $i                                               |
-| eval_algorithm_{$i}  | TEXT               | Description of algorithm $i                                                 |
-| eval_info_{$i}       | TEXT               | Error information                                                           |
+| eval_score_{\$i}      | float / BOOL / int | Content added by algorithm $i                                               |
+| eval_algorithm_{\$i}  | TEXT               | Description of algorithm $i                                                 |
+| eval_info_{\$i}       | TEXT               | Error information                                                           |
 
 ### Quick Start for Using Database Interfaces
 
