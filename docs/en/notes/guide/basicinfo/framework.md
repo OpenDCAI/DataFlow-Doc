@@ -17,6 +17,8 @@ To enable AI-assisted data processing, we introduce an additional module—**Age
 (2) generating custom data operators, and  
 (3) solving data analysis tasks autonomously.
 
+![Reasoning-Pipeline](/Reasoning_Pipeline.jpg)
+
 ## DataFlow Operators
 
 DataFlow Operators are the fundamental processing units applied to raw data. They are typically implemented using rule-based systems, deep learning models, or large language models (LLMs). As shown in the Reasoning Pipeline figure above, each module can be regarded as an independent DataFlow Operator, responsible for specific data manipulation tasks such as cleaning, transformation, and validation.
@@ -25,7 +27,7 @@ DataFlow Operators are the fundamental processing units applied to raw data. The
 
 A DataFlow Pipeline is an ordered composition of multiple DataFlow Operators designed to complete an end-to-end data processing or analysis task. By chaining or paralleling various stages—including data generation, cleaning, and validation—the system forms a complete processing flow, as illustrated in the Reasoning Pipeline above. This enables full automation from raw data to structured outputs.
 
-![Reasoning-Pipeline](/Reasoning_Pipeline.jpg)
+![Dataflow-Agent](/agent_en.png)
 
 ## DataFlow Agent
 
@@ -39,5 +41,3 @@ The **DataFlow Agent** is a multi-agent-based automated task processing system t
 - **Analysis Agent**: Summarizes the process and results, producing a structured final report.
 
 The system supports both short-term and long-term memory mechanisms, enabling multi-turn interaction while maintaining standardized procedures. It is highly adaptable and particularly well-suited for complex scenarios requiring multi-stage coordination, such as data governance and automated data analysis.
-
-![Dataflow-Agent](/agent.png)
