@@ -28,40 +28,40 @@ export const Guide: ThemeNote = defineNoteConfig({
             ],
         },
         {
-            text: "Dataflow-Agent数据治理",
+            text: "通用算子",
             collapsed: false,
-            icon: '',
+            icon: 'material-symbols:analytics-outline',
+            prefix: 'general_operators',
+            items: [
+                "gen_text_evaluation_operators",
+                "text_evaluation_operators",
+                "text_process_operators",
+                "text_generate_operators",
+            ]
+        },
+        {
+            text: "专用算子",
+            collapsed: false,
+            icon: 'material-symbols:analytics-outline',
+            prefix: 'domain_specific_operators',
+            items: [
+                "reasoning_operators",
+                "text2sql_operators",
+                "rare_operators",
+                "knowledgebase_QA_operators",
+                "agenticrag_operators",
+                // "video_process",
+            ]
+        },
+        {
+            text: "Agent for Dataflow",
+            collapsed: false,
+            icon: 'mdi:face-agent',
             prefix: 'agent',
             items: [
                 "agent_for_data"
             ]
         },
-        {
-            text: "算子",
-            collapsed: false,
-            icon: "",
-            prefix: 'operators',
-            items: [
-                "text_process",
-                "image_process",
-                "video_process",
-            ]
-        },
-        {
-            text: "评价指标",
-            collapsed: false,
-            icon: 'material-symbols:analytics-outline',
-            prefix: 'metrics',
-            items: [
-                "text_metrics",
-                "gen_text_metrics",
-                "image_metrics",
-                // "image_process",
-                "video_metrics",
-                // "video_process",
-            ]
-        },
-
         // {
         //     text: '写作',
         //     icon: 'fluent-mdl2:edit-create',

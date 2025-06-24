@@ -1,8 +1,8 @@
 ---
-title: Text Data Processors
+title: General Data Processing Operators
 
 createTime: 2025/06/09 11:43:25
-permalink: /en/guide/mq07gwz4/
+permalink: /en/guide/text_process_operators/
 ---
 
 # Text Data Processing

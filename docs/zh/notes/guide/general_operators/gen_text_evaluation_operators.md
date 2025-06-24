@@ -1,5 +1,5 @@
 ---
-title: 生成文本评估指标
+title: 合成文本数据评估算子
 createTime: 2025/06/09 11:43:42
 permalink: /zh/guide/cazde3lz/
 ---

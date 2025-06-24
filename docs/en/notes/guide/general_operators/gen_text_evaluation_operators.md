@@ -1,7 +1,7 @@
 ---
-title: Generated Text Data Evaluation Metrics 
+title: General Generated Data Evaluation Metrics 
 createTime: 2025/06/09 11:43:25
-permalink: /en/guide/zwu1hdwq/
+permalink: /en/guide/gen_text_evaluation_operators/
 ---
 
 # Evaluation Metrics for Generated Text

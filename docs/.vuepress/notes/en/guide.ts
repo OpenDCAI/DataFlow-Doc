@@ -36,38 +36,37 @@ export const Guide: ThemeNote = defineNoteConfig({
             ],
         },
         {
-            text: "DataFlow-Agent",
+            text: "General Operators",
             collapsed: false,
-            icon: '',
+            icon: 'material-symbols:analytics-outline',
+            prefix: 'general_operators',
+            items: [
+                "gen_text_evaluation_operators",
+                "text_evaluation_operators",
+                "text_process_operators",
+                "text_generate_operators",
+            ]
+        },
+        {
+            text: "Domain-Specific Operators",
+            collapsed: false,
+            icon: 'material-symbols:analytics-outline',
+            prefix: 'domain_specific_operators',
+            items: [
+                "reasoning_operators",
+                "text2sql_operators",
+                "rare_operators",
+                "knowledgebase_QA_operators",
+                "agenticrag_operators",
+            ]
+        },
+        {
+            text: "Agent for Dataflow",
+            collapsed: false,
+            icon: 'mdi:face-agent',
             prefix: 'agent',
             items: [
                 "agent_for_data"
-            ]
-        },
-        {
-            text: 'Operators',
-            collapsed: false,
-            icon: '',
-            prefix: 'operators',
-            items: [
-                "text_process",
-                "image_process",
-                "video_process",
-            ]
-        },
-        {
-            text: 'Evaluation Metrics',
-            collapsed: false,
-            icon: 'material-symbols:analytics-outline',
-            prefix: 'metrics',
-            items: [
-                "text_metrics",
-                // "text_process",
-                "gen_text_metrics",
-                "image_metrics",
-                // "image_process",
-                "video_metrics",
-                // "video_process",
             ]
         },
     ],

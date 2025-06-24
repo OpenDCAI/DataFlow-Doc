@@ -1,7 +1,7 @@
 ---
-title: Text Data Evaluation Metrics
+title: General Data Evaluation Operators
 createTime: 2025/06/09 11:43:25
-permalink: /en/guide/s762pn9l/
+permalink: /en/guide/text_evaluation_operators/
 ---
 
 # Text Data Evaluation Metrics
