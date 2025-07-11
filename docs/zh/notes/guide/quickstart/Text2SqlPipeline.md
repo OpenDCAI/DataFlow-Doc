@@ -102,6 +102,13 @@ permalink: /zh/guide/text2sqlpipeline/
       - db_id_3
         - db_id_3.sqlite
     ```
+  - **演示说明**：  
+    为便于演示，我们已准备了一个示例数据库，存放于以下地址：  
+    https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example  
+    **使用步骤**：  
+    1. 请在执行代码前，完整下载该数据库（即 `dev_databases` 文件夹）  
+    2. 确保文件夹内的文件结构保持不变  
+    3. 将代码中的 `db_root_path` 参数修改为您本地 `dev_databases` 文件夹的实际路径  
 
 ### 2.2 输入数据
 
