@@ -103,6 +103,13 @@ When parsing and executing databases, corresponding database information needs t
       - db_id_3
         - db_id_3.sqlite
     ```
+  - **Demo Instructions**:  
+    For demonstration purposes, we have prepared a sample database, available at:  
+    https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example  
+    **Usage Steps**:  
+    1. Before executing the code, download the entire database (i.e., the `dev_databases` folder).  
+    2. Ensure the file structure within the folder remains unchanged.  
+    3. Modify the `db_root_path` parameter in the code to point to the local path of your downloaded `dev_databases` folder.  
 
 ### 2.2 Input Data
 
