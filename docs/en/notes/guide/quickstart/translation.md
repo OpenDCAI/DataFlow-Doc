@@ -27,17 +27,27 @@ After this step, you should see:
 run_dataflow/playground
 ```
 
-### Step 4: Set Your API Key and API URL
+### Step 4 (API Translation Option). Set Your API Key and API URL
 ```bash
 export DF_API_KEY=sk-xx
 ```
 
-Set the `api_url` as follows:
+Configure the `api_url` as shown below:
 ```python
 llm_serving = APILLMServing_request(
     api_url="https://api.openai.com/v1/chat/completions",
     model_name="gpt-4o",
     max_workers=100
+)
+```
+
+### Step 4 (Local Model Translation Option). Set Your API Key and API URL
+For local models, use the following configuration:
+```python
+self.llm_serving = LocalModelLLMServing_vllm(
+    hf_model_name_or_path="Qwen2.5-7B-Instruct",  # set to your own model path
+    vllm_tensor_parallel_size=4,
+    vllm_max_tokens=8192,
 )
 ```
 
