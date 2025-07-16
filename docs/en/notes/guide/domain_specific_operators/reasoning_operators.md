@@ -8,7 +8,7 @@ permalink: /en/guide/Reasoning_operators/
 
 ## Overview
 
-Strong reasoning operators are a specialized collection of operators designed for mathematical reasoning and problem-solving tasks. They are primarily divided into three categories: **Generators**,**Filters** and **Refiners**. These operators can handle complex mathematical reasoning tasks, including answer generation, verification, filtering, and formatting, while supporting various mathematical representation formats.
+Strong reasoning operators are a specialized collection of operators designed for mathematical reasoning and problem-solving tasks. They are primarily divided into three categories: **Data Generation Operators (Generators)**, **Filter Operators (Filters)**, and **Refiner Operators (Refiners)**. These operators can handle complex mathematical reasoning tasks, including answer generation, verification, filtering, and formatting, while supporting various mathematical representation formats.
 
 The variety of open-source operators is quite limited. To achieve better data processing quality and fill the gaps in open-source data synthesis and processing methods, we have carefully designed and **self-developed** a new operator set. The marking meanings are as follows:
 
@@ -181,6 +181,7 @@ For parameter passing, the constructor of operator objects mainly passes informa
 
 - `__init__()`
   - `llm_serving`: Large language model interface object to use (default: predefined value above)
+  - `prompt_template`: Prompt template object for generating questions (e.g., `GeneralAnswerGeneratorPrompt()`)
 - `run()`
   - `storage`: Storage interface object (default: predefined value above)
   - `input_key`: Input question field name (default: "question")
@@ -196,7 +197,12 @@ For parameter passing, the constructor of operator objects mainly passes informa
 **Usage Example:**
 
 ```python
-answer_gen = AnswerGenerator(llm_serving=api_llm_serving)
+from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
+
+answer_gen = AnswerGenerator(
+          llm_serving=api_llm_serving,
+          prompt_template=GeneralAnswerGeneratorPrompt()
+          )
 result = answer_gen.run(
           storage=self.storage.step(),
           input_key="question",
@@ -212,6 +218,7 @@ result = answer_gen.run(
 
 - `__init__()`
   - `llm_serving`: Large language model interface object to use (default: predefined value above)
+  - `prompt_template`: Prompt template object for generating questions (e.g., `GeneralAnswerGeneratorPrompt()`)
 - `run()`
   - `storage`: Storage interface object (default: predefined value above)
   - `input_key`: Input question field name (default: "question")
@@ -227,7 +234,12 @@ result = answer_gen.run(
 **Usage Example:**
 
 ```python
-pseudo_gen = PseudoAnswerGenerator(llm_serving=api_llm_serving)
+from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
+
+pseudo_gen = PseudoAnswerGenerator(
+          llm_serving=api_llm_serving,
+          prompt_template=GeneralAnswerGeneratorPrompt()
+          )
 result = pseudo_gen.run(
           storage=self.storage.step(),
           input_key="question",
@@ -244,6 +256,7 @@ result = pseudo_gen.run(
 - `__init__()`
   - `llm_serving`: Large language model interface object to use (default: predefined value above)
   - `num_prompts`: Number of new questions to generate per problem (default: 3)
+  - `prompt_template`: Prompt template object for generating questions (e.g., `GeneralQuestionSynthesisPrompt()`)
 - `run()`
   - `storage`: Storage interface object (default: predefined value above)
   - `input_key`: Input original question field name (default: "source_question")
@@ -259,9 +272,12 @@ result = pseudo_gen.run(
 **Usage Example:**
 
 ```python
+from dataflow.prompts.reasoning.general import GeneralQuestionSynthesisPrompt
+
 question_gen = QuestionGenerator(
                 num_prompts=3,  # from 1 to k
-                llm_serving=api_llm_serving
+                llm_serving=api_llm_serving,
+                prompt_template=GeneralQuestionSynthesisPrompt()
                 )
 result = question_gen.run(
           storage=self.storage.step(),
@@ -563,6 +579,7 @@ result = length_filter.run(
 - `__init__()`
   - `llm_serving`: Large language model interface object to use (default: predefined value above)
   - `system_prompt`: System prompt
+  - `prompt_template`: Prompt template object for generating questions (e.g., `GeneralQuestionFilterPrompt()`)
 - `run()` 
   - `storage`: Storage interface object (default: predefined value above)
   - `input_key`: Input question field name (default: "math_problem")
@@ -585,9 +602,12 @@ result = length_filter.run(
 **Usage Example:**
 
 ```python
+from dataflow.prompts.reasoning.general import GeneralQuestionFilterPrompt
+
 question_filter = QuestionFilter(
     llm_serving=api_llm_serving,
-    system_prompt="You are a math problem validator."
+    system_prompt="You are a math problem validator.",
+    prompt_template=GeneralQuestionFilterPrompt()
     )
 result = question_filter.run(
           storage=self.storage.step(),
