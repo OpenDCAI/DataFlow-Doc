@@ -178,6 +178,7 @@ from dataflow.utils.storage import FileStorage
 
 - `__init__()`
   - `llm_serving`：使用的大语言模型接口对象（默认：前文预设值）
+  - `prompt_template`：生成问题的提示模板对象（例如`GeneralAnswerGeneratorPrompt()`）
 - `run()`
   - `storage`：存储接口对象（默认：前文预设值）
   - `input_key`：输入问题字段名（默认："question"）
@@ -193,7 +194,12 @@ from dataflow.utils.storage import FileStorage
 **使用示例：**
 
 ```python
-answer_gen = AnswerGenerator(llm_serving=api_llm_serving)
+from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
+
+answer_gen = AnswerGenerator(
+          llm_serving=api_llm_serving,
+          prompt_template=GeneralAnswerGeneratorPrompt()
+          )
 result = answer_gen.run(
           storage=self.storage.step(),
           input_key="question",
@@ -209,6 +215,7 @@ result = answer_gen.run(
 
 - `__init__()`
   - `llm_serving`：使用的大语言模型接口对象（默认：前文预设值）
+  - `prompt_template`：生成问题的提示模板对象（例如`GeneralAnswerGeneratorPrompt()`）
 - `run()`
   - `storage`：存储接口对象（默认：前文预设值）
   - `input_key`：输入问题字段名（默认："question"）
@@ -224,7 +231,12 @@ result = answer_gen.run(
 **使用示例：**
 
 ```python
-pseudo_gen = PseudoAnswerGenerator(llm_serving=api_llm_serving)
+from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
+
+pseudo_gen = PseudoAnswerGenerator(
+          llm_serving=api_llm_serving,
+          prompt_template=GeneralAnswerGeneratorPrompt()
+          )
 result = pseudo_gen.run(
           storage=self.storage.step(),
           input_key="question",
@@ -241,6 +253,7 @@ result = pseudo_gen.run(
 - `__init__()`
   - `llm_serving`：使用的大语言模型接口对象（默认：前文预设值）
   - `num_prompts`：每个问题生成新问题数量（默认：3）
+  - `prompt_template`：生成问题的提示模板对象（例如`GeneralQuestionSynthesisPrompt()`）
 - `run()`
   - `storage`：存储接口对象（默认：前文预设值）
   - `input_key`：输入原始问题字段名（默认："source_question"）
@@ -256,9 +269,12 @@ result = pseudo_gen.run(
 **使用示例：**
 
 ```python
+from dataflow.prompts.reasoning.general import GeneralQuestionSynthesisPrompt
+
 question_gen = QuestionGenerator(
                 num_prompts=3,  # from 1 to k
-                llm_serving=api_llm_serving
+                llm_serving=api_llm_serving,
+                prompt_template=GeneralQuestionSynthesisPrompt()
                 )
 result = question_gen.run(
           storage=self.storage.step(),
@@ -556,6 +572,7 @@ result = length_filter.run(
 - `__init__()`
   - `llm_serving`：使用的大语言模型接口对象（默认：前文预设值）
   - `system_prompt`：系统提示词
+  - `prompt_template`：生成问题的提示模板对象（例如`GeneralQuestionFilterPrompt()`）
 - `run()` 
   - `storage`：存储接口对象（默认：前文预设值）
   - `input_key`：输入问题字段名（默认："math_problem"）
@@ -578,9 +595,12 @@ result = length_filter.run(
 **使用示例：**
 
 ```python
+from dataflow.prompts.reasoning.general import GeneralQuestionFilterPrompt
+
 question_filter = QuestionFilter(
     llm_serving=api_llm_serving,
-    system_prompt="You are a math problem validator."
+    system_prompt="You are a math problem validator.",
+    prompt_template=GeneralQuestionFilterPrompt()
     )
 result = question_filter.run(
           storage=self.storage.step(),
