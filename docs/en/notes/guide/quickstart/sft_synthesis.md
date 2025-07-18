@@ -54,7 +54,7 @@ self.llm_serving = APILLMServing_request(
 python playground/text_sft_synthesis_from_scratch.py  
 ```
 
-During execution, this pipeline will sequentially call `CondorGenerator`, `CondorRefiner`, and `AlpagasusFilter` for SFT data generation, rewriting, and quality filtering. The final data will be saved in `run_dataflow/cache`. (You can change the number of generated samples using `self.num_generated_samples`. Since the pipeline uses built-in seeds for generation, it’s recommended to keep the number below 5000 for diversity. You can add more seeds in `dataflow.prompts.general_text.CondorPrompt` if needed.)
+During execution, this pipeline will sequentially call [`CondorGenerator`](/DataFlow-Doc/en/guide/text_generate_operators/), [`CondorRefiner`](/DataFlow-Doc/en/guide/text_process_operators/), and [`AlpagasusFilter`](/DataFlow-Doc/en/guide/text_process_operators/) for SFT data generation, rewriting, and quality filtering. The final data will be saved in `run_dataflow/cache`. (You can change the number of generated samples using `self.num_generated_samples`. Since the pipeline uses built-in seeds for generation, it’s recommended to keep the number below 5000 for diversity. You can add more seeds in `dataflow.prompts.general_text.CondorPrompt` if needed.)
 
 ### Example of Generated Data
 ```json

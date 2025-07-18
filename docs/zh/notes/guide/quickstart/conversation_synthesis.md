@@ -48,7 +48,7 @@ self.llm_serving = APILLMServing_request(
 python playground/text_conversation_synthesis_pipeline.py  
 ```
 
-运行时，该流水线会调用`ConsistentChatGenerator`,根据`dataflow.prompts.general_text`中的`ConsistentChatPrompt`类中预置的`intent_categories`和`topic_dict`分别获取交互意图和具体的场景，例如意图`Problem Solving Interaction`，在场景`Technical support for computer hardware issues`中。
+运行时，该流水线会调用[`ConsistentChatGenerator`](/DataFlow-Doc/zh/guide/lo3cyadt/),根据`dataflow.prompts.general_text`中的`ConsistentChatPrompt`类中预置的`intent_categories`和`topic_dict`分别获取交互意图和具体的场景，例如意图`Problem Solving Interaction`，在场景`Technical support for computer hardware issues`中。
 
 可以通过`num_dialogs_per_intent`设置合成对话数量, `num_turns_per_dialog`参数控制对话轮数。由于预置9种意图，实际合成对话数量为`num_dialogs_per_intent`的9倍。（预置主题数量有限，合成数量大于9000时建议手动增加主题）。
 

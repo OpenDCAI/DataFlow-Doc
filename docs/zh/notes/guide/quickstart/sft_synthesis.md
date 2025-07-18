@@ -50,7 +50,7 @@ self.llm_serving = APILLMServing_request(
 python playground/text_sft_synthesis_from_scratch.py  
 ```
 
-运行时，该流水线会先后调用`CondorGenerator`, `CondorRefiner`和`AlpagasusFilter`，分别进行SFT数据合成、数据改写和数据质量过滤，最终数据会保存在`run_dataflow/cache`中。（可通过`self.num_generated_samples`参数改变合成数据数量，由于该流水线基于内置种子进行数据合成，为了数据多样性，建议设置合成数量小于5000，否则可在`dataflow.prompts.general_text.CondorPrompt`类中自行增加种子）
+运行时，该流水线会先后调用[`CondorGenerator`](/DataFlow-Doc/zh/guide/lo3cyadt/), [`CondorRefiner`](/DataFlow-Doc/zh/guide/q07ou7d9/)和[`AlpagasusFilter`](/DataFlow-Doc/zh/guide/q07ou7d9/)，分别进行SFT数据合成、数据改写和数据质量过滤，最终数据会保存在`run_dataflow/cache`中。（可通过`self.num_generated_samples`参数改变合成数据数量，由于该流水线基于内置种子进行数据合成，为了数据多样性，建议设置合成数量小于5000，否则可在`dataflow.prompts.general_text.CondorPrompt`类中自行增加种子）
 
 ### 合成数据示例
 ```json
