@@ -70,7 +70,7 @@ During execution, this pipeline will sequentially call:
 3. AnswerGenerator for synthesizing answers
 4. AnswerNgramFilter for deduplication
 
-For specific functional descriptions of the operators, please refer to the [Strong Reasoning Operators](/DataFlow-Doc/en/guide/Reasoning_operators/) section. After calling, a json file will be generated in `run_dataflow/cache_local`, with file content as shown below.
+For specific functional descriptions of the operators, please refer to the [Strong Reasoning Operators](/en/guide/Reasoning_operators/) section. After calling, a json file will be generated in `run_dataflow/cache_local`, with file content as shown below.
 
 ## Synthesized Data Example
 
