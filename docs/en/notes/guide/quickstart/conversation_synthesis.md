@@ -48,7 +48,7 @@ self.llm_serving = APILLMServing_request(
 python playground/text_conversation_synthesis_pipeline.py  
 ```
 
-When running, the pipeline will call [`ConsistentChatGenerator`](/DataFlow-Doc/en/guide/text_generate_operators/) to generate interaction intents and specific scenarios based on the predefined `intent_categories` and `topic_dict` in `dataflow.prompts.general_text.ConsistentChatPrompt`. For example, an intent like `Problem Solving Interaction` in the scenario `Technical support for computer hardware issues`.
+When running, the pipeline will call [`ConsistentChatGenerator`](/en/guide/text_generate_operators/) to generate interaction intents and specific scenarios based on the predefined `intent_categories` and `topic_dict` in `dataflow.prompts.general_text.ConsistentChatPrompt`. For example, an intent like `Problem Solving Interaction` in the scenario `Technical support for computer hardware issues`.
 
 You can set the number of synthesized dialogues using `num_dialogs_per_intent`, and control the number of dialogue turns using `num_turns_per_dialog`. Since there are 9 preset intents, the actual number of dialogues generated will be 9 times `num_dialogs_per_intent`. (If the total exceeds 9000, consider adding more custom topics to avoid repetition.)
 

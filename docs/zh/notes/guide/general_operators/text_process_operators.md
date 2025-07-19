@@ -236,7 +236,7 @@ DeitaQualityFilter:
 ```
 可通过设置需要保留的`min/max`分数并在`scorer_args`中设置打分器参数实现。
 
-支持的打分器，详见[评估算法文档](text_metrics.zh-CN.md)（除Diversity部分）。
+支持的打分器，详见[评估算法文档](/zh/guide/f50mqhmb/)（除Diversity部分）。
 
 此外，启发式规则过滤在预训练数据的筛选方面占有很大的比重，在这一方面，[Dingo数据质量评估工具](https://github.com/DataEval/dingo)对我们的开发带来了很大的启发。我们在`dataflow/process/text/filters/heuristics.py`中整合了部分Dingo中使用的规则过滤算法，共22种。详见[规则文档](https://github.com/DataEval/dingo/blob/dev/docs/rules.md)，过滤器名称可参考`dataflow/process/text/filters/heuristics.py`文件。
 

@@ -50,7 +50,7 @@ self.llm_serving = APILLMServing_request(
 python playground/text_sft_synthesis_from_scratch.py  
 ```
 
-运行时，该流水线会先后调用[`CondorGenerator`](/DataFlow-Doc/zh/guide/lo3cyadt/), [`CondorRefiner`](/DataFlow-Doc/zh/guide/q07ou7d9/)和[`AlpagasusFilter`](/DataFlow-Doc/zh/guide/q07ou7d9/)，分别进行SFT数据合成、数据改写和数据质量过滤，最终数据会保存在`run_dataflow/cache`中。（可通过`self.num_generated_samples`参数改变合成数据数量，由于该流水线基于内置种子进行数据合成，为了数据多样性，建议设置合成数量小于5000，否则可在`dataflow.prompts.general_text.CondorPrompt`类中自行增加种子）
+运行时，该流水线会先后调用[`CondorGenerator`](/zh/guide/lo3cyadt/), [`CondorRefiner`](/zh/guide/q07ou7d9/)和[`AlpagasusFilter`](/zh/guide/q07ou7d9/)，分别进行SFT数据合成、数据改写和数据质量过滤，最终数据会保存在`run_dataflow/cache`中。（可通过`self.num_generated_samples`参数改变合成数据数量，由于该流水线基于内置种子进行数据合成，为了数据多样性，建议设置合成数量小于5000，否则可在`dataflow.prompts.general_text.CondorPrompt`类中自行增加种子）
 
 ### 合成数据示例
 ```json
@@ -85,6 +85,7 @@ self.generator = SFTGeneratorSeed(llm_serving=llm_serving, custom_prompt="Try to
 ```bash
 python playground/text_sft_synthesis_from_seed.py  
 ```
+该流水线会调用[`SFTGeneratorSeed`](/zh/guide/lo3cyadt/)算子进行SFT数据合成。该算子通过种子文档输入，提取文档信息调用大模型API进行SFT数据合成，并支持通过`custom_prompt`参数添加用户自定义指令内容。
 
 ### 合成数据示例
 其中，`raw_content`字段为原始种子数据。

@@ -238,7 +238,7 @@ DeitaQualityFilter:
       model_name: 'hkust-nlp/deita-quality-scorer'
       max_length: 512
 ```
-You can set min/max scores and scorer parameters in `scorer_args` for filtering. For more information on supported scorers, refer to the [evaluation algorithm documentation](text_metrics.md) (excluding the Diversity part).
+You can set min/max scores and scorer parameters in `scorer_args` for filtering. For more information on supported scorers, refer to the [evaluation algorithm documentation](/en/guide/text_evaluation_operators/) (excluding the Diversity part).
 
 In addition, heuristic rule filtering plays a significant role in the screening of pre-training data. In this regard, the [Dingo Data Quality Evaluation Tool](https://github.com/DataEval/dingo) has greatly inspired our development. We have integrated some of the rule filtering algorithms used in Dingo, a total of 22 types, into `dataflow/process/text/filters/heuristics.py`. For details, please refer to the [Rules Documentation](https://github.com/DataEval/dingo/blob/dev/docs/rules.md). The names of the filters can be found in the `dataflow/process/text/filters/heuristics.py` file.
 
