@@ -50,9 +50,23 @@ permalink: /zh/guide/zchbl7uk/
 ```  
 你也可以替换为任意数学教材或习题集 PDF。
 
-## 4 编写执行脚本
+## 4 初始化并修改脚本
 
-在项目根目录新建 `generate_question_extract_api.py`，内容示例：
+首先，在任意位置创建一个新的 `run_dataflow` 文件夹，并进入该目录，然后执行 Dataflow 项目初始化：
+
+```shell
+mkdir run_dataflow
+cd run_dataflow
+dataflow init
+```
+
+初始化完成后，项目目录下会出现以下文件：
+
+```shell
+run_dataflow/playground/mathbook_extract.py
+```
+
+该脚本的内容如下：
 
 ```python
 from dataflow.operators.generate import MathBookQuestionExtract
@@ -61,7 +75,7 @@ from dataflow.serving.APIVLMServing_openai import APIVLMServing_openai
 class QuestionExtractPipeline:
     def __init__(self, llm_serving: APIVLMServing_openai):
         self.extractor = MathBookQuestionExtract(llm_serving)
-        self.test_pdf = "./dataflow/example/KBCleaningPipeline/questionextract_test.pdf"
+        self.test_pdf = "../example/KBCleaningPipeline/questionextract_test.pdf"
 
     def forward(
         self,
@@ -91,7 +105,7 @@ if __name__ == "__main__":
         max_workers=20             # 并发请求数
     )
 
-    # 2. 构造并运行管道
+    # 2. 构造并运行提取管道
     pipeline = QuestionExtractPipeline(llm_serving)
     pipeline.forward(
         pdf_path=pipeline.test_pdf,

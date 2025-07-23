@@ -50,9 +50,23 @@ The example repository includes a test PDF:
 ```  
 You can also replace it with any math textbook or exercise collection PDF.
 
-## 4 Write the Execution Script
+## 4 Initialize and Modify the Script
 
-In the project’s root directory, create `generate_question_extract_api.py` with the following content as an example:
+First, create a new `run_dataflow` folder anywhere, enter that directory, and then execute Dataflow project initialization:
+
+```shell
+mkdir run_dataflow
+cd run_dataflow
+dataflow init
+```
+
+After initialization is complete, the following file will appear in the project directory:
+
+```shell
+run_dataflow/playground/mathbook_extract.py
+```
+
+The contents of that script are as follows:
 
 ```python
 from dataflow.operators.generate import MathBookQuestionExtract
@@ -61,7 +75,7 @@ from dataflow.serving.APIVLMServing_openai import APIVLMServing_openai
 class QuestionExtractPipeline:
     def __init__(self, llm_serving: APIVLMServing_openai):
         self.extractor = MathBookQuestionExtract(llm_serving)
-        self.test_pdf = "./dataflow/example/KBCleaningPipeline/questionextract_test.pdf"
+        self.test_pdf = "../example/KBCleaningPipeline/questionextract_test.pdf"
 
     def forward(
         self,
@@ -87,11 +101,11 @@ if __name__ == "__main__":
     # 1. Initialize LLM Serving
     llm_serving = APIVLMServing_openai(
         api_url="https://api.openai.com/v1/chat/completions",
-        model_name="o4-mini",      # Strong reasoning model recommended
+        model_name="o4-mini",      # It is recommended to use a strong reasoning model
         max_workers=20             # Number of concurrent requests
     )
 
-    # 2. Build and run the pipeline
+    # 2. Construct and run the extraction pipeline
     pipeline = QuestionExtractPipeline(llm_serving)
     pipeline.forward(
         pdf_path=pipeline.test_pdf,
