@@ -173,3 +173,26 @@ class TextMinHashDeduplicator(OperatorABC):
 ```
 
 用户可通过修改`ChatAgentRequest`中参数实现个性化配置。
+
+
+### 6. 通过Gradio体验DataFlow-Agent
+#### 启动方式
+##### 方式一：直接启动
+安装好`dataflow`包之后，通过 `dataflow webui agent` 直接启动 Gradio 前后端，默认端口为 7862。
+##### 方式二：前后端分离启动
+- 启动前端：
+``` bash
+python test/test_agent_fronted_gradio.py
+```
+
+- 启动后端：
+
+``` bash
+python test/test_dataflow_agent_with_ui.py
+```
+
+
+
+
+
+

@@ -167,3 +167,23 @@ class TextMinHashDeduplicator(OperatorABC):
 ```
 
 Users can personalize configuration by modifying the parameters in `ChatAgentRequest`.
+
+
+### 6. Experience DataFlow-Agent via Gradio
+
+#### Startup Methods
+
+##### Method 1: Direct Startup
+After installing the `dataflow` package, directly start the Gradio frontend and backend using `dataflow webui agent`. The default port is 7862.
+
+##### Method 2: Separate Frontend and Backend Startup
+
+- Start the frontend:
+```bash
+python test/test_agent_fronted_gradio.py
+```
+
+- Start the backend:
+```bash
+python test/test_dataflow_agent_with_ui.py
+```
