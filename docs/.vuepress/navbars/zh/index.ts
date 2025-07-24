@@ -49,6 +49,18 @@ export const zhNavbar = defineNavbarConfig([
                         icon: 'solar:flag-2-broken',
                         activeMatch: '^/guide/'
                     },
+                    {
+                        text: '案例：万用算子',
+                        link: '/zh/notes/guide/quickstart/translation.md',
+                        icon: 'basil:lightning-alt-outline',
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: '案例：批量PDF提取',
+                        link: '/zh/notes/guide/quickstart/knowledge_cleaning.md',
+                        icon: 'basil:lightning-alt-outline',
+                        activeMatch: '^/guide/'
+                    }
                 ]
             },
 

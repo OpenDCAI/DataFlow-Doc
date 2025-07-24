@@ -49,7 +49,18 @@ export const enNavbar = defineNavbarConfig([
                         icon: 'solar:flag-2-broken',
                         activeMatch: '^/guide/'
                     },
-                    
+                    {
+                        text: 'Case: PromptedGenerator',
+                        link: '/en/notes/guide/quickstart/translation.md',
+                        icon: 'basil:lightning-alt-outline',
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: 'Case: Batch PDF Extracting',
+                        link: '/en/notes/guide/quickstart/knowledge_cleaning.md',
+                        icon: 'basil:lightning-alt-outline',
+                        activeMatch: '^/guide/'
+                    }
                 ]
             },
             {
