@@ -74,13 +74,13 @@ export const zhNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG数据合成流水线",
+                        text: "Agentic RAG数据合成流水线-Alpha",
                         link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG数据合成流水线2",
+                        text: "Agentic RAG数据合成流水线-Beta",
                         link: "/zh/notes/guide/pipelines/AgenticRAGPipeline2.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
@@ -95,6 +95,12 @@ export const zhNavbar = defineNavbarConfig([
                         text: "知识库清洗流水线",
                         link: "/zh/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
                         icon: "solar:palette-round-linear",
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "函数调用数据合成流水线",
+                        link: "/zh/notes/guide/pipelines/FuncCallPipeline.md",
+                        icon: "solar:flash-drive-outline",
                         activeMatch: '^/guide/'
                     }
                 ]

@@ -1,5 +1,5 @@
 ---
-title: Case 7.Batch Knowledge Base Cleaning
+title: Case 7. Batch Knowledge Base Cleaning
 createTime: 2025/07/18 17:31:06
 permalink: /en/guide/j95zcdmj/
 icon: basil:lightning-alt-outline

@@ -73,13 +73,13 @@ export const enNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG Pipeline",
+                        text: "Agentic RAG Pipeline-Alpha",
                         link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG Pipeline2",
+                        text: "Agentic RAG Pipeline-Beta",
                         link: "/en/notes/guide/pipelines/AgenticRAGPipeline2.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
@@ -94,6 +94,12 @@ export const enNavbar = defineNavbarConfig([
                         text: "Knowledge Base Cleaning Pipeline",
                         link: "/en/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
                         icon: "solar:palette-round-linear",
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "Function Calling Data Synthesis Pipeline",
+                        link: "/en/notes/guide/pipelines/FuncCallPipeline.md",
+                        icon: "solar:flash-drive-outline",
                         activeMatch: '^/guide/'
                     }
                 ]
