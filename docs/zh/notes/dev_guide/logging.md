@@ -6,22 +6,25 @@ permalink: /zh/dev_guide/logging/
 
 ## Logger
 
-目前logger的初始化在pipeline_step.py中 
+DataFlow的日志管理器初始化在在[dataflow/logger.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/logger.py)中。开发者可直接使用其中定义的`get_logger()`函数获取logger.
 ```python
-import logging
-logging.basicConfig(level=logging.INFO,
-    format="%(asctime)s | %(filename)-20s- %(module)-20s- %(funcName)-20s- %(lineno)5d - %(name)-10s | %(levelname)8s | Processno %(process)5d - Threadno %(thread)-15d : %(message)s", 
-    datefmt="%Y-%m-%d %H:%M:%S"
-    )
+from dataflow.logger import get_logger
+logger = get_logger()
 ```
-使用方法如下所示，其中debug, info, warning, error代表不同的日志等级，默认情况下DEBUG等级的日志不会显示。
+使用方法如下所示，其中debug, info, success, warning, error代表不同的日志等级，默认情况下DEBUG等级的日志不会显示。
+如果想要指定屏蔽规则（如显示DEBUG及以上的logging信息）请在命令行指定`DF_LOGGING_LEVEL`环境变量：
+```bash
+export DF_LOGGING_LEVEL=DEBUG
+```
+下面是一个例子：
 ```python
 def main():
     
-    logging.debug("This is DEBUG message")
-    logging.info("This is INFO message")
-    logging.warning("This is WARNING message")
-    logging.error("This is ERROR message")
+    logger.debug("This is DEBUG message")
+    logger.info("This is INFO message")
+    logger.success("This is SUCCESS message")
+    logger.warning("This is WARNING message")
+    logger.error("This is ERROR message")
     
     return
 
@@ -38,7 +41,7 @@ main()
                         self._obj_map[name] = clss
                         return clss
                     except AttributeError as e:
-                        logging.debug(f"{str(e)}")
+                        logger.debug(f"{str(e)}")
                         continue
                     except Exception as e:
                         raise e
@@ -57,7 +60,8 @@ main()
         logger.info("Start running ...")
         algorithm.run()
     ```
-3. WARNING：可能出现问题的错误信息（暂时没有例子）
-4. ERROR：运行出现错误，打印错误信息
+3. SUCCESS: 重要步骤完成的信息。
+4. WARNING：可能出现问题的错误信息（暂时没有例子）
+5. ERROR：运行出现错误，打印错误信息
 
-算子内部的logging可以参考`DataFlow/dataflow/operators/generate/Reasoning/question_generator.py`
+算子内部的logging可以参考[dataflow/operators/generate/Reasoning/question_generator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/generate/Reasoning/question_generator.py)。

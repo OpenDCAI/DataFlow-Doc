@@ -6,26 +6,30 @@ permalink: /en/dev_guide/logging/
 
 ## Logger
 
-Currently, the logger is initialized in `pipeline_step.py`:
+The logger for DataFlow is initialized in [dataflow/logger.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/logger.py). Developers can directly use the `get_logger()` function defined there to obtain a logger.
 
 ```python
-import logging
-logging.basicConfig(level=logging.INFO,
-    format="%(asctime)s | %(filename)-20s- %(module)-20s- %(funcName)-20s- %(lineno)5d - %(name)-10s | %(levelname)8s | Processno %(process)5d - Threadno %(thread)-15d : %(message)s", 
-    datefmt="%Y-%m-%d %H:%M:%S"
-    )
+from dataflow.logger import get_logger
+logger = get_logger()
 ```
 
-Usage is as follows. `debug`, `info`, `warning`, and `error` represent different log levels. By default, logs at the DEBUG level are not shown.
+Usage is as follows. The debug, info, success, warning, and error methods correspond to different logging levels. By default, logs at the DEBUG level will not be displayed.
+If you want to specify a filtering rule (for example, to display DEBUG and above logging information), set the DF_LOGGING_LEVEL environment variable in the command line:
 
+```bash
+export DF_LOGGING_LEVEL=DEBUG
+```
+
+Here is an example:
 ```python
 def main():
-
-    logging.debug("This is DEBUG message")
-    logging.info("This is INFO message")
-    logging.warning("This is WARNING message")
-    logging.error("This is ERROR message")
-
+    
+    logger.debug("This is DEBUG message")
+    logger.info("This is INFO message")
+    logger.success("This is SUCCESS message")
+    logger.warning("This is WARNING message")
+    logger.error("This is ERROR message")
+    
     return
 
 main()
@@ -50,7 +54,7 @@ Principles for assigning log levels:
             raise e
     ```
 
-2. **INFO**: Used to let users know the current execution status, such as:
+	2.	**INFO**: Used to inform the user about the current runtime status, for example:
 
     ```python
     def pipeline_step(yaml_path, step_name):
@@ -66,8 +70,8 @@ Principles for assigning log levels:
         algorithm.run()
     ```
 
-3. **WARNING**: Error messages indicating potential issues (no examples for now).
+	3.	**SUCCESS**: Information indicating that an important step has been completed.
+	4.	**WARNING**: Messages indicating potential problems (currently no example).
+	5.	**ERROR**: Printed when an error occurs during execution.
 
-4. **ERROR**: Errors that occur during execution; used to print error messages.
-
-For logging inside operators, refer to `DataFlow/dataflow/operators/generate/Reasoning/question_generator.py`.
+For logging inside operators, you can refer to [dataflow/operators/generate/Reasoning/question_generator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/generate/Reasoning/question_generator.py).
