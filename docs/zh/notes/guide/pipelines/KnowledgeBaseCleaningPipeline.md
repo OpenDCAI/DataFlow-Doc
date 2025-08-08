@@ -134,16 +134,17 @@ pip install -e .[mineru]
 >
 > #### 5. 工具使用
 >
-> `KnowledgeExtractor` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
+> `FileOrURLToMarkdownConverter` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
 >
 > * 如果用户使用 `MinerU1`：请将 `MinerU_Backend` 参数设置为 `"pipeline"`。这将启用传统的流水线处理方式。
 > * 如果用户使用 `MinerU2` **(默认推荐)**：请将 `MinerU_Backend` 参数设置为 `"vlm-sglang-engine"`。这将启用基于多模态语言模型的新引擎。
 >
 > ```bash
-> KnowledgeExtractor(
->     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
->     lang="en",
->     MinerU_Backend="vlm-sglang-engine",
+> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
+>    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
+>    lang="en",
+>    mineru_backend="vlm-sglang-engine",
+>    raw_file = raw_file,
 > )
 > ```
 >
@@ -154,15 +155,14 @@ pip install -e .[mineru]
 **示例**：
 
 ```python
-knowledge_extractor = KnowledgeExtractor(
+file_to_markdown_converter = FileOrURLToMarkdownConverter(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en"
-    MinerU_Backend="vlm-sglang-engine",
+    lang="en",
+    mineru_backend="vlm-sglang-engine",
+    raw_file = raw_file,
 )
-extracted=knowledge_extractor.run(
+extracted=file_to_markdown_converter.run(
     storage=self.storage,
-    raw_file=raw_file,
-    url=url,
 )
 ```
 
@@ -273,22 +273,29 @@ from dataflow.operators.generate import (
     MultiHopQAGenerator,
 )
 from dataflow.utils.storage import FileStorage
-from dataflow.serving import LocalModelLLMServing_vllm
+from dataflow.serving import APILLMServing_request
 
-class KBCleaningPipeline():
-    def __init__(self):
+class KBCleaningPDF_APIPipeline():
+    def __init__(self, url:str=None, raw_file:str=None):
 
         self.storage = FileStorage(
             first_entry_file_name="../example_data/KBCleaningPipeline/kbc_placeholder.json",
-            cache_path="./.cache/gpu",
+            cache_path="./.cache/api",
             file_name_prefix="pdf_cleaning_step",
             cache_type="json",
+        )
+
+        self.llm_serving = APILLMServing_request(
+                api_url="https://api.openai.com/v1/chat/completions",
+                model_name="gpt-4o",
+                max_workers=100
         )
 
         self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
             intermediate_dir="../example_data/KBCleaningPipeline/raw/",
             lang="en",
             mineru_backend="vlm-sglang-engine",
+            raw_file = raw_file,
         )
 
         self.knowledge_cleaning_step2 = CorpusTextSplitter(
@@ -297,35 +304,25 @@ class KBCleaningPipeline():
             tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
         )
 
-    def forward(self, url:str=None, raw_file:str=None):
-        extracted=self.knowledge_cleaning_step1.run(
-            storage=self.storage,
-            raw_file=raw_file,
-            url=url,
-        )
-  
-        self.knowledge_cleaning_step2.run(
-            storage=self.storage.step(),
-            input_file=extracted,
-            output_key="raw_content",
-        )
-
-        local_llm_serving = LocalModelLLMServing_vllm(
-            hf_model_name_or_path="Qwen/Qwen2.5-7B-Instruct",
-            vllm_max_tokens=2048,
-            vllm_tensor_parallel_size=4,
-            vllm_gpu_memory_utilization=0.6,
-            vllm_repetition_penalty=1.2
-        )
-
         self.knowledge_cleaning_step3 = KnowledgeCleaner(
-            llm_serving=local_llm_serving,
+            llm_serving=self.llm_serving,
             lang="en"
         )
 
         self.knowledge_cleaning_step4 = MultiHopQAGenerator(
-            llm_serving=local_llm_serving,
+            llm_serving=self.llm_serving,
             lang="en"
+        )
+
+    def forward(self):
+        extracted=self.knowledge_cleaning_step1.run(
+            storage=self.storage,
+        )
+        
+        self.knowledge_cleaning_step2.run(
+            storage=self.storage.step(),
+            input_file=extracted,
+            output_key="raw_content",
         )
 
         self.knowledge_cleaning_step3.run(
@@ -338,8 +335,8 @@ class KBCleaningPipeline():
             input_key="cleaned",
             output_key="MultiHop_QA"
         )
-  
+        
 if __name__ == "__main__":
-    model = KBCleaningPipeline()
-    model.forward(raw_file="../example_data/KBCleaningPipeline/test.pdf")
+    model = KBCleaningPDF_APIPipeline(raw_file="../example_data/KBCleaningPipeline/test.pdf")
+    model.forward()
 ```
