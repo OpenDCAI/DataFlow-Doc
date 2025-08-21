@@ -32,11 +32,12 @@ DataFlow-Agent is a multi-agent collaborative automated task processing system. 
 **Usage Example:**
 
 ```shell
-export CHATANY_API_KEY=sk-
-export CHATANY_API_URL=https://api.
+export DF_API_KEY=sk-
+export DF_API_URL=https://api.
 
-cd DataFlow
-python test/test_dataflow_agent.py recommend
+dataflow init
+cd dataflow_agent
+python run_dataflow_agent_with_console.py recommend
 ```
 
 Users can customize parameters:
@@ -97,11 +98,12 @@ Users can customize parameters:
 **Usage Example:**
 
 ```shell
-export CHATANY_API_KEY=sk-
-export CHATANY_API_URL=https://api.
+export DF_API_KEY=sk-
+export DF_API_URL=https://api.
 
-cd DataFlow
-python test/test_dataflow_agent.py write
+dataflow init
+cd dataflow_agent
+python run_dataflow_agent_with_console.py write
 ```
 
 Users can customize parameters:

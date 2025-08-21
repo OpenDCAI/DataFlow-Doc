@@ -32,11 +32,12 @@ DataFlow-Agent 是一个多智能体协作的自动化任务处理系统，流�
 **使用示例：**
 
 ```shell
-export CHATANY_API_KEY=sk-
-export CHATANY_API_URL=https://api.
+export DF_API_KEY=sk-
+export DF_API_URL=https://api.
 
-cd DataFlow
-python test/test_dataflow_agent.py recommend
+dataflow init
+cd dataflow_agent
+python run_dataflow_agent_with_console.py recommend
 ```
 
 用户可以自定义参数：
@@ -97,11 +98,12 @@ python test/test_dataflow_agent.py recommend
 **使用示例：**
 
 ```shell
-export CHATANY_API_KEY=sk-
-export CHATANY_API_URL=https://api.
+export DF_API_KEY=sk-
+export DF_API_URL=https://api.
 
-cd DataFlow
-python test/test_dataflow_agent.py write
+dataflow init
+cd dataflow_agent
+python run_dataflow_agent_with_console.py write
 ```
 
 用户可以自定义参数：

@@ -190,7 +190,16 @@ python test/test_agent_fronted_gradio.py
 ``` bash
 python test/test_dataflow_agent_with_ui.py
 ```
+### 7. `dataflow init`之后通过命令行的方式体验agent
 
+- 算子编写
+``` bash 
+python dataflow_agent/run_dataflow_agent_with_console.py write
+```
+- 算子编排
+``` bash 
+python dataflow_agent/run_dataflow_agent_with_console.py recommend
+```
 
 
 
