@@ -187,3 +187,15 @@ python test/test_agent_fronted_gradio.py
 ```bash
 python test/test_dataflow_agent_with_ui.py
 ```
+### 7. Experience the Agent via Command Line After `dataflow init`
+
+- Operator Development
+```bash
+python dataflow_agent/run_dataflow_agent_with_console.py write
+```
+- Operator Orchestration
+```bash
+python dataflow_agent/run_dataflow_agent_with_console.py recommend
+```
+
+
