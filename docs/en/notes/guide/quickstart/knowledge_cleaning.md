@@ -1,5 +1,5 @@
 ---
-title: Case 7.Batch Knowledge Base Cleaning
+title: Case 7. Batch Knowledge Base Cleaning
 createTime: 2025/07/18 17:31:06
 permalink: /en/guide/j95zcdmj/
 icon: basil:lightning-alt-outline
@@ -69,6 +69,14 @@ For detailed descriptions of each operator, refer to the "Knowledge Base Cleanin
 > ```jsonl
 > {"raw_content": "path/to/first.pdf"}
 > {"raw_content": "path/to/second.pdf"}
+> ...
+> ```
+>
+>
+> Or you can just put the URLs of the papers in the JSONL file. For example:
+> ```jsonl
+> {"raw_content": "https://arxiv.org/pdf/2505.07773"}
+> {"raw_content": "https://arxiv.org/pdf/2503.09516"}
 > ...
 > ```
 >

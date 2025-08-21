@@ -1,5 +1,5 @@
 ---
-title: Case1-Translation/QA Generation/Abbreviation
+title: Case 1. Translation/QA Generation/Abbreviation
 createTime: 2025/06/30 19:19:16
 permalink: /en/guide/translation/
 icon: basil:lightning-alt-outline

@@ -74,7 +74,15 @@ python kbcleaning_pipeline_batch_sglang.py
 > ...
 > ```
 >
+> 或者您可以直接把**论文对应的URL**整理成如下格式：
+> ```jsonl
+> {"raw_content": "https://arxiv.org/pdf/2505.07773"}
+> {"raw_content": "https://arxiv.org/pdf/2503.09516"}
+> ...
+> ```
+>
 > 并通过下面方式配置您的路径文件/path/to/all_pdf.jsonl，即可实现大批量清洗知识库。
+>
 >
 > ```python
 > self.storage = FileStorage(
