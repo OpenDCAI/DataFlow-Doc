@@ -1,3 +1,8 @@
+---
+title: Pdf2ModelPipeline
+createTime: 2025/08/30 14:27:01
+permalink: /en/guide/yu798e6s/
+---
 # DataFlow-pdf2model & LlaMA-Factory
 
 ## Quick Start
