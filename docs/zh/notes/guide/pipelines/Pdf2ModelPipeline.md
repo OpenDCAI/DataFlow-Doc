@@ -1,7 +1,7 @@
 ---
 title: Pdf2ModelPipeline
-createTime: 2025/08/30 14:15:15
-permalink: /zh/guide/1fys6xe7/
+createTime: 2025/08/30 14:27:02
+permalink: /zh/guide/i2pk9pwh/
 ---
 # DataFlow-Pdf2Model&LlaMA-Factory
 
@@ -125,6 +125,4 @@ dataflow pdf2model train
 #用法一:--model 可以指定 对话模型的路径位置（可选）
 #默认值为.cache/saves/pdf2model_cache_{timestamp}
 #用法二:到模型文件夹下 运行dataflow chat
-dataflow chat --model ./custom_model_path
 ```
-
