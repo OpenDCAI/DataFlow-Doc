@@ -30,7 +30,8 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "prompted_vqa",
                 "mathquestion_extract",
                 'knowledge_cleaning',
-                'quick_general_text_evaluation'
+                'quick_general_text_evaluation',
+                'speech_transcription',
             ],
         },
         //         {

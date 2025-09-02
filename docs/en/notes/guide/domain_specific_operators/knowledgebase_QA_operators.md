@@ -76,7 +76,7 @@ For each operator, the following sections will detail its invocation methods and
 
 ## Detailed Operator Specifications
 
-### 1. knowledge_extractor
+### 1. FileOrURLToMarkdownConverter
 
 **Functional Description**:
 
@@ -87,10 +87,12 @@ The Knowledge Extractor operator is a versatile document processing tool that su
 - `__init__()`
   - `intermediate_dir`: Intermediate file output directory (default: "intermediate")
   - `lang`: Document language (default: "ch" for Chinese)
-- `run()`
-  - `storage`: Data flow storage interface object (required)
   - `raw_file`: Local file path (mutually exclusive with url)
   - `url`: Web URL address (mutually exclusive with raw_file)
+  
+- `run()`
+  - `storage`: Data flow storage interface object (required)
+
 
 **Key Features**:
 
@@ -116,14 +118,14 @@ The Knowledge Extractor operator is a versatile document processing tool that su
 **Usage Example**:
 
 ```python
-knowledge_extractor = KnowledgeExtractor(
+file_to_markdown_converter = FileOrURLToMarkdownConverter(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en"
+    lang="en",
+    mineru_backend="vlm-sglang-engine",
+    raw_file = raw_file,
 )
-extracted=knowledge_extractor.run(
+extracted=file_to_markdown_converter.run(
     storage=self.storage,
-    raw_file=raw_file,
-    url=url,
 )
 ```
 

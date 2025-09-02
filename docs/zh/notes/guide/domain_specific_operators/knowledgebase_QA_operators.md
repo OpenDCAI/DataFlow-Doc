@@ -8,7 +8,7 @@ permalink: /zh/guide/Knowledgebase_QA_operators/
 
 ## 概述
 
-知识库清洗算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(KnowledgeExtractor**)，**语料分块算子(CorpusTextSpliiter)**和**知识清洗算子(KnowledgeCleaner)**, **Multi-Hop QA Generation Operator**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
+知识库清洗算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(FileOrURLToMarkdownConverter**)，**语料分块算子(CorpusTextSpliiter)**和**知识清洗算子(KnowledgeCleaner)**, **Multi-Hop QA Generation Operator**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
 
 本文中算子标记继承自[强推理算子](https://opendcai.github.io/DataFlow-Doc/zh/guide/Reasoning_operators/)
 
@@ -72,7 +72,7 @@ self.storage = FileStorage(
 
 ## 详细算子说明
 
-### 1. KnowledgeExtractor
+### 1. FileOrURLToMarkdownConverter
 
 **功能描述**：
 
@@ -83,11 +83,11 @@ self.storage = FileStorage(
    - `__init__()`
      - `intermediate_dir`：中间文件输出目录（默认："intermediate"）
      - `lang`：文档语言（默认："ch"中文）
+     - `raw_file`：本地文件路径（与url二选一）
+     - `url`：网页URL地址（与raw_file二选一）
 
    - `run()`
      - `storage`：数据流存储接口对象（必须）
-     - `raw_file`：本地文件路径（与url二选一）
-     - `url`：网页URL地址（与raw_file二选一）
 
    **主要特性**：
 
@@ -116,14 +116,14 @@ self.storage = FileStorage(
 **使用示例：**
 
 ```python
-knowledge_extractor = KnowledgeExtractor(
+file_to_markdown_converter = FileOrURLToMarkdownConverter(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en"
+    lang="en",
+    mineru_backend="vlm-sglang-engine",
+    raw_file = raw_file,
 )
-extracted=knowledge_extractor.run(
+extracted=file_to_markdown_converter.run(
     storage=self.storage,
-    raw_file=raw_file,
-    url=url,
 )
 ```
 
