@@ -64,10 +64,10 @@ python test/test_dataflow_agent.py recommend
 生成的Pipeline代码（由于所选大模型类型和版本差异，结果可能不同）大致为：
 ```python
 import pytest
-from dataflow.operators.generate.Reasoning.QuestionGenerator import QuestionGenerator
-from dataflow.operators.process.Reasoning.QuestionFilter import QuestionFilter
-from dataflow.operators.generate.Reasoning.QuestionDifficultyClassifier import QuestionDifficultyClassifier
-from dataflow.operators.generate.Reasoning.QuestionCategoryClassifier import QuestionCategoryClassifier
+from dataflow.operators.generate.Reasoning.ReasoningQuestionGenerator import ReasoningQuestionGenerator
+from dataflow.operators.process.Reasoning.ReasoningQuestionFilter import ReasoningQuestionFilter
+from dataflow.operators.generate.Reasoning.ReasoningQuestionDifficultySampleEvaluator import ReasoningQuestionDifficultySampleEvaluator
+from dataflow.operators.generate.Reasoning.ReasoningQuestionCategorySampleEvaluator import ReasoningQuestionCategorySampleEvaluator
 from dataflow.utils.storage import FileStorage
 from dataflow.serving import APILLMServing_request, LocalModelLLMServing_vllm, LocalModelLLMServing_sglang
 
@@ -92,10 +92,10 @@ class RecommendPipeline():
             hf_local_dir="local",
         )
 
-        self.questiongenerator = QuestionGenerator(num_prompts=1, llm_serving=llm_serving)
-        self.questionfilter = QuestionFilter(system_prompt="You are a helpful assistant.", llm_serving=llm_serving)
-        self.questiondifficultyclassifier = QuestionDifficultyClassifier(llm_serving=llm_serving)
-        self.questioncategoryclassifier = QuestionCategoryClassifier(llm_serving=llm_serving)
+        self.questiongenerator = ReasoningQuestionGenerator(num_prompts=1, llm_serving=llm_serving)
+        self.questionfilter = ReasoningQuestionFilter(system_prompt="You are a helpful assistant.", llm_serving=llm_serving)
+        self.questiondifficultyclassifier = ReasoningQuestionDifficultySampleEvaluator(llm_serving=llm_serving)
+        self.questioncategoryclassifier = ReasoningQuestionCategorySampleEvaluator(llm_serving=llm_serving)
 
     def forward(self):
         self.questiongenerator.run(

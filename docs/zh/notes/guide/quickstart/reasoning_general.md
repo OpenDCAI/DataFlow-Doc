@@ -50,10 +50,10 @@ python pipelines/api_pipelines/reasoning_general_pipeline.py
 ```
 
 运行时，该流水线会先后调用：
-1. QuestionFilter, 做问题质量检查过滤
-2. QuestionGenerator 做新问题的合成
-3. AnswerGenerator 做答案的合成
-4. AnswerNgramFilter 做去重
+1. ReasoningQuestionFilter, 做问题质量检查过滤
+2. ReasoningQuestionGenerator 做新问题的合成
+3. ReasoningAnswerGenerator 做答案的合成
+4. ReasoningAnswerNgramFilter 做去重
 
 对于算子的具体功能介绍可以参考[强推理算子](/zh/guide/Reasoning_operators/)部分，此处调用后会在`run_dataflow/cache_local`中生成一个json文件，文件内容如下文所示。
 ## 合成数据示例

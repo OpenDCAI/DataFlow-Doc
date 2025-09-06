@@ -27,11 +27,11 @@ DataFlow主要关注于大模型文本数据的处理，为了提高易用性，
 
 DataFlow 算子是对原始数据执行的基本处理单元，通常基于规则、深度学习模型或大语言模型（LLM）实现。以上图中的`Reasoning Pipeline`示意流程图为例，每一个矩形单元均可视为一个独立的 DataFlow 算子，用于完成特定的数据加工任务（如清洗、转换、验证等）。
 
-DataFlow中每一个算子代码风格十分简洁，下方是一个`QuestionDifficultyClassifier`算子调用的例子，使用大模型后端来评估问题的难度等级：
+DataFlow中每一个算子代码风格十分简洁，下方是一个`ReasoningQuestionDifficultySampleEvaluator`算子调用的例子，使用大模型后端来评估问题的难度等级：
 
 ```python
-from dataflow.operators.generate.Reasoning import QuestionDifficultyClassifier,
-question_difficulty_classifier = QuestionDifficultyClassifier(
+from dataflow.operators.generate.Reasoning import ReasoningQuestionDifficultySampleEvaluator,
+question_difficulty_classifier = ReasoningQuestionDifficultySampleEvaluator(
     llm_serving=llm_serving             # 传入一个大模型LLMServing类作为后端
 )
 question_difficulty_classifier.run(

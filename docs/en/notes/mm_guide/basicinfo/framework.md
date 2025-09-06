@@ -27,11 +27,11 @@ For the augmentation, filtering, and scoring of large volumes of data with compl
 
 DataFlow operators are the basic processing units that execute on raw data, typically implemented based on rules, deep learning models, or large language models (LLMs). Taking the `Reasoning Pipeline` schematic diagram above as an example, each rectangular unit can be considered an independent DataFlow operator, used to complete specific data processing tasks (such as cleaning, transformation, validation, etc.).
 
-The code style of each operator in DataFlow is very concise. Below is an example of calling the `QuestionDifficultyClassifier` operator, which uses the large model backend to evaluate the difficulty level of questions:
+The code style of each operator in DataFlow is very concise. Below is an example of calling the `ReasoningQuestionDifficultySampleEvaluator` operator, which uses the large model backend to evaluate the difficulty level of questions:
 
 ```python
-from dataflow.operators.generate.Reasoning import QuestionDifficultyClassifier,
-question_difficulty_classifier = QuestionDifficultyClassifier(
+from dataflow.operators.generate.Reasoning import ReasoningQuestionDifficultySampleEvaluator,
+question_difficulty_classifier = ReasoningQuestionDifficultySampleEvaluator(
     llm_serving=llm_serving             # Pass in a large model LLMServing class as the backend
 )
 question_difficulty_classifier.run(

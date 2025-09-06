@@ -31,43 +31,43 @@ Data generators are primarily responsible for generating various types of reason
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">AnswerGenerator✨</td>
+      <td class="tg-0pky">ReasoningAnswerGenerator✨</td>
       <td class="tg-0pky">Answer Synthesis</td>
       <td class="tg-0pky">This operator generates standard answers for mathematical problems by calling large language models for step-by-step reasoning and computation.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.01560">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">PseudoAnswerGenerator✨</td>
+      <td class="tg-0pky">ReasoningPseudoAnswerGenerator✨</td>
       <td class="tg-0pky">Pseudo Answer Generation & Voting</td>
       <td class="tg-0pky">This operator generates multiple candidate answers and selects the optimal solution through statistical methods to achieve pseudo answer generation.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.01560">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionGenerator✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionGenerator✨🚀</td>
       <td class="tg-0pky">Question Generation</td>
       <td class="tg-0pky">This operator generates new questions based on existing problems, supporting multiple generation strategies to ensure diversity.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">PretrainFormatConverter✨</td>
+      <td class="tg-0pky">ReasoningPretrainFormatConvertGenerator✨</td>
       <td class="tg-0pky">Format Conversion</td>
       <td class="tg-0pky">Converts SFT format data to pretraining format, supporting custom input-output key configuration</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionCategoryClassifier✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionCategorySampleEvaluator✨🚀</td>
       <td class="tg-0pky">Question Classification</td>
       <td class="tg-0pky">Performs multi-level classification of user questions based on designed and improved MSC mathematical classification standards</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionDifficultyClassifier✨</td>
+      <td class="tg-0pky">ReasoningQuestionDifficultySampleEvaluator✨</td>
       <td class="tg-0pky">Difficulty Assessment</td>
       <td class="tg-0pky">Evaluates question difficulty levels, outputting fine-grained difficulty scores from 1-10 levels</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.07985">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerExtraction_QwenMathEval✨</td>
+      <td class="tg-0pky">ReasoningAnswerExtractionQwenMathEvalGenerator✨</td>
       <td class="tg-0pky">Answer Extraction & Standardization</td>
       <td class="tg-0pky">Extracts standardized answer expressions from mathematical problem responses, supporting unit processing and format conversion</td>
       <td class="tg-0pky"><a href="https://github.com/QwenLM/Qwen2.5-Math">Code</a></td>
@@ -92,43 +92,43 @@ Processing operators are primarily responsible for processing, verifying, filter
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">AnswerFormatterFilter</td>
+      <td class="tg-0pky">ReasoningAnswerFormatterFilter</td>
       <td class="tg-0pky">Format Validation</td>
       <td class="tg-0pky">This operator checks whether answer formats comply with standards, primarily verifying if mathematical answers contain correct \\boxed{} notation.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerGroundTruthFilter✨</td>
+      <td class="tg-0pky">ReasoningAnswerGroundTruthFilter✨</td>
       <td class="tg-0pky">Ground Truth Matching</td>
       <td class="tg-0pky">This operator compares predicted answers with ground truth answers, supporting both exact matching and mathematical verification methods.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerJudger_MathVerify✨</td>
+      <td class="tg-0pky">ReasoningAnswerJudgeMathVerifyFilter✨</td>
       <td class="tg-0pky">Mathematical Answer Verification</td>
       <td class="tg-0pky">This operator verifies answer correctness through symbolic computation, performing mathematical expression parsing and equivalence verification.</td>
       <td class="tg-0pky"><a href="https://github.com/huggingface/Math-Verify">Code</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerNgramFilter✨</td>
+      <td class="tg-0pky">ReasoningAnswerNgramFilter✨</td>
       <td class="tg-0pky">Repetition Detection</td>
       <td class="tg-0pky">This operator filters answers based on n-gram repetition rates, detecting repetitive patterns and redundant content in responses.</td>
       <td class="tg-0pky"><a href="https://en.wikipedia.org/wiki/N-gram">Wiki</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerPipelineRoot✨</td>
+      <td class="tg-0pky">ReasoningAnswerPipelineRootFilter✨</td>
       <td class="tg-0pky">Ground Truth Existence Classifier</td>
       <td class="tg-0pky">Root node of the answer processing pipeline, responsible for distributing input data to different processing branches based on the presence or absence of ground truth labels.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerTokenLengthFilter</td>
+      <td class="tg-0pky">ReasoningAnswerTokenLengthFilter</td>
       <td class="tg-0pky">Length Control</td>
       <td class="tg-0pky">This operator filters overly long answers based on token count, ensuring answer length remains within reasonable limits.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionFilter✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionFilter✨🚀</td>
       <td class="tg-0pky">Question Validation</td>
       <td class="tg-0pky">This operator performs correctness checks on mathematical problems, including format compliance, semantic reasonableness, and condition consistency.</td>
       <td class="tg-0pky"><a href="https://github.com/scuuy/MathQ-Verify">Code</a></td>
@@ -172,7 +172,7 @@ For parameter passing, the constructor of operator objects mainly passes informa
 ## Detailed Operator Descriptions
 
 
-### 1. AnswerGenerator✨
+### 1. ReasoningAnswerGenerator✨
 
 **Function Description:** This operator is specifically designed to generate standard answers for mathematical problems through large language model calls for step-by-step reasoning and precise computation.
 
@@ -198,7 +198,7 @@ For parameter passing, the constructor of operator objects mainly passes informa
 ```python
 from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
 
-answer_gen = AnswerGenerator(
+answer_gen = ReasoningAnswerGenerator(
           llm_serving=api_llm_serving,
           prompt_template=GeneralAnswerGeneratorPrompt()
           )
@@ -209,7 +209,7 @@ result = answer_gen.run(
           )
 ```
 
-### 2. PseudoAnswerGenerator✨
+### 2. ReasoningPseudoAnswerGenerator✨
 
 **Function Description:** This operator generates multiple candidate answers and uses statistical methods to select the optimal solution, achieving high-quality pseudo answer generation.
 
@@ -247,7 +247,7 @@ api_llm_serving = YourLLMServingImplementation()
 storage = DataFlowStorage(...)
 
 # Instantiate the pseudo-answer generator
-pseudo_gen = PseudoAnswerGenerator(
+pseudo_gen = ReasoningPseudoAnswerGenerator(
     llm_serving=api_llm_serving,
     max_times=5
 )
@@ -266,7 +266,7 @@ print("Generated columns:", result_keys)
 ```
 
 
-### 3. QuestionGenerator✨🚀
+### 3. ReasoningQuestionGenerator✨🚀
 
 **Function Description:** This operator can generate new related questions based on existing problems, supporting multiple generation strategies and difficulty control.
 
@@ -293,7 +293,7 @@ print("Generated columns:", result_keys)
 ```python
 from dataflow.prompts.reasoning.general import GeneralQuestionSynthesisPrompt
 
-question_gen = QuestionGenerator(
+question_gen = ReasoningQuestionGenerator(
                 num_prompts=3,  # from 1 to k
                 llm_serving=api_llm_serving,
                 prompt_template=GeneralQuestionSynthesisPrompt()
@@ -305,7 +305,7 @@ result = question_gen.run(
           )
 ```
 
-### 4. PretrainFormatConverter✨
+### 4. ReasoningPretrainFormatConvertGenerator✨
 
 **Function Description:** This operator is used to convert SFT (Supervised Fine-Tuning) format data to pretraining format, supporting custom input-output key configuration, suitable for pretraining data preparation for various generative models.
 
@@ -328,7 +328,7 @@ result = question_gen.run(
 **Usage Example:**
 
 ```python
-format_converter = PretrainFormatConverter(
+format_converter = ReasoningPretrainFormatConvertGenerator(
     read_key_question="question",
     read_key_answer="answer",
     output_key="text"
@@ -336,7 +336,7 @@ format_converter = PretrainFormatConverter(
 result = format_converter.run(storage=self.storage.step())
 ```
 
-### 5. QuestionCategoryClassifier✨🚀
+### 5. ReasoningQuestionCategorySampleEvaluator✨🚀
 
 **Function Description:**  
 This operator is used to perform multi-level classification (main category and subcategory) of user questions. Through large language model semantic analysis of input questions, it outputs standardized classification codes for convenient use by downstream tasks.
@@ -360,7 +360,7 @@ This operator is used to perform multi-level classification (main category and s
 **Usage Example:**
 
 ```python
-classifier = QuestionCategoryClassifier(llm_serving=api_llm_serving)
+classifier = ReasoningQuestionCategorySampleEvaluator(llm_serving=api_llm_serving)
 result_cols = classifier.run(
     storage=self.storage.step(),
     input_key="instruction",
@@ -368,7 +368,7 @@ result_cols = classifier.run(
 )
 ```
 
-### 6. QuestionDifficultyClassifier✨
+### 6. ReasoningQuestionDifficultySampleEvaluator✨
 
 **Function Description:**  
 This operator is used to evaluate the difficulty level of questions. Through large language model complexity analysis of questions, it outputs numerical difficulty scores from 1-10 levels.
@@ -392,7 +392,7 @@ This operator is used to evaluate the difficulty level of questions. Through lar
 **Usage Example:**
 
 ```python
-difficulty = QuestionDifficultyClassifier(llm_serving=api_llm_serving)
+difficulty = ReasoningQuestionDifficultySampleEvaluator(llm_serving=api_llm_serving)
 result_cols = difficulty.run(
     storage=self.storage.step(),
     input_key="instruction",
@@ -400,7 +400,7 @@ result_cols = difficulty.run(
 )
 ```
 
-### 7. AnswerFormatterFilter
+### 7. ReasoningAnswerFormatterFilter
 
 **Function Description:** This operator is specifically designed to check the format compliance of mathematical answers, ensuring answers conform to standard mathematical representation formats.
 
@@ -420,14 +420,14 @@ result_cols = difficulty.run(
 **Usage Example:**
 
 ```python
-filter_op = AnswerFormatterFilter()
+filter_op = ReasoningAnswerFormatterFilter()
 result = filter_op.run(
           storage=self.storage.step(),
           input_key="generated_cot"
           ) 
 ```
 
-### 8. AnswerGroundTruthFilter✨
+### 8. ReasoningAnswerGroundTruthFilter✨
 
 **Function Description:** This operator compares predicted answers with ground truth answers, supporting multiple comparison strategies.
 
@@ -450,7 +450,7 @@ result = filter_op.run(
 **Usage Example:**
 
 ```python
-filter_op = AnswerGroundTruthFilter(compare_method="math_verify")
+filter_op = ReasoningAnswerGroundTruthFilter(compare_method="math_verify")
 result = filter_op.run(
           storage=self.storage.step(), 
           test_answer_key="generated_cot",
@@ -458,7 +458,7 @@ result = filter_op.run(
           )
 ```
 
-### 9. AnswerJudger_MathVerify✨
+### 9. ReasoningAnswerJudgeMathVerifyFilter✨
 
 **Function Description:** This operator verifies mathematical answer correctness through advanced symbolic computation, supporting equivalence judgment of complex mathematical expressions.
 
@@ -479,7 +479,7 @@ result = filter_op.run(
 **Usage Example:**
 
 ```python
-judger_op = AnswerJudger_MathVerify()
+judger_op = ReasoningAnswerJudgeMathVerifyFilter()
 result = judger_op.run(
           storage=self.storage.step(),
           answer_key="student_answer",
@@ -487,7 +487,7 @@ result = judger_op.run(
           )
 ```
 
-### 10. AnswerNgramFilter✨
+### 10. ReasoningAnswerNgramFilter✨
 
 **Function Description:** This operator detects repetitive patterns in answers based on n-gram statistical analysis, filtering low-quality repetitive content.
 
@@ -512,7 +512,7 @@ result = judger_op.run(
 **Usage Example:**
 
 ```python
-ngram_filter = AnswerNgramFilter(
+ngram_filter = ReasoningAnswerNgramFilter(
                 min_score=0.1,
                 max_score=1.0,
                 ngrams=5
@@ -524,7 +524,7 @@ result = ngram_filter.run(
           )
 ```
 
-### 11. AnswerPipelineRoot✨
+### 11. ReasoningAnswerPipelineRootFilter✨
 
 **Function Description:** Root node operator of the answer processing pipeline, responsible for intelligently distributing data to different processing branches.
 
@@ -545,7 +545,7 @@ result = ngram_filter.run(
 **Usage Example:**
 
 ```python
-root_op = AnswerPipelineRoot()
+root_op = ReasoningAnswerPipelineRootFilter()
 result = root_op.run(
           storage=self.storage.step(),
           input_answer_key="output",
@@ -553,7 +553,7 @@ result = root_op.run(
           )
 ```
 
-### 12. AnswerTokenLengthFilter
+### 12. ReasoningAnswerTokenLengthFilter
 
 **Function Description:** This operator controls answer length based on token count, filtering answers that are too long or too short.
 
@@ -576,7 +576,7 @@ result = root_op.run(
 **Usage Example:**
 
 ```python
-length_filter = AnswerTokenLengthFilter(
+length_filter = ReasoningAnswerTokenLengthFilter(
                   max_answer_token_length=8192,
                   tokenizer_dir="Qwen/Qwen2.5-0.5B-Instruct"
                   )
@@ -586,7 +586,7 @@ result = length_filter.run(
           )
 ```
 
-### 13. QuestionFilter✨🚀
+### 13. ReasoningQuestionFilter✨🚀
 
 **Function Description:** This operator performs comprehensive quality checks on mathematical problems, ensuring problem correctness and solvability.
 
@@ -620,7 +620,7 @@ result = length_filter.run(
 ```python
 from dataflow.prompts.reasoning.general import GeneralQuestionFilterPrompt
 
-question_filter = QuestionFilter(
+question_filter = ReasoningQuestionFilter(
     llm_serving=api_llm_serving,
     system_prompt="You are a math problem validator.",
     prompt_template=GeneralQuestionFilterPrompt()
