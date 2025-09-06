@@ -31,43 +31,43 @@ permalink: /zh/guide/Reasoning_operators/
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">AnswerGenerator✨</td>
+      <td class="tg-0pky">ReasoningAnswerGenerator✨</td>
       <td class="tg-0pky">答案合成</td>
       <td class="tg-0pky">该算子用于生成数学问题的标准答案，调用大语言模型进行分步推理和计算。</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.01560">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">PseudoAnswerGenerator✨</td>
+      <td class="tg-0pky">ReasoningPseudoAnswerGenerator✨</td>
       <td class="tg-0pky">伪答案生成与投票</td>
       <td class="tg-0pky">该算子生成多个候选答案并通过统计选择最优解，实现伪答案生成。</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.01560">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionGenerator✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionGenerator✨🚀</td>
       <td class="tg-0pky">问题生成</td>
       <td class="tg-0pky">该算子用于基于现有问题生成新问题，支持多种生成策略以保证多样性。</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">PretrainFormatConverter✨</td>
+      <td class="tg-0pky">ReasoningPretrainFormatConvertGenerator✨</td>
       <td class="tg-0pky">格式转换</td>
       <td class="tg-0pky">将SFT格式数据转换为预训练格式，支持自定义输入输出键配置</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionCategoryClassifier✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionCategorySampleEvaluator✨🚀</td>
       <td class="tg-0pky">问题分类</td>
       <td class="tg-0pky">对用户问题进行多级分类，依据设计并改进后的MSC数学分类标准</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionDifficultyClassifier✨</td>
+      <td class="tg-0pky">ReasoningQuestionDifficultySampleEvaluator✨</td>
       <td class="tg-0pky">难度评估</td>
       <td class="tg-0pky">评估问题难度等级，输出1-10级细粒度难度评分</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2410.07985">Paper</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerExtraction_QwenMathEval✨</td>
+      <td class="tg-0pky">ReasoningAnswerExtractionQwenMathEvalGenerator✨</td>
       <td class="tg-0pky">答案提取与标准化</td>
       <td class="tg-0pky">从数学问题回答中提取规范化答案表达式，支持单位处理和格式转换</td>
       <td class="tg-0pky"><a href="https://github.com/QwenLM/Qwen2.5-Math">Code</a></td>
@@ -91,43 +91,43 @@ permalink: /zh/guide/Reasoning_operators/
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">AnswerFormatterFilter</td>
+      <td class="tg-0pky">ReasoningAnswerFormatterFilter</td>
       <td class="tg-0pky">格式验证</td>
       <td class="tg-0pky">该算子用于检查答案格式是否符合规范，主要验证数学答案是否包含正确的\\boxed{}标记。</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerGroundTruthFilter✨</td>
+      <td class="tg-0pky">ReasoningAnswerGroundTruthFilter✨</td>
       <td class="tg-0pky">标准答案匹配</td>
       <td class="tg-0pky">该算子用于对比预测答案与标准答案的匹配度，支持精确匹配和数学验证两种方式。</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerJudger_MathVerify✨</td>
+      <td class="tg-0pky">ReasoningAnswerJudgeMathVerifyFilter✨</td>
       <td class="tg-0pky">数学答案验证</td>
       <td class="tg-0pky">该算子通过符号计算验证答案正确性，执行数学表达式解析和等价性验证。</td>
       <td class="tg-0pky"><a href="https://github.com/huggingface/Math-Verify">Code</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerNgramFilter✨</td>
+      <td class="tg-0pky">ReasoningAnswerNgramFilter✨</td>
       <td class="tg-0pky">重复检测</td>
       <td class="tg-0pky">该算子基于n-gram重复率过滤答案，检测回答中的重复模式和冗余内容。</td>
       <td class="tg-0pky"><a href="https://en.wikipedia.org/wiki/N-gram">Wiki</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerPipelineRoot✨</td>
+      <td class="tg-0pky">ReasoningAnswerPipelineRootFilter✨</td>
       <td class="tg-0pky">标准答案存在性分类器</td>
       <td class="tg-0pky">答案处理流程根节点，负责将输入数据根据有无真实标签GT分发到不同处理分支。</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">AnswerTokenLengthFilter</td>
+      <td class="tg-0pky">ReasoningAnswerTokenLengthFilter</td>
       <td class="tg-0pky">长度控制</td>
       <td class="tg-0pky">该算子根据token数量过滤过长的答案，确保答案长度在合理范围内。</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionFilter✨🚀</td>
+      <td class="tg-0pky">ReasoningQuestionFilter✨🚀</td>
       <td class="tg-0pky">问题验证</td>
       <td class="tg-0pky">该算子用于对数学问题进行正确性检查，包括格式规范、语义合理性、条件一致性等。</td>
       <td class="tg-0pky"><a href="https://github.com/scuuy/MathQ-Verify">Code</a></td>
@@ -168,7 +168,7 @@ from dataflow.utils.storage import FileStorage
 
 ## 详细算子说明
 
-### 1. AnswerGenerator✨
+### 1. ReasoningAnswerGenerator✨
 
 **功能描述：** 该算子专门用于生成数学问题的标准答案，通过调用大语言模型进行分步推理和精确计算。
 
@@ -194,7 +194,7 @@ from dataflow.utils.storage import FileStorage
 ```python
 from dataflow.prompts.reasoning.general import GeneralAnswerGeneratorPrompt
 
-answer_gen = AnswerGenerator(
+answer_gen = ReasoningAnswerGenerator(
           llm_serving=api_llm_serving,
           prompt_template=GeneralAnswerGeneratorPrompt()
           )
@@ -205,7 +205,7 @@ result = answer_gen.run(
           )
 ```
 
-### 2. PseudoAnswerGenerator✨
+### 2. ReasoningPseudoAnswerGenerator✨
 
 **功能描述：** 该算子通过生成多个候选答案并使用统计方法选择最优解，实现高质量的伪答案生成。
 
@@ -244,7 +244,7 @@ api_llm_serving = YourLLMServingImplementation()
 storage = DataFlowStorage(...)
 
 # Instantiate the pseudo-answer generator
-pseudo_gen = PseudoAnswerGenerator(
+pseudo_gen = ReasoningPseudoAnswerGenerator(
     llm_serving=api_llm_serving,
     max_times=5
 )
@@ -263,7 +263,7 @@ print("Generated columns:", result_keys)
 ```
 
 
-### 3. QuestionGenerator✨🚀
+### 3. ReasoningQuestionGenerator✨🚀
 
 **功能描述：** 该算子能够基于现有问题生成新的相关问题，支持多种生成策略和难度控制。
 
@@ -290,7 +290,7 @@ print("Generated columns:", result_keys)
 ```python
 from dataflow.prompts.reasoning.general import GeneralQuestionSynthesisPrompt
 
-question_gen = QuestionGenerator(
+question_gen = ReasoningQuestionGenerator(
                 num_prompts=3,  # from 1 to k
                 llm_serving=api_llm_serving,
                 prompt_template=GeneralQuestionSynthesisPrompt()
@@ -302,7 +302,7 @@ result = question_gen.run(
           )
 ```
 
-### 4. PretrainFormatConverter✨
+### 4. ReasoningPretrainFormatConvertGenerator✨
 
 **功能描述：** 该算子用于将SFT（监督微调）格式数据转换为预训练格式，支持自定义输入输出键配置，适用于各类生成式模型的预训练数据准备。
 
@@ -322,7 +322,7 @@ result = question_gen.run(
 
 **使用示例：**
 ```python
-format_converter = PretrainFormatConverter(
+format_converter = ReasoningPretrainFormatConvertGenerator(
     read_key_question="question",
     read_key_answer="answer",
     output_key="text"
@@ -330,7 +330,7 @@ format_converter = PretrainFormatConverter(
 result = format_converter.run(storage=self.storage.step())
 ```
 
-### 5. QuestionCategoryClassifier✨🚀
+### 5. ReasoningQuestionCategorySampleEvaluator✨🚀
 
 **功能描述：**  
 该算子用于对用户问题进行多级分类（主分类和子分类）。通过大语言模型对输入问题进行语义分析，输出标准化后的分类编码，便于下游任务使用。
@@ -354,7 +354,7 @@ result = format_converter.run(storage=self.storage.step())
 **使用示例：**
 
 ```python
-classifier = QuestionCategoryClassifier(llm_serving=api_llm_serving)
+classifier = ReasoningQuestionCategorySampleEvaluator(llm_serving=api_llm_serving)
 result_cols = classifier.run(
     storage=self.storage.step(),
     input_key="instruction",
@@ -362,7 +362,7 @@ result_cols = classifier.run(
 )
 ```
 
-### 6. QuestionDifficultyClassifier✨
+### 6. ReasoningQuestionDifficultySampleEvaluator✨
 
 **功能描述：**  
 该算子用于评估问题的难度等级，通过大语言模型对问题进行复杂度分析，输出 1-10 级的数值型难度评分。
@@ -386,7 +386,7 @@ result_cols = classifier.run(
 **使用示例：**
 
 ```python
-difficulty = QuestionDifficultyClassifier(llm_serving=api_llm_serving)
+difficulty = ReasoningQuestionDifficultySampleEvaluator(llm_serving=api_llm_serving)
 result_cols = difficulty.run(
     storage=self.storage.step(),
     input_key="instruction",
@@ -394,7 +394,7 @@ result_cols = difficulty.run(
 )
 ```
 
-### 7. AnswerFormatterFilter
+### 7. ReasoningAnswerFormatterFilter
 
 **功能描述：** 该算子专门用于检查数学答案的格式规范性，确保答案符合标准的数学表示格式。
 
@@ -414,14 +414,14 @@ result_cols = difficulty.run(
 **使用示例：**
 
 ```python
-filter_op = AnswerFormatterFilter()
+filter_op = ReasoningAnswerFormatterFilter()
 result = filter_op.run(
           storage=self.storage.step(),
           input_key="generated_cot"
           ) 
 ```
 
-### 8. AnswerGroundTruthFilter✨
+### 8. ReasoningAnswerGroundTruthFilter✨
 
 **功能描述：** 该算子用于对比预测答案与标准答案的匹配度，支持多种比较策略。
 
@@ -444,7 +444,7 @@ result = filter_op.run(
 **使用示例：**
 
 ```python
-filter_op = AnswerGroundTruthFilter(compare_method="math_verify")
+filter_op = ReasoningAnswerGroundTruthFilter(compare_method="math_verify")
 result = filter_op.run(
           storage=self.storage.step(), 
           test_answer_key="generated_cot",
@@ -452,7 +452,7 @@ result = filter_op.run(
           )
 ```
 
-### 9. AnswerJudger_MathVerify✨
+### 9. ReasoningAnswerJudgeMathVerifyFilter✨
 
 **功能描述：** 该算子通过高级符号计算验证数学答案的正确性，支持复杂数学表达式的等价性判断。
 
@@ -473,7 +473,7 @@ result = filter_op.run(
 **使用示例：**
 
 ```python
-judger_op = AnswerJudger_MathVerify()
+judger_op = ReasoningAnswerJudgeMathVerifyFilter()
 result = judger_op.run(
           storage=self.storage.step(),
           answer_key="student_answer",
@@ -481,7 +481,7 @@ result = judger_op.run(
           )
 ```
 
-### 10. AnswerNgramFilter✨
+### 10. ReasoningAnswerNgramFilter✨
 
 **功能描述：** 该算子基于n-gram统计分析检测答案中的重复模式，过滤低质量的重复内容。
 
@@ -506,7 +506,7 @@ result = judger_op.run(
 **使用示例：**
 
 ```python
-ngram_filter = AnswerNgramFilter(
+ngram_filter = ReasoningAnswerNgramFilter(
                 min_score=0.1,
                 max_score=1.0,
                 ngrams=5
@@ -518,7 +518,7 @@ result = ngram_filter.run(
           )
 ```
 
-### 11. AnswerPipelineRoot✨
+### 11. ReasoningAnswerPipelineRootFilter✨
 
 **功能描述：** 答案处理流程的根节点算子，负责智能分发数据到不同的处理分支。
 
@@ -538,7 +538,7 @@ result = ngram_filter.run(
 **使用示例：**
 
 ```python
-root_op = AnswerPipelineRoot()
+root_op = ReasoningAnswerPipelineRootFilter()
 result = root_op.run(
           storage=self.storage.step(),
           input_answer_key="output",
@@ -546,7 +546,7 @@ result = root_op.run(
           )
 ```
 
-### 12. AnswerTokenLengthFilter
+### 12. ReasoningAnswerTokenLengthFilter
 
 **功能描述：** 该算子根据token数量控制答案长度，过滤过长或过短的答案内容。
 
@@ -569,7 +569,7 @@ result = root_op.run(
 **使用示例：**
 
 ```python
-length_filter = AnswerTokenLengthFilter(
+length_filter = ReasoningAnswerTokenLengthFilter(
                   max_answer_token_length=8192,
                   tokenizer_dir="Qwen/Qwen2.5-0.5B-Instruct"
                   )
@@ -579,7 +579,7 @@ result = length_filter.run(
           )
 ```
 
-### 13. QuestionFilter✨🚀
+### 13. ReasoningQuestionFilter✨🚀
 
 **功能描述：** 该算子对数学问题进行全面的质量检查，确保问题的正确性和可解性。
 
@@ -613,7 +613,7 @@ result = length_filter.run(
 ```python
 from dataflow.prompts.reasoning.general import GeneralQuestionFilterPrompt
 
-question_filter = QuestionFilter(
+question_filter = ReasoningQuestionFilter(
     llm_serving=api_llm_serving,
     system_prompt="You are a math problem validator.",
     prompt_template=GeneralQuestionFilterPrompt()

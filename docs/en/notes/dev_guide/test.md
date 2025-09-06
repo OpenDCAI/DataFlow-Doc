@@ -13,10 +13,10 @@ The test code’s implementation can refer to `DataFlow/test/test_reasoning.py`.
 ```python
 import pytest
 from dataflow.operators.generate import (
-    QuestionCategoryClassifier,
-    QuestionDifficultyClassifier,
-    QuestionGenerator,
-    AnswerGenerator,
+    ReasoningQuestionCategorySampleEvaluator,
+    ReasoningQuestionDifficultySampleEvaluator,
+    ReasoningQuestionGenerator,
+    ReasoningAnswerGenerator,
 )
 
 from dataflow.operators.filter import *
@@ -43,41 +43,41 @@ class ReasoningPipeline():
                 model_source="local"
             )
 
-        self.question_filter_step1 = QuestionFilter(
+        self.question_filter_step1 = ReasoningQuestionFilter(
             system_prompt="You are an expert in evaluating mathematical problems. Follow the user's instructions strictly and output your final judgment in the required JSON format.",
             llm_serving=llm_serving
         )
-        self.question_gen_step2 =  QuestionGenerator(
+        self.question_gen_step2 =  ReasoningQuestionGenerator(
             num_prompts=3,
             llm_serving=llm_serving
         )
-        self.question_filter_step3 = QuestionFilter(
+        self.question_filter_step3 = ReasoningQuestionFilter(
             system_prompt="You are an expert in evaluating mathematical problems. Follow the user's instructions strictly and output your final judgment in the required JSON format.",
             llm_serving=llm_serving
         )
-        self.question_difficulty_classifier_step4 = QuestionDifficultyClassifier(
+        self.question_difficulty_classifier_step4 = ReasoningQuestionDifficultySampleEvaluator(
             llm_serving=llm_serving
         )
-        self.question_category_classifier_step5 = QuestionCategoryClassifier(
+        self.question_category_classifier_step5 = ReasoningQuestionCategorySampleEvaluator(
             llm_serving=llm_serving
         )
         ########################## branch ############################
-        self.answer_pipeline_root_step6 = AnswerPipelineRoot()
+        self.answer_pipeline_root_step6 = ReasoningAnswerPipelineRootFilter()
         ########################## answer ############################
-        self.answer_generator_step7 = AnswerGenerator(
+        self.answer_generator_step7 = ReasoningAnswerGenerator(
             llm_serving=llm_serving
         )
         
-        self.answer_format_filter_step8 = AnswerFormatterFilter()
+        self.answer_format_filter_step8 = ReasoningAnswerFormatterFilter()
         
-        self.answer_token_length_filter_step9 = AnswerTokenLengthFilter(
+        self.answer_token_length_filter_step9 = ReasoningAnswerTokenLengthFilter(
             max_answer_token_length = 8192,
             tokenizer_dir = "Qwen/Qwen2.5-0.5B-Instruct"
         )
         
-        self.answer_groundtruth_filter_step10 = AnswerGroundTruthFilter()
+        self.answer_groundtruth_filter_step10 = ReasoningAnswerGroundTruthFilter()
         
-        self.answer_ngram_filter_step11 = AnswerNgramFilter(
+        self.answer_ngram_filter_step11 = ReasoningAnswerNgramFilter(
             min_score = 0.1,
             max_score = 1.0,
             ngrams = 5

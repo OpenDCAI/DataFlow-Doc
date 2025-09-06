@@ -47,9 +47,9 @@ self.storage = FileStorage(
 
 ### 2. **问题处理（Question Handling）**
 
-#### 2.1 **问题过滤（QuestionFilter）**
+#### 2.1 **问题过滤（ReasoningQuestionFilter）**
 
-流水线的第一步是通过**问题过滤器**（`QuestionFilter`）剔除无效的数学问题。此步骤至关重要，它确保进入后续步骤的问题为有效的数学问题，避免无关或错误的问题影响后续数据合成。
+流水线的第一步是通过**问题过滤器**（`ReasoningQuestionFilter`）剔除无效的数学问题。此步骤至关重要，它确保进入后续步骤的问题为有效的数学问题，避免无关或错误的问题影响后续数据合成。
 
 **功能：**
 
@@ -60,15 +60,15 @@ self.storage = FileStorage(
 **输出**：经过清洗的有效数学问题
 
 ```python
-question_filter = QuestionFilter(
+question_filter = ReasoningQuestionFilter(
     llm_serving=api_llm_serving,
     system_prompt="You are a math problem validator."
     )
 ```
 
-#### 2.2 **问题合成（QuestionGenerator）**
+#### 2.2 **问题合成（ReasoningQuestionGenerator）**
 
-在问题通过过滤后，**问题合成**（`QuestionGenerator`）步骤基于已有的问题生成新的数学问题，以增强数据集的多样性和规模。
+在问题通过过滤后，**问题合成**（`ReasoningQuestionGenerator`）步骤基于已有的问题生成新的数学问题，以增强数据集的多样性和规模。
 
 **功能：**
 
@@ -79,13 +79,13 @@ question_filter = QuestionFilter(
 **输出**：合成的新问题
 
 ```python
-question_gen = QuestionGenerator(
+question_gen = ReasoningQuestionGenerator(
                 num_prompts=3,  # from 1 to k
                 llm_serving=api_llm_serving
                 )
 ```
 
-#### 2.3 **问题过滤（QuestionFilter）**
+#### 2.3 **问题过滤（ReasoningQuestionFilter）**
 
 生成的新问题会再次经过**问题过滤**步骤，确保其有效性。这一步确保生成的问题符合数学推理标准，过滤掉不符合条件的合成问题。
 
@@ -98,15 +98,15 @@ question_gen = QuestionGenerator(
 **输出**：有效的合成问题
 
 ```python
-question_filter = QuestionFilter(
+question_filter = ReasoningQuestionFilter(
     llm_serving=api_llm_serving,
     system_prompt="You are a math problem validator."
     )
 ```
 
-#### 2.4 **问题难度分类（QuestionDifficultyClassifier）**
+#### 2.4 **问题难度分类（ReasoningQuestionDifficultySampleEvaluator）**
 
-**问题难度分类**（`QuestionDifficultyClassifier`）对合成后的问题进行难度评分。此步骤将问题按难度等级进行分类，有助于后续数据分析和模型调优。
+**问题难度分类**（`ReasoningQuestionDifficultySampleEvaluator`）对合成后的问题进行难度评分。此步骤将问题按难度等级进行分类，有助于后续数据分析和模型调优。
 
 **功能：**
 
@@ -117,12 +117,12 @@ question_filter = QuestionFilter(
 **输出**：每个问题的难度评分
 
 ```python
-difficulty = QuestionDifficultyClassifier(llm_serving=api_llm_serving)
+difficulty = ReasoningQuestionDifficultySampleEvaluator(llm_serving=api_llm_serving)
 ```
 
-#### 2.5 **问题类别分类（QuestionCategoryClassifier）**
+#### 2.5 **问题类别分类（ReasoningQuestionCategorySampleEvaluator）**
 
-**问题类别分类**（`QuestionCategoryClassifier`）将问题按数学类别（如代数、几何、概率等）进行分类。此步骤有助于后续分析问题的分布和多样性。
+**问题类别分类**（`ReasoningQuestionCategorySampleEvaluator`）将问题按数学类别（如代数、几何、概率等）进行分类。此步骤有助于后续分析问题的分布和多样性。
 
 **功能：**
 
@@ -133,12 +133,12 @@ difficulty = QuestionDifficultyClassifier(llm_serving=api_llm_serving)
 **输出**：问题的类别标签
 
 ```python
-classifier = QuestionCategoryClassifier(llm_serving=api_llm_serving)
+classifier = ReasoningQuestionCategorySampleEvaluator(llm_serving=api_llm_serving)
 ```
 
 ### 3. **答案处理（Answer Handling）**
 
-#### 3.1 **答案分支（AnswerPipelineRoot）**
+#### 3.1 **答案分支（ReasoningAnswerPipelineRootFilter）**
 
 在问题处理后，流水线进入答案生成部分。如果数据中包含标准答案（`golden_answer`），数据流会进入一个处理分支；否则，将进入伪答案生成路径。
 
@@ -151,12 +151,12 @@ classifier = QuestionCategoryClassifier(llm_serving=api_llm_serving)
 **输出**：标准答案分支或伪答案分支
 
 ```python
-branch = AnswerPipelineRoot()
+branch = ReasoningAnswerPipelineRootFilter()
 ```
 
-#### 3.2 **答案生成（AnswerGenerator）**
+#### 3.2 **答案生成（ReasoningAnswerGenerator）**
 
-对于包含标准答案的情况，**答案生成**（`AnswerGenerator`）步骤会生成带有推理过程的答案，提供长链推理的过程，以增加答案的可靠性和透明度。对于不包含标准答案的情况，此步骤为**伪答案生成**（PseudoAnswerGenerator），通过要求模型多次回答同一个问题，投票选出频率最高的答案，作为**伪答案**。
+对于包含标准答案的情况，**答案生成**（`ReasoningAnswerGenerator`）步骤会生成带有推理过程的答案，提供长链推理的过程，以增加答案的可靠性和透明度。对于不包含标准答案的情况，此步骤为**伪答案生成**（PseudoReasoningAnswerGenerator），通过要求模型多次回答同一个问题，投票选出频率最高的答案，作为**伪答案**。
 
 **功能：**
 
@@ -167,12 +167,12 @@ branch = AnswerPipelineRoot()
 **输出**：含标准答案：模型生成的推理过程（长链推理）；不含标准答案：伪答案和长链推理过程。
 
 ```python
-answer_gen = AnswerGenerator(llm_serving=api_llm_serving)
+answer_gen = ReasoningAnswerGenerator(llm_serving=api_llm_serving)
 ```
 
-#### 3.3 **答案格式过滤（AnswerFormatterFilter）**
+#### 3.3 **答案格式过滤（ReasoningAnswerFormatterFilter）**
 
-生成的答案会经过**答案格式过滤**（`AnswerFormatterFilter`）步骤，确保其符合预设格式要求。这一步骤保证了生成的答案结构化且有效，避免不符合格式的答案影响后续处理。
+生成的答案会经过**答案格式过滤**（`ReasoningAnswerFormatterFilter`）步骤，确保其符合预设格式要求。这一步骤保证了生成的答案结构化且有效，避免不符合格式的答案影响后续处理。
 
 **功能：**
 
@@ -182,12 +182,12 @@ answer_gen = AnswerGenerator(llm_serving=api_llm_serving)
 **输出**：符合格式要求的答案
 
 ```python
-filter_op = AnswerFormatterFilter()
+filter_op = ReasoningAnswerFormatterFilter()
 ```
 
-#### 3.4 **答案长度过滤（AnswerTokenLengthFilter）**
+#### 3.4 **答案长度过滤（ReasoningAnswerTokenLengthFilter）**
 
-接下来，**答案长度过滤**（`AnswerTokenLengthFilter`）步骤会根据预设的最大答案长度进行过滤，剔除过长或过短的答案，确保生成的答案长度适当。
+接下来，**答案长度过滤**（`ReasoningAnswerTokenLengthFilter`）步骤会根据预设的最大答案长度进行过滤，剔除过长或过短的答案，确保生成的答案长度适当。
 
 **功能：**
 
@@ -197,15 +197,15 @@ filter_op = AnswerFormatterFilter()
 **输出**：符合长度要求的答案
 
 ```python
-length_filter = AnswerTokenLengthFilter(
+length_filter = ReasoningAnswerTokenLengthFilter(
                   max_answer_token_length=8192,
                   tokenizer_dir="Qwen/Qwen2.5-0.5B-Instruct"
                   )
 ```
 
-#### 3.5 **答案验证与去重（AnswerGroundTruthFilter, AnswerNgramFilter）**
+#### 3.5 **答案验证与去重（ReasoningAnswerGroundTruthFilter, ReasoningAnswerNgramFilter）**
 
-最后，生成的答案会经过**答案验证**（`AnswerGroundTruthFilter`）和**答案去重**（`AnswerNgramFilter`）步骤：
+最后，生成的答案会经过**答案验证**（`ReasoningAnswerGroundTruthFilter`）和**答案去重**（`ReasoningAnswerNgramFilter`）步骤：
 
 * **答案验证**：通过与标准答案进行对比，验证答案的准确性。
 * **答案去重**：使用N-gram算法去除重复的答案，确保每个问题的答案唯一且不重复。
@@ -219,8 +219,8 @@ length_filter = AnswerTokenLengthFilter(
 **输出**：经过验证和去重的答案
 
 ```python
-filter_op = AnswerGroundTruthFilter(compare_method="math_verify")
-ngram_filter = AnswerNgramFilter(
+filter_op = ReasoningAnswerGroundTruthFilter(compare_method="math_verify")
+ngram_filter = ReasoningAnswerNgramFilter(
                 min_score=0.1,
                 max_score=1.0,
                 ngrams=5
@@ -275,37 +275,37 @@ class ReasoningPipeline():
                 max_tokens=8192,
                 model_source="local"
             )
-        self.question_filter_step1 = QuestionFilter(
+        self.question_filter_step1 = ReasoningQuestionFilter(
             system_prompt="You are an expert in evaluating mathematical problems. Follow the user's instructions strictly and output your final judgment in the required JSON format.",
             llm_serving=llm_serving
         )
-        self.question_gen_step2 =  QuestionGenerator(
+        self.question_gen_step2 =  ReasoningQuestionGenerator(
             num_prompts=3,
             llm_serving=llm_serving
         )
-        self.question_filter_step3 = QuestionFilter(
+        self.question_filter_step3 = ReasoningQuestionFilter(
             system_prompt="You are an expert in evaluating mathematical problems. Follow the user's instructions strictly and output your final judgment in the required JSON format.",
             llm_serving=llm_serving
         )
-        self.question_difficulty_classifier_step4 = QuestionDifficultyClassifier(
+        self.question_difficulty_classifier_step4 = ReasoningQuestionDifficultySampleEvaluator(
             llm_serving=llm_serving
         )
-        self.question_category_classifier_step5 = QuestionCategoryClassifier(
+        self.question_category_classifier_step5 = ReasoningQuestionCategorySampleEvaluator(
             llm_serving=llm_serving
         )
         ########################## branch ############################
-        self.answer_pipeline_root_step6 = AnswerPipelineRoot()
+        self.answer_pipeline_root_step6 = ReasoningAnswerPipelineRootFilter()
         ########################## answer ############################
-        self.answer_generator_step7 = AnswerGenerator(
+        self.answer_generator_step7 = ReasoningAnswerGenerator(
             llm_serving=llm_serving
         )
-        self.answer_format_filter_step8 = AnswerFormatterFilter()
-        self.answer_token_length_filter_step9 = AnswerTokenLengthFilter(
+        self.answer_format_filter_step8 = ReasoningAnswerFormatterFilter()
+        self.answer_token_length_filter_step9 = ReasoningAnswerTokenLengthFilter(
             max_answer_token_length = 8192,
             tokenizer_dir = "Qwen/Qwen2.5-0.5B-Instruct"
         )
-        self.answer_groundtruth_filter_step10 = AnswerGroundTruthFilter()
-        self.answer_ngram_filter_step11 = AnswerNgramFilter(
+        self.answer_groundtruth_filter_step10 = ReasoningAnswerGroundTruthFilter()
+        self.answer_ngram_filter_step11 = ReasoningAnswerNgramFilter(
             min_score = 0.1,
             max_score = 1.0,
             ngrams = 5
