@@ -88,7 +88,9 @@ self.storage = FileStorage(
 
 ### 3.1 数据库配置
 
-在进行数据库解析和执行时，需要配置相应的数据库信息。目前支持 SQLite 数据库和 MySQL 数据库，对其他数据库的支持正在持续更新中。
+**数据库自动下载功能**：流水线支持自动下载示例数据库，当`db_root_path`参数为空字符串时，系统会自动从Hugging Face下载示例数据库文件。
+
+在进行数据库解析和执行时，需要配置相应的数据库信息。目前支持 SQLite 数据库和 MySQL 数据库。
 
 #### 3.1.1 SQLite 数据库
 
@@ -123,24 +125,31 @@ SQLite 是一种基于文件的数据库系统，因此在使用时需要指定�
     ```
 
   - **演示数据库**：  
-    我们提供了示例数据库用于测试，请访问：  
+    我们提供了示例数据库用于测试，流水线会自动下载：  
     [https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example](https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example)
 
-    **使用步骤**：
-    1. 下载 `databases` 压缩包并解压到本地
-    2. 将解压后的路径赋值给变量 `db_root_path`
-    3. 在代码中配置数据库管理器如下：
+    **自动下载配置**：
+    ```python
+    # 自动下载示例数据库（推荐）
+    db_root_path = ""
+    model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
+    
+    # 或者手动指定本地数据库路径
+    db_root_path = "/path/to/your/database"
+    model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
+    ```
 
+    数据库管理器配置：
     ```python
     database_manager = DatabaseManager(
         db_type="sqlite",
         config={
-            "root_path": db_root_path
+            "root_path": self.db_root_path
         }
     )
     ```
 
-    > 注意：`db_type` 必须设置为 `"sqlite"`，`root_path` 应为数据库文件夹的路径。
+    > 注意：`db_type` 必须设置为 `"sqlite"`，`root_path` 为数据库文件夹的路径。
 
 #### 3.1.2 MySQL 数据库
 
@@ -168,120 +177,38 @@ MySQL 数据库是以服务器形式存在的，因此需要管理连接服务�
 在 DataFlow 中，我们使用 `APILLMServing_request` 类来管理基于 API 的 LLM 服务。
 
 ```python
-api_llm_serving = APILLMServing_request(
-    api_url="https://api.openai.com/v1/chat/completions",
-    model_name="chatgpt",
+llm_serving = APILLMServing_request(
+    api_url="http://api.openai.com/v1/chat/completions",
+    model_name="gpt-4o",
     max_workers=100
 )
 
+# 建议使用性能更强的模型生成思维链（CoT）推理过程
 cot_generation_api_llm_serving = APILLMServing_request(
-    api_url="https://api.openai.com/v1/chat/completions",
-    model_name="gpt-4o",  # 使用性能更强的模型生成长链推理过程
+    api_url="http://api.openai.com/v1/chat/completions",
+    model_name="gpt-4o",  # 可以更换为更强大的模型
     max_workers=100
 )
 
-embedding_api_llm_serving = APILLMServing_request(
-    api_url="https://api.openai.com/v1/embeddings",
+embedding_serving = APILLMServing_request(
+    api_url="http://api.openai.com/v1/embeddings",
     model_name="text-embedding-ada-002",
     max_workers=100
 )
 ```
 
 其中：
-- `api_llm_serving` 用于处理通用提示生成任务；
+- `llm_serving` 用于处理通用任务；
 - `cot_generation_api_llm_serving` 用于生成复杂推理链（Chain-of-Thought）；
-- `embedding_api_llm_serving` 用于生成文本嵌入向量。
-
-在实际使用中，您可以根据需求更换为其他模型或 API 提供商。
-
-#### 3.2.2 本地模型服务配置
-
-在 DataFlow 中，我们使用 `LocalModelLLMServing_vllm` 类来管理本地部署的大语言模型服务。
-
-```python
-llm_serving = LocalModelLLMServing_vllm(
-    hf_model_name_or_path="Qwen/Qwen2.5-7B-Instruct", 
-    vllm_tensor_parallel_size=1,
-    vllm_max_tokens=8192,
-)
-
-cot_generation_llm_serving = LocalModelLLMServing_vllm(
-    hf_model_name_or_path="Qwen/Qwen2.5-7B-Instruct", 
-    vllm_tensor_parallel_size=1,
-    vllm_max_tokens=8192,
-)
-
-embedding_serving = LocalModelLLMServing_vllm(
-    hf_model_name_or_path="Alibaba-NLP/gte-Qwen2-7B-instruct", 
-    vllm_max_tokens=8192
-)
-```
-
-其中：
-- `llm_serving` 用于处理通用提示生成任务；
-- `cot_generation_llm_serving` 用于生成复杂推理链；
 - `embedding_serving` 用于生成文本嵌入向量。
-
-### 3.3 其他参数配置
-
-#### 3.3.1 难度分类配置
-
-```python
-execution_difficulty_config = {
-    'thresholds': [2, 5, 9],
-    'labels': ['easy', 'medium', 'hard', 'extra']
-}
-
-component_difficulty_config = {
-    'thresholds': [2, 4, 6],      
-    'labels': ['easy', 'medium', 'hard', 'extra']
-}
-```
-
-其中：
-- `execution_difficulty_config` 用于执行难度分类；
-- `component_difficulty_config` 用于 SQL 组件复杂度分类。
-
-注意事项：
-- `thresholds` 和 `labels` 必须同时存在；
-- `thresholds` 必须按升序排列；
-- `labels` 的数量必须比 `thresholds` 多 1；
-- 分类依据是得分，范围为 0–10，得分越高表示难度越大，因此 `thresholds` 的值应控制在 0–10 范围内。
-
-#### 3.3.2 提示词模板配置
-
-```python
-prompt_template = '''Task Overview:
-            /* Given the following database schema: */
-            {schema}
-            /* Answer the following: {question} */
-            Let's think step by step'''
-```
-
-该模板用于构建输入给模型的提示信息，其中 `{schema}` 和 `{question}` 是占位符，分别表示数据库 Schema 和用户提出的自然语言问题。  
-您可根据需要自定义模板内容，但**必须保留这两个占位符**以确保数据注入的完整性。
-
-#### 3.3.3 数据库 Schema 配置
-
-```python
-schema_config = {
-    'format': 'ddl',  # 可选值：'ddl' 或 'formatted_schema'
-    'use_example': False  # 是否包含示例数据
-}
-```
-
-说明：
-- `format`：指定输出数据库 Schema 的格式，支持 `'ddl'`（数据定义语言）和 `'formatted_schema'`（结构化展示）；
-- `use_example`：是否在 Schema 中包含示例数据，取值为 `True` 或 `False`。
-
 
 ## 4. 数据流与流水线逻辑
 
 ### 4.1 数据过滤器
 
-#### 4.1.1 **SQL执行过滤器（ExecutionFilter）**
+#### 4.1.1 **SQL执行过滤器（SQLExecutionFilter）**
 
-**SQL执行过滤器**（`ExecutionFilter`）通过实际执行SQL语句来验证其正确性，过滤掉无法正常执行的SQL语句。
+**SQL执行过滤器**（`SQLExecutionFilter`）通过实际执行SQL语句来验证其正确性，过滤掉无法正常执行的SQL语句。
 
 **功能：**
 
@@ -292,14 +219,14 @@ schema_config = {
 **输出**：可正常执行的SQL语句
 
 ```python
-execution_filter = ExecutionFilter(
+sql_execution_filter = SQLExecutionFilter(
     database_manager=database_manager
 )
 ```
 
-#### 4.1.2 **SQL一致性过滤器（ConsistencyFilter）**
+#### 4.1.2 **SQL一致性过滤器（SQLConsistencyFilter）**
 
-**SQL一致性过滤器**（`ConsistencyFilter`）检查SQL语句与问题、数据库Schema之间的一致性，确保生成的SQL能够正确回答对应的问题。
+**SQL一致性过滤器**（`SQLConsistencyFilter`）检查SQL语句与问题、数据库Schema之间的一致性，确保生成的SQL能够正确回答对应的问题。
 
 **功能：**
 
@@ -310,9 +237,10 @@ execution_filter = ExecutionFilter(
 **输出**：与问题一致的SQL语句
 
 ```python
-consistency_filter = ConsistencyFilter(
-    llm_serving=api_llm_serving,
-    database_manager=database_manager
+sql_consistency_filter = SQLConsistencyFilter(
+    llm_serving=llm_serving,
+    database_manager=database_manager,
+    prompt_template=SQLConsistencyFilterPrompt()
 )
 ```
 
@@ -332,9 +260,10 @@ consistency_filter = ConsistencyFilter(
 
 ```python
 sql_generator = SQLGenerator(
-    llm_serving=api_llm_serving,
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    generate_num=300
+    generate_num=50,
+    prompt_template=SelectSQLGeneratorPrompt()
 )
 ```
 
@@ -352,15 +281,16 @@ sql_generator = SQLGenerator(
 
 ```python
 sql_variation_generator = SQLVariationGenerator(
-    llm_serving=api_llm_serving,
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    num_variations=5
+    num_variations=5,
+    prompt_template=SQLVariationGeneratorPrompt()
 )
 ```
 
-#### 4.2.3 **问题生成器（QuestionGeneration）**
+#### 4.2.3 **问题生成器（Text2SQLQuestionGenerator）**
 
-**问题生成器**（`QuestionGeneration`）根据给定的SQL语句生成对应的自然语言问题，构建Text-to-SQL的问答对。
+**问题生成器**（`Text2SQLQuestionGenerator`）根据给定的SQL语句生成对应的自然语言问题，构建Text-to-SQL的问答对。
 
 **功能：**
 
@@ -371,17 +301,18 @@ sql_variation_generator = SQLVariationGenerator(
 **输出**：自然语言问题
 
 ```python
-question_generator = QuestionGeneration(
-    llm_serving=api_llm_serving,
-    embedding_api_llm_serving=embedding_api_llm_serving,
+text2sql_question_generator = Text2SQLQuestionGenerator(
+    llm_serving=llm_serving,
+    embedding_serving=embedding_serving,
     database_manager=database_manager,
-    question_candidates_num=5
+    question_candidates_num=5,
+    prompt_template=Text2SQLQuestionGeneratorPrompt()
 )
 ```
 
-#### 4.2.4 **提示词生成器（PromptGenerator）**
+#### 4.2.4 **提示词生成器（Text2SQLPromptGenerator）**
 
-**提示词生成器**（`PromptGenerator`）根据问题和数据库schema生成用于模型训练的提示模板。
+**提示词生成器**（`Text2SQLPromptGenerator`）根据问题和数据库schema生成用于模型训练的提示模板。
 
 **功能：**
 
@@ -392,16 +323,15 @@ question_generator = QuestionGeneration(
 **输出**：格式化的提示模板
 
 ```python
-prompt_generator = PromptGenerator(
+text2sql_prompt_generator = Text2SQLPromptGenerator(
     database_manager=database_manager,
-    prompt_template=prompt_template,
-    schema_config=schema_config
+    prompt_template=Text2SQLPromptGeneratorPrompt()
 )
 ```
 
-#### 4.2.5 **长链推理生成器（CoTGenerator）**
+#### 4.2.5 **长链推理生成器（Text2SQLCoTGenerator）**
 
-**长链推理生成器**（`CoTGenerator`）为SQL查询生成详细的推理过程，帮助模型理解从问题到SQL的转换逻辑。
+**长链推理生成器**（`Text2SQLCoTGenerator`）为SQL查询生成详细的推理过程，帮助模型理解从问题到SQL的转换逻辑。
 
 **功能：**
 
@@ -412,20 +342,20 @@ prompt_generator = PromptGenerator(
 **输出**：思维链推理过程
 
 ```python
-cot_generator = CoTGenerator(
+sql_cot_generator = Text2SQLCoTGenerator(
     llm_serving=cot_generation_api_llm_serving,
     database_manager=database_manager,
-    schema_config=schema_config,
     max_retries=3,
-    enable_retry=True
+    enable_retry=True,
+    prompt_template=Text2SQLCotGeneratorPrompt()
 )
 ```
 
 ### 4.3 数据评估器
 
-#### 4.3.1 **组件难度评估器（ComponentClassifier）**
+#### 4.3.1 **组件难度评估器（SQLComponentClassifier）**
 
-**组件难度评估器**（`ComponentClassifier`）分析SQL语句的组件复杂度，为数据样本标注难度等级。
+**组件难度评估器**（`SQLComponentClassifier`）分析SQL语句的组件复杂度，为数据样本标注难度等级。
 
 **功能：**
 
@@ -436,14 +366,15 @@ cot_generator = CoTGenerator(
 **输出**：SQL组件难度等级
 
 ```python
-component_classifier = ComponentClassifier(
-    difficulty_config=component_difficulty_config
+sql_component_classifier = SQLComponentClassifier(
+    difficulty_thresholds=[2, 4, 6],
+    difficulty_labels=['easy', 'medium', 'hard', 'extra']
 )
 ```
 
-#### 4.3.2 **执行难度评估器（ExecutionClassifier）**
+#### 4.3.2 **执行难度评估器（SQLExecutionClassifier）**
 
-**执行难度评估器**（`ExecutionClassifier`）评估SQL查询的执行难度，基于多次生成结果进行综合判断。
+**执行难度评估器**（`SQLExecutionClassifier`）评估SQL查询的执行难度，基于多次生成结果进行综合判断。
 
 **功能：**
 
@@ -454,13 +385,25 @@ component_classifier = ComponentClassifier(
 **输出**：SQL执行难度等级
 
 ```python
-execution_classifier = ExecutionClassifier(
-    llm_serving=api_llm_serving,
+sql_execution_classifier = SQLExecutionClassifier(
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    difficulty_config=execution_difficulty_config,
-    num_generations=5
+    num_generations=10,
+    difficulty_thresholds=[2, 5, 9],
+    difficulty_labels=['extra', 'hard', 'medium', 'easy']
 )
 ```
+
+### 4.4 提示词模板系统
+
+流水线中的每个组件都使用专门的提示词模板类，确保生成质量和一致性：
+
+- `SelectSQLGeneratorPrompt()` - SQL生成提示词
+- `SQLVariationGeneratorPrompt()` - SQL变体生成提示词  
+- `Text2SQLQuestionGeneratorPrompt()` - 问题生成提示词
+- `Text2SQLPromptGeneratorPrompt()` - 训练提示词生成
+- `Text2SQLCotGeneratorPrompt()` - CoT推理生成提示词
+- `SQLConsistencyFilterPrompt()` - 一致性过滤提示词
 
 ## 5. **输出数据**
 
@@ -490,212 +433,40 @@ execution_classifier = ExecutionClassifier(
 
 这里设计了两套流水线，通过简单的Python命令执行不同的配置，满足不同的数据需求：
 
-* **数据优化流水线**：
-
-  ```bash
-  python /pipelines/api_pipelines/text2sql_pipeline_refine.py
-  ```
-
 * **数据合成流水线**：
 
   ```bash
-  python /pipelines/api_pipelines/text2sql_pipeline_gen.py
+  python /path/to/text2sql_generation_pipeline.py
   ```
 
+* **数据优化流水线**：
+
+  ```bash
+  python /path/to/text2sql_refine_pipeline.py
+  ```
 
 ## 7. 流水线示例
 
 以下给出示例流水线，演示如何使用多个算子进行推理数据处理。该示例展示了如何初始化一个推理数据处理流水线，并且顺序执行各个过滤和清理步骤。
 
-* **数据优化流水线**：
-
-```python
-class Text2SQLPipeline():
-    def __init__(self):
-
-        self.storage = FileStorage(
-            first_entry_file_name="../example_data/Text2SQLPipeline/pipeline_refine.jsonl",
-            cache_path="./cache_local",
-            file_name_prefix="dataflow_cache_step",
-            cache_type="jsonl"
-        )
-
-        api_llm_serving = APILLMServing_request(
-            api_url="http://api.openai.com/v1/chat/completions",
-            model_name="gpt-4o",
-            max_workers=100
-        )
-
-        cot_generation_api_llm_serving = APILLMServing_request(
-            api_url="http://api.openai.com/v1/chat/completions",
-            model_name="gpt-4o", 
-            max_workers=100
-        )
-
-        embedding_api_llm_serving = APILLMServing_request(
-            api_url="http://api.openai.com/v1/embeddings",
-            model_name="text-embedding-ada-002",
-            max_workers=100
-        )
-
-        execution_difficulty_config = {
-            'thresholds': [2, 5, 9],
-            'labels': ['easy', 'medium', 'hard', 'extra']
-        }
-
-        component_difficulty_config = {
-            'thresholds': [2, 4, 6],      
-            'labels': ['easy', 'medium', 'hard', 'extra']
-        }
-
-        prompt_template = '''Task Overview:
-            /* Given the following database schema: */
-            {schema}
-            /* Answer the following: {question} */
-            Let's think step by step'''
-
-        schema_config = {
-            'format': 'ddl',  
-            'use_example': False  
-        }
-
-        db_root_path = "path/to/your/database"  
-
-        database_manager = DatabaseManager(
-            db_type="sqlite",
-            config={
-                "root_path": db_root_path
-            }
-        )
-        
-        self.sql_execution_filter_step1 = ExecutionFilter(
-            database_manager=database_manager
-        )
-
-        self.sql_consistency_filter_step2 = ConsistencyFilter(
-            llm_serving=api_llm_serving,
-            database_manager=database_manager
-        )
-
-        self.sql_variation_generator_step3 = SQLVariationGenerator(
-            llm_serving=api_llm_serving,
-            database_manager=database_manager,
-            num_variations=5
-        )
-
-        self.sql_execution_filter_step4 = ExecutionFilter(
-            database_manager=database_manager
-        )
-
-        self.text2sql_question_generator_step5 = QuestionGeneration(
-            llm_serving=api_llm_serving,
-            embedding_api_llm_serving=embedding_api_llm_serving,
-            database_manager=database_manager,
-            question_candidates_num=5
-        )
-
-        self.text2sql_prompt_generator_step6 = PromptGenerator(
-            database_manager=database_manager,
-            prompt_template=prompt_template,
-            schema_config=schema_config
-        )
-
-        self.sql_cot_generator_step7 = CoTGenerator(
-            llm_serving=cot_generation_api_llm_serving,
-            database_manager=database_manager,
-            schema_config=schema_config,
-            max_retries=3,
-            enable_retry=True
-        )
-
-        self.sql_component_classifier_step8 = ComponentClassifier(
-            difficulty_config=component_difficulty_config
-        )
-
-        self.sql_execution_classifier_step9 = ExecutionClassifier(
-            llm_serving=api_llm_serving,
-            database_manager=database_manager,
-            difficulty_config=execution_difficulty_config,
-            num_generations=5
-        )
-        
-        
-    def forward(self):
-
-        sql_key = "SQL"
-        db_id_key = "db_id"
-        question_key = "question"
-
-        self.sql_execution_filter_step1.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key
-        )
-
-        self.sql_consistency_filter_step2.run(
-            storage=self.storage.step(),   
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key,
-            input_question_key=question_key
-        )
-
-        self.sql_variation_generator_step3.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key
-        )
-
-        self.sql_execution_filter_step4.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key
-        )
-
-        self.text2sql_question_generator_step5.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key,
-            output_question_key=question_key
-        )
-
-        self.text2sql_prompt_generator_step6.run(
-            storage=self.storage.step(),
-            input_question_key=question_key,
-            input_db_id_key=db_id_key,
-            output_prompt_key="prompt"
-        )
-
-        self.sql_cot_generator_step7.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_question_key=question_key,
-            input_db_id_key=db_id_key,
-            output_cot_key="cot_reasoning"
-        )
-
-        self.sql_component_classifier_step8.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            output_difficulty_key="sql_component_difficulty"
-        )
-
-        self.sql_execution_classifier_step9.run(
-            storage=self.storage.step(),
-            input_sql_key=sql_key,
-            input_db_id_key=db_id_key,
-            input_prompt_key="prompt",
-            output_difficulty_key="sql_execution_difficulty"
-        )
-
-if __name__ == "__main__":
-    model = Text2SQLPipeline()
-    model.forward()
-```
-
 * **数据合成流水线**：
+
 ```python
-class Text2SQLPipeline():
-    def __init__(self):
+class Text2SQLGeneration_APIPipeline():
+    def __init__(self, db_root_path=""):
+        self.logger = get_logger()
+        self.db_root_path = db_root_path
+
+        # 自动下载数据库功能
+        if not db_root_path:
+            try:
+                self.db_root_path = download_and_extract_database(self.logger)
+                self.logger.info(f"Using automatically downloaded database at: {self.db_root_path}")
+            except Exception as e:
+                self.logger.error(f"Failed to auto-download database: {e}")
+                raise 
+        else:
+            self.logger.info(f"Using manually specified database path: {self.db_root_path}")
 
         self.storage = FileStorage(
             first_entry_file_name="",
@@ -704,7 +475,7 @@ class Text2SQLPipeline():
             cache_type="jsonl",
         )
 
-        api_llm_serving = APILLMServing_request(
+        self.llm_serving = APILLMServing_request(
             api_url="http://api.openai.com/v1/chat/completions",
             model_name="gpt-4o",
             max_workers=100
@@ -716,87 +487,65 @@ class Text2SQLPipeline():
             max_workers=100
         )
 
-        embedding_api_llm_serving = APILLMServing_request(
+        embedding_serving = APILLMServing_request(
             api_url="http://api.openai.com/v1/embeddings",
             model_name="text-embedding-ada-002",
             max_workers=100
         )
 
-        execution_difficulty_config = {
-            'thresholds': [2, 5, 9],
-            'labels': ['easy', 'medium', 'hard', 'extra']
-        }
-
-        component_difficulty_config = {
-            'thresholds': [2, 4, 6],      
-            'labels': ['easy', 'medium', 'hard', 'extra']
-        }
-
-        prompt_template = '''Task Overview:
-            /* Given the following database schema: */
-            {schema}
-            /* Answer the following: {question} */
-            Let's think step by step'''
-
-        schema_config = {
-            'format': 'ddl',  
-            'use_example': True  
-        }
-
-        db_root_path = "path/to/your/database"  
-
         database_manager = DatabaseManager(
             db_type="sqlite",
             config={
-                "root_path": db_root_path
+                "root_path": self.db_root_path
             }
         )
         
         self.sql_generator_step1 = SQLGenerator(
-            llm_serving=api_llm_serving,
+            llm_serving=self.llm_serving,
             database_manager=database_manager,
-            generate_num=300
+            generate_num=50,
+            prompt_template=SelectSQLGeneratorPrompt()
         )
 
-        self.sql_execution_filter_step2 = ExecutionFilter(
-            database_manager=database_manager
-        )
-
-        self.text2sql_question_generator_step3 = QuestionGeneration(
-            llm_serving=api_llm_serving,
-            embedding_api_llm_serving=embedding_api_llm_serving,
+        self.sql_execution_filter_step2 = SQLExecutionFilter(
             database_manager=database_manager,
-            question_candidates_num=5
         )
 
-        self.text2sql_prompt_generator_step4 = PromptGenerator(
+        self.text2sql_question_generator_step3 = Text2SQLQuestionGenerator(
+            llm_serving=self.llm_serving,
+            embedding_serving=embedding_serving,
             database_manager=database_manager,
-            prompt_template=prompt_template,
-            schema_config=schema_config
+            question_candidates_num=5,
+            prompt_template=Text2SQLQuestionGeneratorPrompt()
         )
 
-        self.sql_cot_generator_step5 = CoTGenerator(
+        self.text2sql_prompt_generator_step4 = Text2SQLPromptGenerator(
+            database_manager=database_manager,
+            prompt_template=Text2SQLPromptGeneratorPrompt()
+        )
+
+        self.sql_cot_generator_step5 = Text2SQLCoTGenerator(
             llm_serving=cot_generation_api_llm_serving,
             database_manager=database_manager,
-            schema_config=schema_config,
             max_retries=3,
-            enable_retry=True
+            enable_retry=True,
+            prompt_template=Text2SQLCotGeneratorPrompt()
         )
 
-        self.sql_component_classifier_step6 = ComponentClassifier(
-            difficulty_config=component_difficulty_config
+        self.sql_component_classifier_step6 = SQLComponentClassifier(
+            difficulty_thresholds=[2, 4, 6],
+            difficulty_labels=['easy', 'medium', 'hard', 'extra']
         )
 
-        self.sql_execution_classifier_step7 = ExecutionClassifier(
-            llm_serving=api_llm_serving,
+        self.sql_execution_classifier_step7 = SQLExecutionClassifier(
+            llm_serving=self.llm_serving,
             database_manager=database_manager,
-            difficulty_config=execution_difficulty_config,
-            num_generations=5
+            num_generations=10,
+            difficulty_thresholds=[2, 5, 9],
+            difficulty_labels=['extra', 'hard', 'medium', 'easy']
         )
-        
         
     def forward(self):
-
         sql_key = "SQL"
         db_id_key = "db_id"
         question_key = "question"
@@ -850,6 +599,125 @@ class Text2SQLPipeline():
         )
 
 if __name__ == "__main__":
-    model = Text2SQLPipeline()
+    # 如果有自己的数据库文件，可以设置db_root_path为数据库文件路径
+    # 如果没有，请设置db_root_path为""，系统将自动下载示例数据库
+    db_root_path = ""
+    
+    model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
     model.forward()
 ```
+
+* **数据优化流水线**：
+```python
+class Text2SQLRefine_APIPipeline():
+    def __init__(self, db_root_path=""):
+        self.logger = get_logger()
+        self.db_root_path = db_root_path
+
+        # 自动下载数据库功能
+        if not db_root_path:
+            try:
+                self.db_root_path = download_and_extract_database(self.logger)
+                self.logger.info(f"Using automatically downloaded database at: {self.db_root_path}")
+            except Exception as e:
+                self.logger.error(f"Failed to auto-download database: {e}")
+                raise 
+        else:
+            self.logger.info(f"Using manually specified database path: {self.db_root_path}")
+
+        self.storage = FileStorage(
+            first_entry_file_name="../example_data/Text2SQLPipeline/pipeline_refine.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl"
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="http://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o",
+            max_workers=100
+        )
+
+        cot_generation_api_llm_serving = APILLMServing_request(
+            api_url="http://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o", 
+            max_workers=100
+        )
+
+        embedding_serving = APILLMServing_request(
+            api_url="http://api.openai.com/v1/embeddings",
+            model_name="text-embedding-ada-002",
+            max_workers=100
+        )
+
+        database_manager = DatabaseManager(
+            db_type="sqlite",
+            config={
+                "root_path": self.db_root_path
+            }
+        )
+        
+        self.sql_execution_filter_step1 = SQLExecutionFilter(
+            database_manager=database_manager
+        )
+
+        self.sql_consistency_filter_step2 = SQLConsistencyFilter(
+            llm_serving=self.llm_serving,
+            database_manager=database_manager,
+            prompt_template=SQLConsistencyFilterPrompt()
+        )
+
+        self.sql_variation_generator_step3 = SQLVariationGenerator(
+            llm_serving=self.llm_serving,
+            database_manager=database_manager,
+            num_variations=5,
+            prompt_template=SQLVariationGeneratorPrompt()
+        )
+
+        self.sql_execution_filter_step4 = SQLExecutionFilter(
+            database_manager=database_manager
+        )
+
+        self.text2sql_question_generator_step5.run(
+            storage=self.storage.step(),
+            input_sql_key=sql_key,
+            input_db_id_key=db_id_key,
+            output_question_key=question_key
+        )
+
+        self.text2sql_prompt_generator_step6.run(
+            storage=self.storage.step(),
+            input_question_key=question_key,
+            input_db_id_key=db_id_key,
+            output_prompt_key="prompt"
+        )
+
+        self.sql_cot_generator_step7.run(
+            storage=self.storage.step(),
+            input_sql_key=sql_key,
+            input_question_key=question_key,
+            input_db_id_key=db_id_key,
+            output_cot_key="cot_reasoning"
+        )
+
+        self.sql_component_classifier_step8.run(
+            storage=self.storage.step(),
+            input_sql_key=sql_key,
+            output_difficulty_key="sql_component_difficulty"
+        )
+
+        self.sql_execution_classifier_step9.run(
+            storage=self.storage.step(),
+            input_sql_key=sql_key,
+            input_db_id_key=db_id_key,
+            input_prompt_key="prompt",
+            output_difficulty_key="sql_execution_difficulty"
+        )
+
+if __name__ == "__main__":
+    # 如果有自己的数据库文件，可以设置db_root_path为数据库文件路径
+    # 如果没有，请设置db_root_path为""，系统将自动下载示例数据库
+    db_root_path = ""
+
+    model = Text2SQLRefine_APIPipeline(db_root_path=db_root_path)
+    model.forward()

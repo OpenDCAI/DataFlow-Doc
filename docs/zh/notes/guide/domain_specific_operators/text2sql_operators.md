@@ -43,19 +43,19 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">QuestionGeneration</td>
+      <td class="tg-0pky">Text2SQLQuestionGenerator</td>
       <td class="tg-0pky">问题生成</td>
       <td class="tg-0pky">基于SQL语句生成对应的自然语言问题</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">PromptGenerator✨</td>
+      <td class="tg-0pky">Text2SQLPromptGenerator✨</td>
       <td class="tg-0pky">提示词生成</td>
       <td class="tg-0pky">构建包含Schema和问题的训练提示词</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">CoTGenerator</td>
+      <td class="tg-0pky">Text2SQLCoTGenerator</td>
       <td class="tg-0pky">推理链生成</td>
       <td class="tg-0pky">生成SQL推理的逐步思维链过程</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
@@ -76,13 +76,13 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">ComponentClassifier</td>
+      <td class="tg-0pky">SQLComponentClassifier</td>
       <td class="tg-0pky">难度评估</td>
       <td class="tg-0pky">基于SQL语法复杂度进行难度分级</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/1809.08887">Spider</a></td>
     </tr>
     <tr>
-      <td class="tg-0pky">ExecutionClassifier🚀</td>
+      <td class="tg-0pky">SQLExecutionClassifier🚀</td>
       <td class="tg-0pky">执行难度评估</td>
       <td class="tg-0pky">基于模型执行成功率进行难度分级</td>
       <td class="tg-0pky">-</td>
@@ -103,20 +103,19 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">ExecutionFilter✨</td>
+      <td class="tg-0pky">SQLExecutionFilter✨</td>
       <td class="tg-0pky">数据清洗</td>
       <td class="tg-0pky">过滤无法正常执行的SQL语句</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">ConsistencyFilter✨</td>
+      <td class="tg-0pky">SQLConsistencyFilter✨</td>
       <td class="tg-0pky">数据清洗</td>
       <td class="tg-0pky">验证SQL与问题描述的语义一致性</td>
       <td class="tg-0pky">-</td>
     </tr>
   </tbody>
 </table>
-
 
 ## 算子接口调用说明
 
@@ -127,12 +126,18 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
 可以通过以下方式为算子进行模型API参数预定义，包括生成式模型和嵌入模型：
 
 ```python
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving import APILLMServing_request
 
 api_llm_serving = APILLMServing_request(
     api_url="your_api_url",        # API服务地址
     model_name="model_name",       # 模型名称
     max_workers=5                  # 最大并发数
+)
+
+embedding_serving = APILLMServing_request(
+    api_url="http://api.openai.com/v1/embeddings",
+    model_name="text-embedding-ada-002",
+    max_workers=100
 )
 ```
 
@@ -160,9 +165,9 @@ from dataflow.utils.text2sql.database_manager import DatabaseManager
 
 database_manager = DatabaseManager(
     db_type="your_db_type", # 目前支持 SQLite 和 MySQL
-        config={
-            "your_db_config_key": "your_db_config_value"
-        }    
+    config={
+        "your_db_config_key": "your_db_config_value"
+    }    
 )
 ```
 
@@ -190,7 +195,22 @@ database_manager = DatabaseManager(
 )
 ```
 
-后文使用的`api_llm_serving`、`self.storage`和`database_manager`即为此处已定义的接口对象，完整调用示例可参考`/pipelines/api_pipelines/text2sql_pipeline_refine.py`。
+### 提示词模板配置
+
+算子支持使用预定义的提示词模板，可以通过以下方式导入和使用：
+
+```python
+from dataflow.prompts.text2sql import (
+    Text2SQLCotGeneratorPrompt,
+    SelectSQLGeneratorPrompt,
+    Text2SQLQuestionGeneratorPrompt,
+    Text2SQLPromptGeneratorPrompt,
+    SQLConsistencyFilterPrompt,
+    SQLVariationGeneratorPrompt
+)
+```
+
+后文使用的`llm_serving`、`storage`、`database_manager`和提示词模板即为此处已定义的接口对象，完整调用示例可参考实际的pipeline代码。
 
 对于传参，算子对象的构造函数主要传递与算子配置相关的信息，配置后可以一配置多调用；而`X.run()`函数传递与IO相关的`key`信息，详细可见后文算子说明示例。
 
@@ -210,6 +230,7 @@ database_manager = DatabaseManager(
   - `llm_serving`: LLM服务接口，用于SQL生成
   - `database_manager`: 数据库管理器，用于访问数据库Schema
   - `generate_num`: 每个数据库生成SQL语句的数量
+  - `prompt_template`: SQL生成的提示词模板
 
 - `run()`
   - `output_sql_key`: 输出SQL语句字段名，默认"SQL"
@@ -225,13 +246,16 @@ database_manager = DatabaseManager(
 **使用示例：**
 
 ```python
+from dataflow.prompts.text2sql import SelectSQLGeneratorPrompt
+
 sql_generator = SQLGenerator(
-    llm_serving=api_llm_serving,
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    generate_num=300
+    generate_num=50,
+    prompt_template=SelectSQLGeneratorPrompt()
 )
 sql_generator.run(
-    storage=self.storage.step(),
+    storage=storage.step(),
     output_sql_key="SQL",
     output_db_id_key="db_id"
 )
@@ -250,6 +274,7 @@ sql_generator.run(
   - `llm_serving`: LLM服务接口，用于SQL变体生成
   - `database_manager`: 数据库管理器，用于验证变体正确性
   - `num_variations`: 每个SQL生成的变体数量，默认5
+  - `prompt_template`: SQL变体生成的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -264,19 +289,22 @@ sql_generator.run(
 **使用示例：**
 
 ```python
+from dataflow.prompts.text2sql import SQLVariationGeneratorPrompt
+
 sql_variation_generator = SQLVariationGenerator(
-    llm_serving=api_llm_serving,
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    num_variations=5
+    num_variations=5,
+    prompt_template=SQLVariationGeneratorPrompt()
 )
 sql_variation_generator.run(
-    storage=self.storage.step(),
+    storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id"
 )
 ```
 
-#### 3. QuestionGeneration
+#### 3. Text2SQLQuestionGenerator
 
 **功能描述：** 基于SQL语句生成对应的自然语言问题
 - 分析SQL语义生成合理的自然语言问题
@@ -288,9 +316,10 @@ sql_variation_generator.run(
 
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于问题生成
-  - `embedding_api_llm_serving`: 嵌入模型接口，用于问题选择
+  - `embedding_serving`: 嵌入模型接口，用于问题选择
   - `database_manager`: 数据库管理器，用于Schema信息获取
   - `question_candidates_num`: 问题候选数量，默认5
+  - `prompt_template`: 问题生成的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -307,21 +336,24 @@ sql_variation_generator.run(
 **使用示例：**
 
 ```python
-question_generation = QuestionGeneration(
-    llm_serving=api_llm_serving,
-    embedding_api_llm_serving=embedding_api_llm_serving,
+from dataflow.prompts.text2sql import Text2SQLQuestionGeneratorPrompt
+
+text2sql_question_generator = Text2SQLQuestionGenerator(
+    llm_serving=llm_serving,
+    embedding_serving=embedding_serving,
     database_manager=database_manager,
-    question_candidates_num=5
+    question_candidates_num=5,
+    prompt_template=Text2SQLQuestionGeneratorPrompt()
 )
-question_generation.run(
-    storage=self.storage.step(),
+text2sql_question_generator.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
     output_question_key="question"
 )
 ```
 
-#### 4. PromptGenerator✨
+#### 4. Text2SQLPromptGenerator✨
 
 **功能描述：** 构建包含Schema和问题的训练提示词
 - 格式化数据库Schema信息
@@ -334,7 +366,6 @@ question_generation.run(
 - `__init__()`
   - `database_manager`: 数据库管理器，用于Schema信息获取
   - `prompt_template`: 提示词模板，必须包含{schema}和{question}占位符
-  - `schema_config`: Schema配置，包含format和use_example字段
 
 - `run()`
   - `input_question_key`: 问题字段名，默认"question"
@@ -351,27 +382,21 @@ question_generation.run(
 **使用示例：**
 
 ```python
-prompt_generator = PromptGenerator(
+from dataflow.prompts.text2sql import Text2SQLPromptGeneratorPrompt
+
+text2sql_prompt_generator = Text2SQLPromptGenerator(
     database_manager=database_manager,
-    prompt_template='''Task Overview:
-        /* Given the following database schema: */
-        {schema}
-        /* Answer the following: {question} */
-        Let's think step by step''',
-    schema_config={
-        'format': 'ddl',
-        'use_example': True
-    }
+    prompt_template=Text2SQLPromptGeneratorPrompt()
 )
-prompt_generator.run(
-    storage=self.storage.step(),
+text2sql_prompt_generator.run(
+    storage=storage.step(),
     input_question_key="question",
     input_db_id_key="db_id",
     output_prompt_key="prompt"
 )
 ```
 
-#### 5. CoTGenerator
+#### 5. Text2SQLCoTGenerator
 
 **功能描述：** 生成SQL推理的逐步思维链过程
 - 基于问题和SQL生成详细的推理步骤
@@ -384,9 +409,9 @@ prompt_generator.run(
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于CoT生成
   - `database_manager`: 数据库管理器，用于Schema信息获取
-  - `schema_config`: Schema配置，包含format和use_example字段
   - `max_retries`: 最大重试次数，默认3
   - `enable_retry`: 是否启用重试机制，默认True
+  - `prompt_template`: CoT生成的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -404,18 +429,17 @@ prompt_generator.run(
 **使用示例：**
 
 ```python
-cot_generator = CoTGenerator(
-    llm_serving=cot_generation_api_llm_serving,
+from dataflow.prompts.text2sql import Text2SQLCotGeneratorPrompt
+
+text2sql_cot_generator = Text2SQLCoTGenerator(
+    llm_serving=cot_generation_llm_serving,
     database_manager=database_manager,
-    schema_config={
-        'format': 'ddl',
-        'use_example': True
-    },
     max_retries=3,
-    enable_retry=True
+    enable_retry=True,
+    prompt_template=Text2SQLCotGeneratorPrompt()
 )
-cot_generator.run(
-    storage=self.storage.step(),
+text2sql_cot_generator.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     input_question_key="question",
     input_db_id_key="db_id",
@@ -425,7 +449,7 @@ cot_generator.run(
 
 ### 数据评估算子
 
-#### 1. ComponentClassifier
+#### 1. SQLComponentClassifier
 
 **功能描述：** 基于SQL语法复杂度进行难度分级
 - 分析SQL语句的语法组件复杂度
@@ -436,7 +460,8 @@ cot_generator.run(
 **输入参数：**
 
 - `__init__()`
-  - `difficulty_config`: 难度配置，包含thresholds和labels字段，支持自定义
+  - `difficulty_thresholds`: 难度阈值列表，默认[2, 4, 6]
+  - `difficulty_labels`: 难度标签列表，默认['easy', 'medium', 'hard', 'extra']
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -452,20 +477,18 @@ cot_generator.run(
 **使用示例：**
 
 ```python
-component_classifier = ComponentClassifier(
-    difficulty_config={
-        'thresholds': [2, 4, 6],
-        'labels': ['easy', 'medium', 'hard', 'extra']
-    }
+sql_component_classifier = SQLComponentClassifier(
+    difficulty_thresholds=[2, 4, 6],
+    difficulty_labels=['easy', 'medium', 'hard', 'extra']
 )
-component_classifier.run(
-    storage=self.storage.step(),
+sql_component_classifier.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     output_difficulty_key="sql_component_difficulty"
 )
 ```
 
-#### 2. ExecutionClassifier🚀
+#### 2. SQLExecutionClassifier🚀
 
 **功能描述：** 基于模型执行成功率进行难度分级
 - 使用LLM多次尝试生成SQL来评估难度
@@ -478,8 +501,9 @@ component_classifier.run(
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于SQL生成测试
   - `database_manager`: 数据库管理器，用于SQL执行验证
-  - `difficulty_config`: 难度配置，包含thresholds和labels字段
-  - `num_generations`: 测试生成次数，默认5
+  - `num_generations`: 测试生成次数，默认10
+  - `difficulty_thresholds`: 难度阈值列表，默认[2, 5, 9]
+  - `difficulty_labels`: 难度标签列表，默认['extra', 'hard', 'medium', 'easy']
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -497,17 +521,15 @@ component_classifier.run(
 **使用示例：**
 
 ```python
-execution_classifier = ExecutionClassifier(
-    llm_serving=api_llm_serving,
+sql_execution_classifier = SQLExecutionClassifier(
+    llm_serving=llm_serving,
     database_manager=database_manager,
-    difficulty_config={
-        'thresholds': [2, 5, 9],
-        'labels': ['easy', 'medium', 'hard', 'extra']
-    },
-    num_generations=5
+    num_generations=10,
+    difficulty_thresholds=[2, 5, 9],
+    difficulty_labels=['extra', 'hard', 'medium', 'easy']
 )
-execution_classifier.run(
-    storage=self.storage.step(),
+sql_execution_classifier.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
     input_prompt_key="prompt",
@@ -517,7 +539,7 @@ execution_classifier.run(
 
 ### 数据过滤算子
 
-#### 1. ExecutionFilter✨
+#### 1. SQLExecutionFilter✨
 
 **功能描述：** 验证SQL语句的可执行性和语法正确性
 - 在真实数据库环境中执行SQL语句
@@ -543,17 +565,17 @@ execution_classifier.run(
 **使用示例：**
 
 ```python
-execution_filter = ExecutionFilter(
+sql_execution_filter = SQLExecutionFilter(
     database_manager=database_manager
 )
-execution_filter.run(
-    storage=self.storage.step(),
+sql_execution_filter.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id"
 )
 ```
 
-#### 2. ConsistencyFilter✨
+#### 2. SQLConsistencyFilter✨
 
 **功能描述：** 验证SQL与问题描述的语义一致性
 - 使用LLM判断SQL执行结果是否回答了问题
@@ -566,6 +588,7 @@ execution_filter.run(
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于一致性判断
   - `database_manager`: 数据库管理器，用于SQL执行
+  - `prompt_template`: 一致性检查的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
@@ -582,15 +605,17 @@ execution_filter.run(
 **使用示例：**
 
 ```python
-consistency_filter = ConsistencyFilter(
-    llm_serving=api_llm_serving,
-    database_manager=database_manager
+from dataflow.prompts.text2sql import SQLConsistencyFilterPrompt
+
+sql_consistency_filter = SQLConsistencyFilter(
+    llm_serving=llm_serving,
+    database_manager=database_manager,
+    prompt_template=SQLConsistencyFilterPrompt()
 )
-consistency_filter.run(
-    storage=self.storage.step(),
+sql_consistency_filter.run(
+    storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
     input_question_key="question"
 )
 ```
-
