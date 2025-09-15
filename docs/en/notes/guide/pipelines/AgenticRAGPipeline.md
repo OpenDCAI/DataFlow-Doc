@@ -1,7 +1,7 @@
 ---
-title: Agentic RAG Data Synthesis Pipeline-Alpha
+title: Agentic RAG Data Synthesis Pipeline
 icon: solar:palette-round-linear
-createTime: 2025/06/16 13:08:42  
+createTime: 2025/07/14 16:37:14  
 permalink: /en/guide/agenticrag_pipeline/  
 ---
 
@@ -36,188 +36,119 @@ self.storage = FileStorage(
 )
 ```
 
-### 2. **Content Selection**
+### 2. **Atomic Task Generation**
 
-#### 2.1 **Selecting Content**
+#### 2.1 **Atomic Task Generator**
 
-The first step of the process is to use the **Content Chooser** operator (`ContentChooser`) to select a portion of text content from a large dataset. This step is crucial because it determines which text content will be used in the subsequent generation process.
+The first step of the process is to use the **Atomic Task Generator** operator (`AgenticRAGAtomicTaskGenerator`) to generate the question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
 
 **Functionality:**
 
-* Identifies and selects representative text content from a set of textual contexts.
+* Generate the question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
 
 **Input:** Original text content
 
-**Output:** Selected text content
+**Output:** Question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
 
 ```python
-embedding_serving = APILLMServing_request(
-                    api_url="https://api.openai.com/v1/embeddings",
-                    model_name="text-embedding-ada-002",
-                    max_workers=100
+self.llm_serving = APILLMServing_request(
+            api_url="https://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o-mini",
+            max_workers=500
         )
 
-content_chooser = ContentChooser(num_samples = 5, method = "random", embedding_serving=embedding_serving)
-result = content_chooser.run(
+atomic_task_generator = AgenticRAGAtomicTaskGenerator(
+            llm_serving=self.llm_serving
+        )
+
+result = atomic_task_generator.run(
             storage = self.storage.step(),
-            input_key = "text",
-          ) 
+            input_key = "contents",
+        )
 ```
 
-### 3. **Question and Answer Generation**
+### 3. **Task Quality Evaluation**
 
-#### 3.1 **Automatic Prompt Generation**
+#### 3.1 **F1 Scorer**
 
-The second step of the process is to use the **Automatic Prompt Generator** operator (`AutoPromptGenerator`) to automatically generate dedicated prompts for question and answer generation. This step ensures that each selected text content is paired with an appropriate prompt for the subsequent Q&A generation.
+The second step of the process is to use the **F1 Scorer** operator (`AgenticRAGQAF1SampleEvaluator`) evaluate the F1 score between the refined reference answer and the LLM’s answer to the question when provided with the original document. This step ensures that each constructed question, when paired with correct document retrieval, receives an appropriate reward, thereby maintaining the training quality of reinforcement learning.
 
 **Functionality:**
 
-* Automatically generates suitable prompts for each selected text content to guide the Q&A generation process.
+* Evaluate the F1 score between the refined reference answer and the LLM’s answer to the question given the original document.
 
-**Input:** Selected text content  
-**Output:** Generated prompts for each text content
+**Input:** refined reference answer, the LLM’s answer to the question given the original document.
+**Output:** F1 scores
 
 ```python
-prompt_generator = AutoPromptGenerator(api_llm_serving)
-result = prompt_generator.run(
-            storage = self.storage.step(),
-            input_key = "text",
-            output_key = "generated_prompt"
+f1_scorer = AgenticRAGQAF1SampleEvaluator()
+
+result = f1_scorer.run(
+            storage=self.storage.step(),
+            output_key="F1Score",
+            input_prediction_key="refined_answer",
+            input_ground_truth_key="golden_doc_answer"
         )
 ```
 
 ---
-
-#### 3.2 **Q&A Pair Generation**
-
-The third step of the process is to use the **Q&A Generator** operator (`QAGenerator`) to generate Q&A pairs for each text content and its corresponding prompt. This step produces the core data for subsequent evaluation and use.
-
-**Functionality:**
-
-* Generates questions and their corresponding answers based on the text content and the generated prompts.
-
-**Input:** Selected text content and its generated prompts  
-**Output:** Generated Q&A pairs
-
-```python
-qa_gen = QAGenerator(llm_serving=api_llm_serving)
-result = qa_gen.run(
-            storage = self.storage.step(),
-            input_key="text",
-            prompt_key="generated_prompt",
-            output_quesion_key="generated_question",
-            output_answer_key="generated_answer"
-          )
-```
-
----
-
-#### 3.3 **Q&A Pair Scoring**
-
-The fourth step of the process is to use the **Q&A Scorer** operator (`QAScorer`) to evaluate the quality of the generated Q&A pairs. This step provides multi-dimensional scores and feedback for each Q&A pair, supporting further filtering and improvement.
-
-**Functionality:**
-
-* Evaluates the generated Q&A pairs from multiple dimensions (such as question quality, answer consistency, answer verifiability, and downstream value), and provides scores and detailed feedback.
-
-**Input:** Generated Q&A pairs  
-**Output:** Evaluation scores and feedback for each Q&A pair
-
-```python
-qa_scorer = QAScorer(llm_serving=api_llm_serving)
-result = qa_scorer.run(
-            storage = self.storage.step(),
-            input_question_key="generated_question",
-            input_answer_key="generated_answer",
-            output_question_quality_key="question_quality_grades",
-            output_question_quality_feedback_key="question_quality_feedbacks",
-            output_answer_alignment_key="answer_alignment_grades",
-            output_answer_alignment_feedback_key="answer_alignment_feedbacks",
-            output_answer_verifiability_key="answer_verifiability_grades",
-          )
-```
 
 ## 3. Running the Process
 
 Run the complete process:
 
 ```python
-from dataflow.operators.generate.AgenticRAG import (
-    AutoPromptGenerator,
-    QAGenerator,
-    QAScorer
+import pandas as pd
+from dataflow.operators.agentic_rag import AgenticRAGQAF1SampleEvaluator
+
+from dataflow.operators.agentic_rag import (
+    AgenticRAGAtomicTaskGenerator,
+    AgenticRAGDepthQAGenerator,
+    AgenticRAGWidthQAGenerator
 )
 
-from dataflow.operators.process.AgenticRAG import (
-    ContentChooser,
-)
 from dataflow.utils.storage import FileStorage
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
-class AgenticRAGPipeline():
+class AgenticRAGEval_APIPipeline():
+
     def __init__(self, llm_serving=None):
 
         self.storage = FileStorage(
-            first_entry_file_name="../dataflow/example/AgenticRAGPipeline/pipeline_small_chunk.json",
-            cache_path="./cache",
-            file_name_prefix="dataflow_cache_step",
+            first_entry_file_name="../example_data/AgenticRAGPipeline/eval_test_data.jsonl",
+            cache_path="./agenticRAG_eval_cache",
+            file_name_prefix="agentic_rag_eval",
             cache_type="jsonl",
         )
-        if llm_serving is None:
-            api_llm_serving = APILLMServing_request(
-                    api_url="your_api_url",
-                    model_name="gpt-4o",
-                    max_workers=100
-            )
-        else:
-            api_llm_serving = llm_serving
 
-        embedding_serving = APILLMServing_request(
-                    api_url="https://api.openai.com/v1/embeddings",
-                    model_name="text-embedding-ada-002",
-                    max_workers=100
+        self.llm_serving = APILLMServing_request(
+            api_url="https://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o-mini",
+            max_workers=500
         )
 
-        self.content_chooser_step1 = ContentChooser(num_samples=5, method="kcenter", embedding_serving=embedding_serving)
+        self.task_step1 = AgenticRAGAtomicTaskGenerator(
+            llm_serving=self.llm_serving
+        )
 
-        self.prompt_generator_step2 = AutoPromptGenerator(api_llm_serving)
-
-        self.qa_generator_step3 = QAGenerator(api_llm_serving)
-
-        self.qa_scorer_step4 = QAScorer(api_llm_serving)
+        self.task_step2 = AgenticRAGQAF1SampleEvaluator()
         
     def forward(self):
 
-        self.content_chooser_step1.run(
+        self.task_step1.run(
             storage = self.storage.step(),
-            input_key= "text"
+            input_key = "contents",
         )
 
-        self.prompt_generator_step2.run(
-            storage = self.storage.step(),
-            input_key = "text"
+        self.task_step2.run(
+            storage=self.storage.step(),
+            output_key="F1Score",
+            input_prediction_key="refined_answer",
+            input_ground_truth_key="golden_doc_answer"
         )
 
-        self.qa_generator_step3.run(
-            storage = self.storage.step(),
-            input_key="text",
-            prompt_key="generated_prompt",
-            output_quesion_key="generated_question",
-            output_answer_key="generated_answer"
-        )
-
-        self.qa_scorer_step4.run(
-            storage = self.storage.step(),
-            input_question_key="generated_question",
-            input_answer_key="generated_answer",
-            output_question_quality_key="question_quality_grades",
-            output_question_quality_feedback_key="question_quality_feedbacks",
-            output_answer_alignment_key="answer_alignment_grades",
-            output_answer_alignment_feedback_key="answer_alignment_feedbacks",
-            output_answer_verifiability_key="answer_verifiability_grades",
-        )
-        
 if __name__ == "__main__":
-    model = AgenticRAGPipeline()
+    model = AgenticRAGEval_APIPipeline()
     model.forward()
 ```

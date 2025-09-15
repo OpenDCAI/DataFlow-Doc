@@ -84,14 +84,14 @@ export const enNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG Pipeline-Alpha",
-                        link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
+                        text: "Doc-to-QA Pipeline",
+                        link: "/en/notes/guide/pipelines/Doc2QAPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG Pipeline-Beta",
-                        link: "/en/notes/guide/pipelines/AgenticRAGPipeline2.md",
+                        text: "Agentic RAG Pipeline",
+                        link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },

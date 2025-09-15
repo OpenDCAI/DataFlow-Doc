@@ -1,7 +1,7 @@
 ---
-title: AgenticRAG数据合成流水线-Alpha
+title: AgenticRAG数据合成流水线
 icon: solar:palette-round-linear
-createTime: 2025/06/16 13:08:42  
+createTime: 2025/07/14 16:37:14  
 permalink: /zh/guide/agenticrag_pipeline/  
 ---
 
@@ -29,114 +29,61 @@ permalink: /zh/guide/agenticrag_pipeline/
 
 ```python
 self.storage = FileStorage(
-    first_entry_file_name="../dataflow/example/AgenticRAGPipeline/pipeline_small_chunk.json",
-    cache_path="./cache_local",
-    file_name_prefix="dataflow_cache_step",
+    first_entry_file_name="../example_data/AgenticRAGPipeline/eval_test_data.jsonl",
+    cache_path="./agenticRAG_eval_cache",
+    file_name_prefix="agentic_rag_eval",
     cache_type="jsonl",
 )
 ```
 
-### 2. **内容选择**
+### 2. **原子问答生成**
 
-#### 2.1 **选择内容**
+#### 2.1 **问答生成**
 
-流程的第一步是使用 **内容选择器** 算子（`ContentChooser`）从大型数据集中选择一部分文本内容。这一步至关重要，因为它决定了哪些文本内容将用于后续的生成流程。
+流程的第一步是使用 **原子任务生成器** 算子（`AgenticRAGAtomicTaskGenerator`）从大型数据集中分别生成问题、参考答案、精简的参考答案、可替代（验证）以及在提供原始文档下LLM对问题的回答。
 
 **功能：**
 
-* 从一组文本上下文中识别并选择具有代表性的文本内容。
+* 从一组文本上下文中生成问题、参考答案、精简的参考答案、可替代（验证）以及在提供原始文档下LLM对问题的回答。
 
 **输入**：原始文本内容
 
-**输出**：已选择的文本内容
+**输出**：问题、参考答案、精简的参考答案、可替代（验证）以及在提供原始文档下LLM对问题的回答
 
 ```python
-embedding_serving = APILLMServing_request(
-                    api_url="https://api.openai.com/v1/embeddings",
-                    model_name="text-embedding-ada-002",
-                    max_workers=100
+self.llm_serving = APILLMServing_request(
+            api_url="https://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o-mini",
+            max_workers=500
         )
 
-content_chooser = ContentChooser(num_samples = 5, method = "random", embedding_serving=embedding_serving)
-result = content_chooser.run(
+atomic_task_generator = AgenticRAGAtomicTaskGenerator(
+            llm_serving=self.llm_serving
+        )
+
+result = atomic_task_generator.run(
             storage = self.storage.step(),
-            input_key = "text",
-          ) 
-```
-
----
-
-### 3. **问答生成**
-
-#### 3.1 **自动提示生成**
-
-流程的第二步是使用 **自动提示生成器** 算子（`AutoPromptGenerator`）为问答生成自动生成专用提示语。这一步确保每个被选中的文本内容都配有合适的提示语，以便后续的问答生成。
-
-**功能：**
-
-* 为每个被选中的文本内容自动生成合适的提示语，引导问答生成过程。
-
-**输入**：已选择的文本内容  
-**输出**：为每个文本内容生成的提示语
-
-```python
-prompt_generator = AutoPromptGenerator(api_llm_serving)
-result = prompt_generator.run(
-            storage = self.storage.step(),
-            input_key = "text",
-            output_key = "generated_prompt"
+            input_key = "contents",
         )
 ```
 
 ---
 
-#### 3.2 **问答对生成**
+### 3. **问答生成质量评估**
 
-流程的第三步是使用 **问答生成器** 算子（`QAGenerator`）为每个文本内容及其对应的提示语生成问答对。这一步生成了后续评估和使用的核心数据。
+#### 3.1 **F1打分器**
 
-**功能：**
-
-* 根据文本内容和生成的提示语，生成问题及其对应的答案。
-
-**输入**：已选择的文本内容及其生成的提示语  
-**输出**：生成的问答对
-
-```python
-qa_gen = QAGenerator(llm_serving=api_llm_serving)
-result = qa_gen.run(
-            storage = self.storage.step(),
-            input_key="text",
-            prompt_key="generated_prompt",
-            output_quesion_key="generated_question",
-            output_answer_key="generated_answer"
-          )
-```
-
----
-
-#### 3.3 **问答对评分**
-
-流程的第四步是使用 **问答评分器** 算子（`QAScorer`）对生成的问答对进行质量评估。这一步为每个问答对提供多维度的评分和反馈，支持进一步筛选和改进。
+流程的第二步是使用 **F1打分器** 算子（`AgenticRAGQAF1SampleEvaluator`）为精简的参考答案与提供原始文档下LLM对问题的回答之间的 F1 分数进行评估。这一步确保每个已构造的问题，在正确地文档检索下，所回答的答案能被合适地给予reward，保障强化学习的训练质量。
 
 **功能：**
 
-* 从多个维度（如问题质量、答案契合度、答案可验证性和下游价值）对生成的问答对进行评估，并提供评分和详细反馈。
+* 为精简的参考答案与提供原始文档下LLM对问题的回答之间的 F1 分数进行评估。
 
-**输入**：生成的问答对  
-**输出**：每个问答对的评估分数和反馈
+**输入**：参考答案、 提供原始文档下LLM对问题的回答
+**输出**：F1 分数
 
 ```python
-qa_scorer = QAScorer(llm_serving=api_llm_serving)
-result = qa_scorer.run(
-            storage = self.storage.step(),
-            input_question_key="generated_question",
-            input_answer_key="generated_answer",
-            output_question_quality_key="question_quality_grades",
-            output_question_quality_feedback_key="question_quality_feedbacks",
-            output_answer_alignment_key="answer_alignment_grades",
-            output_answer_alignment_feedback_key="answer_alignment_feedbacks",
-            output_answer_verifiability_key="answer_verifiability_grades",
-          )
+AgenticRAGQAF1SampleEvaluator
 ```
 
 ---
@@ -146,83 +93,58 @@ result = qa_scorer.run(
 运行完整流程：
 
 ```python
-from dataflow.operators.generate.AgenticRAG import (
-    AutoPromptGenerator,
-    QAGenerator,
-    QAScorer
+import pandas as pd
+from dataflow.operators.agentic_rag import AgenticRAGQAF1SampleEvaluator
+
+from dataflow.operators.agentic_rag import (
+    AgenticRAGAtomicTaskGenerator,
+    AgenticRAGDepthQAGenerator,
+    AgenticRAGWidthQAGenerator
 )
 
-from dataflow.operators.process.AgenticRAG import (
-    ContentChooser,
-)
 from dataflow.utils.storage import FileStorage
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
-class AgenticRAGPipeline():
+class AgenticRAGEval_APIPipeline():
+
     def __init__(self, llm_serving=None):
 
         self.storage = FileStorage(
-            first_entry_file_name="../dataflow/example/AgenticRAGPipeline/pipeline_small_chunk.json",
-            cache_path="./cache",
-            file_name_prefix="dataflow_cache_step",
+            first_entry_file_name="../example_data/AgenticRAGPipeline/eval_test_data.jsonl",
+            cache_path="./agenticRAG_eval_cache",
+            file_name_prefix="agentic_rag_eval",
             cache_type="jsonl",
         )
-        if llm_serving is None:
-            api_llm_serving = APILLMServing_request(
-                    api_url="your_api_url",
-                    model_name="gpt-4o",
-                    max_workers=100
-            )
-        else:
-            api_llm_serving = llm_serving
 
-        embedding_serving = APILLMServing_request(
-                    api_url="https://api.openai.com/v1/embeddings",
-                    model_name="text-embedding-ada-002",
-                    max_workers=100
+        self.llm_serving = APILLMServing_request(
+            api_url="https://api.openai.com/v1/chat/completions",
+            model_name="gpt-4o-mini",
+            max_workers=500
         )
 
-        self.content_chooser_step1 = ContentChooser(num_samples=5, method="kcenter", embedding_serving=embedding_serving)
+        self.task_step1 = AgenticRAGAtomicTaskGenerator(
+            llm_serving=self.llm_serving
+        )
 
-        self.prompt_generator_step2 = AutoPromptGenerator(api_llm_serving)
-
-        self.qa_generator_step3 = QAGenerator(api_llm_serving)
-
-        self.qa_scorer_step4 = QAScorer(api_llm_serving)
+        self.task_step2 = AgenticRAGQAF1SampleEvaluator()
         
     def forward(self):
 
-        self.content_chooser_step1.run(
+        self.task_step1.run(
             storage = self.storage.step(),
-            input_key= "text"
+            input_key = "contents",
         )
 
-        self.prompt_generator_step2.run(
-            storage = self.storage.step(),
-            input_key = "text"
+        self.task_step2.run(
+            storage=self.storage.step(),
+            output_key="F1Score",
+            input_prediction_key="refined_answer",
+            input_ground_truth_key="golden_doc_answer"
         )
 
-        self.qa_generator_step3.run(
-            storage = self.storage.step(),
-            input_key="text",
-            prompt_key="generated_prompt",
-            output_quesion_key="generated_question",
-            output_answer_key="generated_answer"
-        )
-
-        self.qa_scorer_step4.run(
-            storage = self.storage.step(),
-            input_question_key="generated_question",
-            input_answer_key="generated_answer",
-            output_question_quality_key="question_quality_grades",
-            output_question_quality_feedback_key="question_quality_feedbacks",
-            output_answer_alignment_key="answer_alignment_grades",
-            output_answer_alignment_feedback_key="answer_alignment_feedbacks",
-            output_answer_verifiability_key="answer_verifiability_grades",
-        )
-        
 if __name__ == "__main__":
-    model = AgenticRAGPipeline()
+    model = AgenticRAGEval_APIPipeline()
     model.forward()
 ```
 
