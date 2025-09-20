@@ -1,6 +1,6 @@
 ---
 title: RARE算子
-createTime: 2025/06/24 11:43:42
+createTime: 2025/09/20 20:13:42
 permalink: /zh/guide/RARE_operators/
 ---
 
@@ -53,10 +53,11 @@ RARE 算子流程通过三个核心步骤，系统性地生成用于推理能力
 对于指定存储路径或调用模型的算子，我们提供了封装好的**模型接口**和**存储对象接口**。你可以通过如下方式为算子预定义模型 API 参数：
 
 ```python
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving.api_llm_serving_request import APILLMServing_request
 
 api_llm_serving = APILLMServing_request(
                 api_url="your_api_url",
+                key_name_of_api_key="YOUR_API_KEY",
                 model_name="model_name",
                 max_workers=5
         )
@@ -64,10 +65,10 @@ api_llm_serving = APILLMServing_request(
 
 你可以通过如下方式为算子预定义存储参数：
 
-```
+```python
 from dataflow.utils.storage import FileStorage
 
- self.storage = FileStorage(
+self.storage = FileStorage(
             first_entry_file_name="your_file_path",
             cache_path="./cache",
             file_name_prefix="dataflow_cache_step",
@@ -75,7 +76,7 @@ from dataflow.utils.storage import FileStorage
         )
 ```
 
-下文中的 `api_llm_serving` 和 `self.storage` 即为此处定义的接口对象。完整的使用示例可见 `rare_pipeline.py`。
+下文中的 `api_llm_serving` 和 `self.storage` 即为此处定义的接口对象。完整的使用示例可见 `test_rare.py`。
 
 参数传递方面，算子对象的构造函数主要传递与算子配置相关的信息（如 `llm_serving` 实例），可一次配置多次调用；而 `X.run()` 函数则传递与 IO 相关的 `key` 信息和运行时参数。具体细节可见下方算子描述示例。
 
@@ -100,8 +101,8 @@ from dataflow.utils.storage import FileStorage
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import Doc2Query
+```python
+from dataflow.operators.rare import Doc2Query
 
 doc2query_step = Doc2Query(llm_serving=api_llm_serving)
 doc2query_step.run(
@@ -139,8 +140,8 @@ pip install pyserini gensim
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import BM25HardNeg
+```python
+from dataflow.operators.rare import BM25HardNeg
 
 bm25hardneg_step = BM25HardNeg()
 bm25hardneg_step.run(
@@ -172,8 +173,8 @@ bm25hardneg_step.run(
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import ReasonDistill
+```python
+from dataflow.operators.rare import ReasonDistill
 
 reasondistill_step = ReasonDistill(llm_serving=api_llm_serving)
 reasondistill_step.run(

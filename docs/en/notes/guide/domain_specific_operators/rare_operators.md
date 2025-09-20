@@ -1,6 +1,6 @@
 ---
 title: RARE Operators
-createTime: 2025/06/24 11:43:42
+createTime: 2025/09/20 20:13:42
 permalink: /en/guide/RARE_operators/
 ---
 
@@ -29,15 +29,15 @@ The RARE operator workflow systematically generates synthetic data for reasoning
 For operators that require specifying storage paths or calling models, we provide encapsulated **model interfaces** and **storage object interfaces**. You can predefine the model API parameters for an operator as follows:
 
 ```python
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving.api_llm_serving_request import APILLMServing_request
 
 api_llm_serving = APILLMServing_request(
                 api_url="your_api_url",
+                key_name_of_api_key="YOUR_API_KEY",
                 model_name="model_name",
                 max_workers=5
         )
 ```
-
 You can predefine the storage parameters for an operator as follows:
 
 ```python
@@ -77,7 +77,7 @@ This operator is the first step in the RARE data generation workflow. It utilize
 **Usage Example**
 
 ```python
-from dataflow.operators.generate.RARE import Doc2Query
+from dataflow.operators.rare import Doc2Query
 
 doc2query_step = Doc2Query(llm_serving=api_llm_serving)
 doc2query_step.run(
@@ -116,7 +116,7 @@ pip install pyserini gensim
 **Usage Example**
 
 ```python
-from dataflow.operators.generate.RARE import BM25HardNeg
+from dataflow.operators.rare import BM25HardNeg
 
 bm25hardneg_step = BM25HardNeg()
 bm25hardneg_step.run(
@@ -149,7 +149,7 @@ This operator is the core implementation of the RARE paradigm. It integrates the
 **Usage Example**
 
 ```python
-from dataflow.operators.generate.RARE import ReasonDistill
+from dataflow.operators.rare import ReasonDistill
 
 reasondistill_step = ReasonDistill(llm_serving=api_llm_serving)
 reasondistill_step.run(
