@@ -1,7 +1,7 @@
 ---
 title: RARE数据合成流水线
 icon: game-icons:great-pyramid
-createTime: 2025/07/04 14:35:31
+createTime: 2025/09/20 20:00:31
 permalink: /zh/guide/rare_pipeline/  
 ---
 
@@ -113,28 +113,30 @@ self.reasondistill_step3.run(
 
 以下是运行完整 `RAREPipeline` 的示例代码。它依次执行上述三个步骤，将原始文档逐步转化为包含问题、场景、困难负样本和详细推理过程的高质量训练数据。
 
-```
-from dataflow.operators.generate.RARE import (
+```python
+from dataflow.operators.rare import (
     Doc2Query,
     BM25HardNeg,
     ReasonDistill,
 )
 from dataflow.utils.storage import FileStorage
-from dataflow.llmserving import APILLMServing_request, LocalModelLLMServing
+from dataflow.serving.api_llm_serving_request import APILLMServing_request
+from dataflow.serving.local_model_llm_serving import LocalModelLLMServing_vllm
 
 class RAREPipeline():
     def __init__(self):
 
         self.storage = FileStorage(
-            first_entry_file_name="../example_data/AgenticRAGPipeline/pipeline_small_chunk.json",
+            first_entry_file_name="./dataflow/example/RAREPipeline/pipeline_small_chunk.json",
             cache_path="./cache_local",
             file_name_prefix="dataflow_cache_step",
             cache_type="json",
         )
 
-        # 使用 API 服务器作为 LLM 服务
+        # 使用 API 服务器作为 LLM 服务，可以修改为LocalModelLLMServing_vllm以使用本地模型
         llm_serving = APILLMServing_request(
                 api_url="https://api.openai.com/v1/chat/completions",
+                key_name_of_api_key="OPENAI_API_KEY",
                 model_name="gpt-4o",
                 max_workers=1
         )
@@ -142,7 +144,7 @@ class RAREPipeline():
         self.doc2query_step1 = Doc2Query(llm_serving)
         self.bm25hardneg_step2 = BM25HardNeg()
         self.reasondistill_step3 = ReasonDistill(llm_serving)
-        
+
     def forward(self):
 
         self.doc2query_step1.run(
@@ -165,7 +167,7 @@ class RAREPipeline():
             input_hardneg_key = "hard_negatives",
             output_key= "reasoning",
         )
-        
+
 if __name__ == "__main__":
     model = RAREPipeline()
     model.forward()
