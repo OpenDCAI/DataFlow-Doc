@@ -119,6 +119,8 @@ dataflow pdf2model train
 ```
 #用法一:--model 可以指定 对话模型的路径位置（可选）
 #默认值为.cache/saves/pdf2model_cache_{timestamp}
+dataflow chat --model ./custom_model_path
+
 #用法二:到模型文件夹下 运行dataflow chat
 dataflow chat
 ```

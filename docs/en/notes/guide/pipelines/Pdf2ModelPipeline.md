@@ -12,15 +12,14 @@ conda create -n dataflow python=3.10
 conda activate dataflow
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
-pip install -e .[mineru]
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
-
+#prepare environment
+pip install -e .[llamafactory]
+#prepare models
 mineru-models-download
 
 cd ..
-mkdir test
-cd test
+mkdir run_dataflow
+cd run_dataflow
 
 # Initialize
 dataflow pdf2model init
@@ -42,10 +41,7 @@ conda activate dataflow
 
 cd DataFlow
 
-pip install -e .[mineru]
-
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
+pip install -e .[llamafactory]
 ```
 
 
@@ -114,9 +110,9 @@ Project Root/
     │   ├── batch_cleaning_step_step4.json
     │   └── pdf_list.jsonl
     ├── mineru/
-    │   └── sample-1-7/auto/
+    │   └── sample/auto/
     └── saves/
-        └── qwen2.5_7b_sft_model/
+        └── pdf2model_cache_{timestamp}/
 ```
 
 
