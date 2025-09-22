@@ -27,7 +27,7 @@ dataflow pdf2model init
 # Train
 dataflow pdf2model train
 
-# Chat with the trained model, or chat with locally trained models
+# Chat with the trained model, or chat with locally trained models in workspace directory
 dataflow chat
 ```
 
@@ -78,7 +78,7 @@ After initialization is complete, the project directory becomes:
 
 ```shell
 Project Root/
-├── Pdf2QAPipeline.py  # pipeline execution file
+├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory
     └── train_config.yaml  # default config file for llamafactory training
 ```
@@ -97,7 +97,7 @@ After fine-tuning is complete, the project directory becomes:
 
 ```
 Project Root/
-├── Pdf2QAPipeline.py  # pipeline execution file
+├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory
     ├── train_config.yaml  # default config file for llamafactory training
     ├── data/
@@ -124,7 +124,6 @@ Project Root/
 # Default path: .cache/saves/pdf2model_cache_{timestamp}
 dataflow chat --model ./custom_model_path
 
-# Method 2: Navigate to model directory and run dataflow chat
-cd .cache/saves/pdf2model_cache_20250901_143022
+# Method 2: Navigate to workspace directory and run dataflow chat
 dataflow chat
 ```
