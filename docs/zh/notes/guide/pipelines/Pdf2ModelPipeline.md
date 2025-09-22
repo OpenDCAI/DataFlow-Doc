@@ -12,15 +12,14 @@ conda create -n dataflow python=3.10
 conda activate dataflow
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
-pip install -e .[mineru]
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
-
+#环境准备
+pip install -e .[llamafactory]
+#模型准备
 mineru-models-download
 
 cd ..
-mkdir test
-cd test
+mkdir run_dataflow
+cd run_dataflow
 
 #初始化 
 dataflow pdf2model init
@@ -41,11 +40,7 @@ conda create -n dataflow python=3.10
 conda activate dataflow
 
 cd DataFlow
-
-pip install -e .[mineru]
-
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
+pip install -e .[llamafactory]
 ```
 
 
@@ -80,7 +75,7 @@ dataflow pdf2model init
 
 ```shell
 项目根目录/
-├── Pdf2QAPipeline.py  # pipeline执行文件
+├── pdf_to_qa_pipeline.py  # pipeline执行文件
 └── .cache/            # 缓存目录
     └── train_config.yaml  # llamafactory训练的默认配置文件
 ```
@@ -99,7 +94,7 @@ dataflow pdf2model train
 
 ```
 项目根目录/
-├── Pdf2QAPipeline.py  # pipeline执行文件
+├── pdf_to_qa_pipeline.py  # pipeline执行文件
 └── .cache/            # 缓存目录
     ├── train_config.yaml  # llamafactory训练的默认配置文件
     ├── data/
@@ -112,7 +107,7 @@ dataflow pdf2model train
     │   ├── batch_cleaning_step_step4.json
     │   └── pdf_list.jsonl
     ├── mineru/
-    │   └── sample-1-7/auto/
+    │   └── sample/auto/
     └── saves/
         └── pdf2model_cache_{timestamp}/
 ```
@@ -125,4 +120,5 @@ dataflow pdf2model train
 #用法一:--model 可以指定 对话模型的路径位置（可选）
 #默认值为.cache/saves/pdf2model_cache_{timestamp}
 #用法二:到模型文件夹下 运行dataflow chat
+dataflow chat
 ```
