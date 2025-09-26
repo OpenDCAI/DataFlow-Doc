@@ -1,7 +1,7 @@
 ---
 title: RARE Data Synthesis Pipeline
 icon: game-icons:great-pyramid
-createTime: 2025/09/20 20:00:18
+createTime: 2025/09/26 11:54:18
 permalink: /en/guide/rare_pipeline/
 ---
 
@@ -17,7 +17,7 @@ The **RARE (Retrieval-Augmented Reasoning Modeling) Data Synthesis Pipeline** is
 This pipeline can generate high-quality, knowledge- and reasoning-intensive training data from a given set of documents, enabling even lightweight models to achieve top-tier performance, potentially surpassing large models like GPT-4 and DeepSeek-R1.
 
 ### Dependency Installation
-The `BM25HardNeg` operator in `RAREPipeline` depends on `pyserini`, `gensim`, and `JDK`. The configuration method for Linux is as follows:
+The `RAREBM25HardNegGenerator` operator in `RAREPipeline` depends on `pyserini`, `gensim`, and `JDK`. The configuration method for Linux is as follows:
 ```bash
 sudo apt install openjdk-21-jdk
 pip install pyserini gensim
@@ -44,9 +44,9 @@ self.storage = FileStorage(
 )
 ```
 
-### 2\. Generate Knowledge and Reasoning-Intensive Questions (Doc2Query)
+### 2\. Generate Knowledge and Reasoning-Intensive Questions (RAREDoc2QueryGenerator)
 
-The first step in the pipeline is the **`Doc2Query`** operator. It uses an LLM to generate questions and scenarios based on the input documents that require complex reasoning to answer. These questions are designed to be independent of the original document, but the reasoning process required to answer them relies on the knowledge contained within the document.
+The first step in the pipeline is the **`RAREDoc2QueryGenerator`** operator. It uses an LLM to generate questions and scenarios based on the input documents that require complex reasoning to answer. These questions are designed to be independent of the original document, but the reasoning process required to answer them relies on the knowledge contained within the document.
 
 **Functionality:**
 
@@ -64,9 +64,9 @@ self.doc2query_step1.run(
 )
 ```
 
-### 3\. Mine Hard Negative Samples (BM25HardNeg)
+### 3\. Mine Hard Negative Samples (RAREBM25HardNegGenerator)
 
-The second step uses the **`BM25HardNeg`** operator. After generating the questions, this step utilizes the BM25 algorithm to retrieve and filter "hard negative samples" for each question from the entire dataset. These negative samples are textually similar to the "correct" document (the positive sample) but cannot be logically used to answer the question, thus increasing the challenge for the model in the subsequent reasoning step.
+The second step uses the **`RAREBM25HardNegGenerator`** operator. After generating the questions, this step utilizes the BM25 algorithm to retrieve and filter "hard negative samples" for each question from the entire dataset. These negative samples are textually similar to the "correct" document (the positive sample) but cannot be logically used to answer the question, thus increasing the challenge for the model in the subsequent reasoning step.
 
 **Functionality:**
 
@@ -85,9 +85,9 @@ self.bm25hardneg_step2.run(
 )
 ```
 
-### 4\. Distill the Reasoning Process (ReasonDistill)
+### 4\. Distill the Reasoning Process (RAREReasonDistillGenerator)
 
-The final step is the **`ReasonDistill`** operator. It combines the question, scenario, one positive sample, and multiple hard negative samples to construct a complex prompt. It then leverages a powerful "teacher" LLM (like GPT-4o) to generate a detailed, step-by-step reasoning process (Chain-of-Thought) that demonstrates how to use the provided (mixed true and false) information to arrive at the final answer.
+The final step is the **`RAREReasonDistillGenerator`** operator. It combines the question, scenario, one positive sample, and multiple hard negative samples to construct a complex prompt. It then leverages a powerful "teacher" LLM (like GPT-4o) to generate a detailed, step-by-step reasoning process (Chain-of-Thought) that demonstrates how to use the provided (mixed true and false) information to arrive at the final answer.
 
 **Functionality:**
 
@@ -116,9 +116,9 @@ Below is the sample code for running the complete `RAREPipeline`. It executes th
 
 ```python
 from dataflow.operators.rare import (
-    Doc2Query,
-    BM25HardNeg,
-    ReasonDistill,
+    RAREDoc2QueryGenerator,
+    RAREBM25HardNegGenerator,
+    RAREReasonDistillGenerator,
 )
 from dataflow.utils.storage import FileStorage
 from dataflow.serving.api_llm_serving_request import APILLMServing_request
@@ -142,9 +142,9 @@ class RAREPipeline():
                 max_workers=1
         )
 
-        self.doc2query_step1 = Doc2Query(llm_serving)
-        self.bm25hardneg_step2 = BM25HardNeg()
-        self.reasondistill_step3 = ReasonDistill(llm_serving)
+        self.doc2query_step1 = RAREDoc2QueryGenerator(llm_serving)
+        self.bm25hardneg_step2 = RAREBM25HardNegGenerator()
+        self.reasondistill_step3 = RAREReasonDistillGenerator(llm_serving)
 
     def forward(self):
 

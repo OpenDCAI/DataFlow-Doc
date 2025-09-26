@@ -1,6 +1,6 @@
 ---
 title: RARE算子
-createTime: 2025/09/20 20:13:42
+createTime: 2025/09/26 11:44:42
 permalink: /zh/guide/RARE_operators/
 ---
 
@@ -28,19 +28,19 @@ RARE 算子流程通过三个核心步骤，系统性地生成用于推理能力
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">Doc2Query✨</td>
+      <td class="tg-0pky">RAREDoc2QueryGenerator✨</td>
       <td class="tg-0pky">问题生成</td>
       <td class="tg-0pky">基于原始文档，生成需要复杂推理才能解答的问题和相应场景。</td>
       <td class="tg-0pky">ReasonIR: Training Retrievers for Reasoning Tasks</td>
     </tr>
     <tr>
-      <td class="tg-0pky">BM25HardNeg✨</td>
+      <td class="tg-0pky">RAREBM25HardNegGenerator✨</td>
       <td class="tg-0pky">困难负例挖掘</td>
       <td class="tg-0pky">为生成的问题挖掘文本相似但语义不相关的困难负样本，构建具有挑战性的检索上下文。</td>
       <td class="tg-0pky">ReasonIR: Training Retrievers for Reasoning Tasks</td>
     </tr>
     <tr>
-      <td class="tg-0pky">ReasonDistill🚀</td>
+      <td class="tg-0pky">RAREReasonDistillGenerator🚀</td>
       <td class="tg-0pky">推理过程生成</td>
       <td class="tg-0pky">结合问题、正负文档，提示大语言模型生成详尽的推理过程，以“蒸馏”其领域思维模式。</td>
       <td class="tg-0pky">RARE: Retrieval-Augmented Reasoning Modeling</td>
@@ -82,7 +82,7 @@ self.storage = FileStorage(
 
 ## 算子详细说明
 
-### 1. Doc2Query
+### 1. RAREDoc2QueryGenerator
 
 **功能描述**
 
@@ -102,9 +102,9 @@ self.storage = FileStorage(
 **使用示例**
 
 ```python
-from dataflow.operators.rare import Doc2Query
+from dataflow.operators.rare import RAREDoc2QueryGenerator
 
-doc2query_step = Doc2Query(llm_serving=api_llm_serving)
+doc2query_step = RAREDoc2QueryGenerator(llm_serving=api_llm_serving)
 doc2query_step.run(
     storage = self.storage.step(),
     input_key = "text",
@@ -113,7 +113,7 @@ doc2query_step.run(
 )
 ```
 
-### 2. BM25HardNeg
+### 2. RAREBM25HardNegGenerator
 
 **功能描述**
 
@@ -121,7 +121,7 @@ doc2query_step.run(
 
 **依赖安装**
 
-BM25HardNeg算子依赖于pyserini, gensim和JDK。Linux配置方法如下：
+RAREBM25HardNegGenerator算子依赖于pyserini, gensim和JDK。Linux配置方法如下：
 ```Bash
 sudo apt install openjdk-21-jdk
 pip install pyserini gensim
@@ -141,9 +141,9 @@ pip install pyserini gensim
 **使用示例**
 
 ```python
-from dataflow.operators.rare import BM25HardNeg
+from dataflow.operators.rare import RAREBM25HardNegGenerator
 
-bm25hardneg_step = BM25HardNeg()
+bm25hardneg_step = RAREBM25HardNegGenerator()
 bm25hardneg_step.run(
     storage = self.storage.step(),
     input_question_key = "question",
@@ -153,11 +153,11 @@ bm25hardneg_step.run(
 )
 ```
 
-### 3. ReasonDistill
+### 3. RAREReasonDistillGenerator
 
 **功能描述**
 
-该算子是 RARE 范式的核心实现。它将 `Doc2Query` 生成的问题和场景、原始的正面文档以及 `BM25HardNeg` 挖掘出的困难负例整合在一起，构建一个复杂的上下文。然后，它提示大语言模型（教师模型）基于此上下文生成一个详尽的、分步的推理过程。这个过程旨在“蒸馏”出大模型的领域思维模式（domain thinking），并生成用于训练学生模型的数据，使其学会如何进行上下文推理（contextualized reasoning）而非依赖参数化知识。
+该算子是 RARE 范式的核心实现。它将 `RAREDoc2QueryGenerator` 生成的问题和场景、原始的正面文档以及 `RAREBM25HardNegGenerator` 挖掘出的困难负例整合在一起，构建一个复杂的上下文。然后，它提示大语言模型（教师模型）基于此上下文生成一个详尽的、分步的推理过程。这个过程旨在“蒸馏”出大模型的领域思维模式（domain thinking），并生成用于训练学生模型的数据，使其学会如何进行上下文推理（contextualized reasoning）而非依赖参数化知识。
 
 **输入参数**
 
@@ -174,9 +174,9 @@ bm25hardneg_step.run(
 **使用示例**
 
 ```python
-from dataflow.operators.rare import ReasonDistill
+from dataflow.operators.rare import RAREReasonDistillGenerator
 
-reasondistill_step = ReasonDistill(llm_serving=api_llm_serving)
+reasondistill_step = RAREReasonDistillGenerator(llm_serving=api_llm_serving)
 reasondistill_step.run(
     storage = self.storage.step(),
     input_text_key = "text",
