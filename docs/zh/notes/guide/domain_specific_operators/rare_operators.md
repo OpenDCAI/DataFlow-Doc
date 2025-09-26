@@ -1,6 +1,6 @@
 ---
 title: RARE算子
-createTime: 2025/06/24 11:43:42
+createTime: 2025/09/26 11:44:42
 permalink: /zh/guide/RARE_operators/
 ---
 
@@ -28,19 +28,19 @@ RARE 算子流程通过三个核心步骤，系统性地生成用于推理能力
   </thead>
   <tbody>
     <tr>
-      <td class="tg-0pky">Doc2Query✨</td>
+      <td class="tg-0pky">RAREDoc2QueryGenerator✨</td>
       <td class="tg-0pky">问题生成</td>
       <td class="tg-0pky">基于原始文档，生成需要复杂推理才能解答的问题和相应场景。</td>
       <td class="tg-0pky">ReasonIR: Training Retrievers for Reasoning Tasks</td>
     </tr>
     <tr>
-      <td class="tg-0pky">BM25HardNeg✨</td>
+      <td class="tg-0pky">RAREBM25HardNegGenerator✨</td>
       <td class="tg-0pky">困难负例挖掘</td>
       <td class="tg-0pky">为生成的问题挖掘文本相似但语义不相关的困难负样本，构建具有挑战性的检索上下文。</td>
       <td class="tg-0pky">ReasonIR: Training Retrievers for Reasoning Tasks</td>
     </tr>
     <tr>
-      <td class="tg-0pky">ReasonDistill🚀</td>
+      <td class="tg-0pky">RAREReasonDistillGenerator🚀</td>
       <td class="tg-0pky">推理过程生成</td>
       <td class="tg-0pky">结合问题、正负文档，提示大语言模型生成详尽的推理过程，以“蒸馏”其领域思维模式。</td>
       <td class="tg-0pky">RARE: Retrieval-Augmented Reasoning Modeling</td>
@@ -53,10 +53,11 @@ RARE 算子流程通过三个核心步骤，系统性地生成用于推理能力
 对于指定存储路径或调用模型的算子，我们提供了封装好的**模型接口**和**存储对象接口**。你可以通过如下方式为算子预定义模型 API 参数：
 
 ```python
-from dataflow.llmserving import APILLMServing_request
+from dataflow.serving.api_llm_serving_request import APILLMServing_request
 
 api_llm_serving = APILLMServing_request(
                 api_url="your_api_url",
+                key_name_of_api_key="YOUR_API_KEY",
                 model_name="model_name",
                 max_workers=5
         )
@@ -64,10 +65,10 @@ api_llm_serving = APILLMServing_request(
 
 你可以通过如下方式为算子预定义存储参数：
 
-```
+```python
 from dataflow.utils.storage import FileStorage
 
- self.storage = FileStorage(
+self.storage = FileStorage(
             first_entry_file_name="your_file_path",
             cache_path="./cache",
             file_name_prefix="dataflow_cache_step",
@@ -75,13 +76,13 @@ from dataflow.utils.storage import FileStorage
         )
 ```
 
-下文中的 `api_llm_serving` 和 `self.storage` 即为此处定义的接口对象。完整的使用示例可见 `rare_pipeline.py`。
+下文中的 `api_llm_serving` 和 `self.storage` 即为此处定义的接口对象。完整的使用示例可见 `test_rare.py`。
 
 参数传递方面，算子对象的构造函数主要传递与算子配置相关的信息（如 `llm_serving` 实例），可一次配置多次调用；而 `X.run()` 函数则传递与 IO 相关的 `key` 信息和运行时参数。具体细节可见下方算子描述示例。
 
 ## 算子详细说明
 
-### 1. Doc2Query
+### 1. RAREDoc2QueryGenerator
 
 **功能描述**
 
@@ -100,10 +101,10 @@ from dataflow.utils.storage import FileStorage
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import Doc2Query
+```python
+from dataflow.operators.rare import RAREDoc2QueryGenerator
 
-doc2query_step = Doc2Query(llm_serving=api_llm_serving)
+doc2query_step = RAREDoc2QueryGenerator(llm_serving=api_llm_serving)
 doc2query_step.run(
     storage = self.storage.step(),
     input_key = "text",
@@ -112,7 +113,7 @@ doc2query_step.run(
 )
 ```
 
-### 2. BM25HardNeg
+### 2. RAREBM25HardNegGenerator
 
 **功能描述**
 
@@ -120,7 +121,7 @@ doc2query_step.run(
 
 **依赖安装**
 
-BM25HardNeg算子依赖于pyserini, gensim和JDK。Linux配置方法如下：
+RAREBM25HardNegGenerator算子依赖于pyserini, gensim和JDK。Linux配置方法如下：
 ```Bash
 sudo apt install openjdk-21-jdk
 pip install pyserini gensim
@@ -139,10 +140,10 @@ pip install pyserini gensim
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import BM25HardNeg
+```python
+from dataflow.operators.rare import RAREBM25HardNegGenerator
 
-bm25hardneg_step = BM25HardNeg()
+bm25hardneg_step = RAREBM25HardNegGenerator()
 bm25hardneg_step.run(
     storage = self.storage.step(),
     input_question_key = "question",
@@ -152,11 +153,11 @@ bm25hardneg_step.run(
 )
 ```
 
-### 3. ReasonDistill
+### 3. RAREReasonDistillGenerator
 
 **功能描述**
 
-该算子是 RARE 范式的核心实现。它将 `Doc2Query` 生成的问题和场景、原始的正面文档以及 `BM25HardNeg` 挖掘出的困难负例整合在一起，构建一个复杂的上下文。然后，它提示大语言模型（教师模型）基于此上下文生成一个详尽的、分步的推理过程。这个过程旨在“蒸馏”出大模型的领域思维模式（domain thinking），并生成用于训练学生模型的数据，使其学会如何进行上下文推理（contextualized reasoning）而非依赖参数化知识。
+该算子是 RARE 范式的核心实现。它将 `RAREDoc2QueryGenerator` 生成的问题和场景、原始的正面文档以及 `RAREBM25HardNegGenerator` 挖掘出的困难负例整合在一起，构建一个复杂的上下文。然后，它提示大语言模型（教师模型）基于此上下文生成一个详尽的、分步的推理过程。这个过程旨在“蒸馏”出大模型的领域思维模式（domain thinking），并生成用于训练学生模型的数据，使其学会如何进行上下文推理（contextualized reasoning）而非依赖参数化知识。
 
 **输入参数**
 
@@ -172,10 +173,10 @@ bm25hardneg_step.run(
 
 **使用示例**
 
-```
-from dataflow.operators.generate.RARE import ReasonDistill
+```python
+from dataflow.operators.rare import RAREReasonDistillGenerator
 
-reasondistill_step = ReasonDistill(llm_serving=api_llm_serving)
+reasondistill_step = RAREReasonDistillGenerator(llm_serving=api_llm_serving)
 reasondistill_step.run(
     storage = self.storage.step(),
     input_text_key = "text",
