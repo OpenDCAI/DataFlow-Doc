@@ -12,15 +12,14 @@ conda create -n dataflow python=3.10
 conda activate dataflow
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
-pip install -e .[mineru]
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
-
+#prepare environment
+pip install -e .[llamafactory]
+#prepare models
 mineru-models-download
 
 cd ..
-mkdir test
-cd test
+mkdir run_dataflow
+cd run_dataflow
 
 # Initialize
 dataflow pdf2model init
@@ -28,7 +27,7 @@ dataflow pdf2model init
 # Train
 dataflow pdf2model train
 
-# Chat with the trained model, or chat with locally trained models
+# Chat with the trained model, or chat with locally trained models in workspace directory
 dataflow chat
 ```
 
@@ -42,10 +41,7 @@ conda activate dataflow
 
 cd DataFlow
 
-pip install -e .[mineru]
-
-pip install llamafactory[torch,metrics]
-pip install open-dataflow[vllm]
+pip install -e .[llamafactory]
 ```
 
 
@@ -82,7 +78,7 @@ After initialization is complete, the project directory becomes:
 
 ```shell
 Project Root/
-├── Pdf2QAPipeline.py  # pipeline execution file
+├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory
     └── train_config.yaml  # default config file for llamafactory training
 ```
@@ -101,7 +97,7 @@ After fine-tuning is complete, the project directory becomes:
 
 ```
 Project Root/
-├── Pdf2QAPipeline.py  # pipeline execution file
+├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory
     ├── train_config.yaml  # default config file for llamafactory training
     ├── data/
@@ -114,9 +110,9 @@ Project Root/
     │   ├── batch_cleaning_step_step4.json
     │   └── pdf_list.jsonl
     ├── mineru/
-    │   └── sample-1-7/auto/
+    │   └── sample/auto/
     └── saves/
-        └── qwen2.5_7b_sft_model/
+        └── pdf2model_cache_{timestamp}/
 ```
 
 
@@ -128,7 +124,6 @@ Project Root/
 # Default path: .cache/saves/pdf2model_cache_{timestamp}
 dataflow chat --model ./custom_model_path
 
-# Method 2: Navigate to model directory and run dataflow chat
-cd .cache/saves/pdf2model_cache_20250901_143022
+# Method 2: Navigate to workspace directory and run dataflow chat
 dataflow chat
 ```
