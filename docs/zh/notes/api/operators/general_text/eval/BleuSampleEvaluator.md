@@ -39,9 +39,58 @@ def run(self, storage: DataFlowStorage, input_key: str, reference_key: str, outp
 | **output_key** | str | "BleuScore" | 输出列名，用于存储计算出的BLEU分数。 |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.general_text import BleuSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+class BleuSampleEvaluatorTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/gen_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = BleuSampleEvaluator(
+            n=4,
+            eff="average"
+        )
+        
+    def forward(self):
+        self.evaluator.run(
+            storage=self.storage.step(),
+            input_key='input_key',
+            input_reference_key='reference_key',
+            output_key='BleuScore'
+        )
+
+if __name__ == "__main__":
+    test = BleuSampleEvaluatorTest()
+    test.forward()
+```
 
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
 | :--- | :-- | :--- |
-| ... | ... | 输入的原始字段。 |
-| BleuScore | float | 模型生成的BLEU分数。 |
+| input_key | str | 原始的生成文本 |
+| reference_key | str | 原始的参考文本 |
+| BleuScore | float | BLEU分数（0-1之间，越高表示n-gram重叠度越高） |
+
+### 📋 示例输入
+```json
+{"input_key": "The quick brown fox jumps over the lazy dog.", "reference_key": "A fast brown fox leaps over a lazy dog."}
+{"input_key": "She sells seashells by the seashore.", "reference_key": "She is selling shells by the beach."}
+{"input_key": "To be or not to be, that is the question.", "reference_key": "The question is whether to be or not."}
+{"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold."}
+{"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning."}
+```
+
+### 📤 示例输出
+```json
+{"input_key": "The quick brown fox jumps over the lazy dog.", "reference_key": "A fast brown fox leaps over a lazy dog.", "BleuScore": 0.5555555554}
+{"input_key": "She sells seashells by the seashore.", "reference_key": "She is selling shells by the beach.", "BleuScore": 0.4232408623}
+{"input_key": "To be or not to be, that is the question.", "reference_key": "The question is whether to be or not.", "BleuScore": 0.4}
+{"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold.", "BleuScore": 0.4999999998}
+{"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning.", "BleuScore": 0.1238396999}
+```
