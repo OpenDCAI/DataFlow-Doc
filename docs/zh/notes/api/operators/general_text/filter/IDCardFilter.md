@@ -27,18 +27,85 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='id_card
 | **input_key** | str | 必需 | 输入列名，对应待检查的文本字段。 |
 | **output_key** | str | 'id_card_filter_label' | 输出列名，用于存储过滤结果的标签（1表示通过，0表示过滤）。 |
 
-### Prompt模板说明
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| -------------------------------- | ------------- | ----------------------- | ----------------------------------------------------- |
-| | | | |
-
 ## 🧠 示例用法
-```python
 
+```python
+from dataflow.operators.general_text import IDCardFilter
+from dataflow.utils.storage import FileStorage
+
+class IDCardFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/idcard_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = IDCardFilter(threshold=3)
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='id_card_filter_label'
+        )
+
+if __name__ == "__main__":
+    test = IDCardFilterTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
 | :----------------------- | :---- | :----------------------------------------------------------- |
-| ... | any | 输入的原始字段。 |
-| id_card_filter_label | int | 过滤标签。算子会向DataFrame中添加此列，值为1表示通过检测，0表示未通过。最终存储到`storage`中的是仅包含通过检测（值为1）的数据行。 |
+| text | str | 原始输入文本 |
+| id_card_filter_label | int | 过滤标签。值为1表示通过检测（身份证相关术语数量<阈值），0表示未通过 |
+
+### 📋 示例输入
+
+```json
+{"text": "This is a normal conversation about daily life."}
+{"text": "Please provide your 身份证号码 and 身份证 information for verification. Contact ID card number."}
+```
+
+### 📤 示例输出
+
+```json
+{"text": "This is a normal conversation about daily life.", "id_card_filter_label": 1}
+```
+
+### 📊 结果分析
+
+**样本1（正常对话）**：
+- 文本："This is a normal conversation about daily life."
+- 不包含身份证相关术语
+- 匹配次数：0
+- **通过过滤**（< 3阈值）
+
+**样本2（包含敏感信息）**：
+- 文本："Please provide your 身份证号码 and 身份证 information for verification. Contact ID card number."
+- 包含多个身份证相关术语：
+  - "身份证号码"（1次）
+  - "身份证"（1次）
+  - "ID card"（1次）
+- 匹配次数：≥3
+- **未通过过滤**（≥ 3阈值）
+
+**检测的关键词模式**（包括但不限于）：
+- 中文：身份证、身份证号、身份证号码、证件号、证件号码
+- 英文：ID card、identity card、ID number
+- 正则模式：可能包括身份证号码格式的匹配
+
+**应用场景**：
+- 隐私保护，过滤包含身份证信息的文本
+- 数据合规性检查
+- 敏感信息检测
+- 防止个人信息泄露
+
+**注意事项**：
+- 阈值默认为3，表示身份证相关术语出现3次及以上时过滤
+- 同时检测中英文关键词
+- 使用正则表达式进行模式匹配
+- 建议根据具体应用场景调整阈值
+- 该算子侧重于关键词匹配，不进行身份证号码格式验证
