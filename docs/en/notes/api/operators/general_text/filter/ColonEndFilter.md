@@ -1,63 +1,126 @@
 ---
 title: ColonEndFilter
-createTime: 2025/10/09 16:52:48
+createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/colonendfilter/
 ---
 
 ## 📘 Overview
-The `ColonEndFilter` is an operator designed to check if a given text ends with a colon (`:`). It is typically used to filter out incomplete questions or prompts from a dataset. The operator adds a label to each entry indicating whether it passes the check and then returns a new DataFrame containing only the entries that do not end with a colon.
+`ColonEndFilter` is a filtering operator that checks whether input text ends with a colon (`:`). This operator is typically used in the data cleaning phase to filter out potentially incomplete sentences or questions.
 
-## `__init__`
+## `__init__` Function
 ```python
 def __init__(self)
 ```
-### init parameters
-| Parameter | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| **-** | - | - | This operator does not require any parameters during initialization. |
+### Initialization Parameters
+This operator requires no parameters during initialization.
 
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| :--- | :--- | :--- | :--- |
-| | | | |
-
-## `run`
+## `run` Function
 ```python
 def run(self, storage: DataFlowStorage, input_key: str, output_key: str = None)
 ```
-Executes the main logic of the operator. It reads a DataFrame from storage, checks each text entry in the specified `input_key` column to see if it ends with a colon, adds a new column with the check result, and writes the filtered DataFrame back to storage.
+Executes the main operator logic, reading the input DataFrame from storage, checking whether the text in the specified column ends with a colon, and writing data rows that do not end with a colon back to storage.
 
 #### Parameters
-| Name | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The DataFlowStorage instance responsible for reading and writing data. |
-| **input_key** | str | Required | The name of the input column containing the text to be checked. |
-| **output_key**| str | None | The name of the output column where the filter result (1 for pass, 0 for fail) is stored. If not provided, it defaults to a name generated from the class name (e.g., "colonendfilter_label"). |
+| Name         | Type              | Default | Description                                                         |
+| :------------- | :---------------- | :------- | :----------------------------------------------------------- |
+| **storage**    | DataFlowStorage   | Required     | DataFlow storage instance responsible for reading and writing data. |
+| **input_key**  | str               | Required     | Input column name specifying the text field to check. |
+| **output_key** | str               | None     | Output column name for storing the filter label (1 means retain, 0 means filter). If not specified, will automatically be set to "colonendfilter_label". |
 
 ## 🧠 Example Usage
-```python
 
+```python
+from dataflow.operators.general_text import ColonEndFilter
+from dataflow.utils.storage import FileStorage
+
+class ColonEndFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/colon_end_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = ColonEndFilter()
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = ColonEndFilterTest()
+    test.forward()
 ```
 
 #### 🧾 Default Output Format
-The operator adds a new column (specified by `output_key`) to the input data and filters the rows.
+The operator adds a new `output_key` column to the DataFrame with values of 1 (does not end with colon, retain) or 0 (ends with colon, filter), then filters out rows with value 0. The final output DataFrame only contains rows that passed the filter.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| *input_key* | str | The original input text from the specified column. |
-| *output_key* | int | The result of the filter check. `1` if the text does not end with a colon, `0` otherwise. The final output only contains rows where this value is `1`. |
+| :--- | :---- | :---------- |
+| text | str | Original input text |
+| colonendfilter_label | int | Filter label (1 means retain, 0 means filter) |
 
-**Example Input:**
+### 📋 Sample Input
+
 ```json
-{"text": "Explain the theory of relativity"}
-{"text": "List the following items:"}
+{"text": "This is a complete sentence without a colon."}
+{"text": "This sentence ends with a colon:"}
+{"text": "Question: What is this?"}
+{"text": "Another incomplete question:"}
+{"text": "A proper statement with punctuation."}
 ```
 
-**Example Output:**
-The output DataFrame will only contain the rows that passed the filter.
+### 📤 Sample Output
+
 ```json
-{
-    "text": "Explain the theory of relativity",
-    "colonendfilter_label": 1
-}
+{"text": "This is a complete sentence without a colon.", "colonendfilter_label": 1}
+{"text": "Question: What is this?", "colonendfilter_label": 1}
+{"text": "A proper statement with punctuation.", "colonendfilter_label": 1}
 ```
+
+### 📊 Result Analysis
+
+**Sample 1 (Complete Sentence)**:
+- Text: "This is a complete sentence without a colon."
+- Does not end with colon
+- **Retained** (colonendfilter_label=1)
+
+**Sample 2 (Ends with Colon)**:
+- Text: "This sentence ends with a colon:"
+- Ends with colon
+- **Filtered** (colonendfilter_label=0, not in output)
+
+**Sample 3 (Colon in Middle)**:
+- Text: "Question: What is this?"
+- Colon in middle, ends with question mark
+- **Retained** (colonendfilter_label=1)
+
+**Sample 4 (Ends with Colon)**:
+- Text: "Another incomplete question:"
+- Ends with colon
+- **Filtered** (colonendfilter_label=0, not in output)
+
+**Sample 5 (Normal Punctuation)**:
+- Text: "A proper statement with punctuation."
+- Ends with period
+- **Retained** (colonendfilter_label=1)
+
+**Use Cases**:
+- Filter incomplete questions or titles
+- Remove potentially truncated text
+- Identify and remove content prompts awaiting completion
+- Improve quality of dialogue or Q&A datasets
+
+**Typical Filtered Text Patterns**:
+- "Please explain the following concept:"
+- "Question:"
+- "Title:"
+- "Main content:"
+
+**Notes**:
+- Only checks if text ends with the colon character `:`
+- Does not check for Chinese colon `：` (modify source code if needed)
+- Retains cases where colons appear in the middle of text

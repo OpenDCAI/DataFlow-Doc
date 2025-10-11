@@ -1,59 +1,112 @@
 ---
 title: ContentNullFilter
-createTime: 2025/10/09 16:52:48
+createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/contentnullfilter/
 ---
 
 ## 📘 Overview
+The `ContentNullFilter` operator filters null values, empty strings, or text containing only whitespace characters from datasets to ensure the quality and validity of data for downstream processing.
 
-The `ContentNullFilter` is an operator designed to filter out entries that have null, empty, or whitespace-only content in a specified column, ensuring data quality and validity.
-
-## __init__ function
+## __init__ Function
 ```python
 def __init__(self)
 ```
-This function does not take any arguments.
-
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
+### Initialization Parameters
+| Parameter Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| | | | |
+| **-** | - | - | This operator requires no parameters during initialization. |
 
-## run function
+## run Function
 ```python
 def run(self, storage: DataFlowStorage, input_key: str, output_key: str='content_null_filter_label')
 ```
 #### Parameters
-| Name | Type | Default Value | Description |
-| :------------- | :---------------- | :---------------- | :----------------- |
-| **storage** | DataFlowStorage | Required | The DataFlow storage instance for reading and writing data. |
-| **input_key** | str | Required | The name of the input column containing the text to be checked. |
-| **output_key** | str | 'content_null_filter_label' | The name for the new column that stores the filter result (1 for valid, 0 for invalid) before filtering is applied. |
+| Name | Type | Default | Description |
+| :------------- | :---------------- | :--------------------------- | :------------------------------------------- |
+| **storage** | DataFlowStorage | Required | DataFlow storage instance responsible for reading and writing data. |
+| **input_key** | str | Required | Input column name specifying the text field to check for null values. |
+| **output_key** | str | "content_null_filter_label" | Output column name for storing the filter result label (1 means valid, 0 means invalid). |
 
 ## 🧠 Example Usage
+
 ```python
+from dataflow.operators.general_text import ContentNullFilter
+from dataflow.utils.storage import FileStorage
 
+class ContentNullFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/content_null_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = ContentNullFilter()
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='content_null_filter_label'
+        )
+
+if __name__ == "__main__":
+    test = ContentNullFilterTest()
+    test.forward()
 ```
 
-#### 🧾 Default Output Format (Output Format)
-The operator filters the input data, so only rows that pass the null/empty check will be present in the output. A new column (specified by `output_key`) is added to show the filter result (which will always be `1` in the final output data).
-
+#### 🧾 Default Output Format
 | Field | Type | Description |
-| :-------------- | :---- | :---------- |
-| *original_fields* | * | The original fields from the input data are preserved. |
-| content_null_filter_label | int | The result of the filter check. For all rows in the output, this will be `1`. |
+| :--------------------------- | :---- | :---------------------------------- |
+| text | str | Original input text field |
+| content_null_filter_label | int | Filter label, value of 1 means the data row is valid and passed the filter |
 
-**Example Input:**
+### 📋 Sample Input
+
 ```json
-{
-"text":"This is a valid piece of text."
-}
+{"text": "This is a valid sentence."}
+{"text": ""}
+{"text": "   "}
+{"text": "Another valid one."}
 ```
-**Example Output:**
+
+### 📤 Sample Output
+
 ```json
-{
-"text":"This is a valid piece of text.",
-"content_null_filter_label": 1
-}
+{"text": "This is a valid sentence.", "content_null_filter_label": 1}
+{"text": "Another valid one.", "content_null_filter_label": 1}
 ```
-*(Note: An input like `{"text": " "}` or `{"text": null}` would be removed and not appear in the output.)*
+
+### 📊 Result Analysis
+
+In this test, 2 out of 4 input data items passed the filter:
+
+**Sample 1 (Valid Text)**:
+- Text: "This is a valid sentence."
+- Contains valid content
+- **Retained** (content_null_filter_label=1)
+
+**Sample 2 (Empty String)**:
+- Text: "" (empty string)
+- **Filtered** (not in output)
+
+**Sample 3 (Whitespace Only)**:
+- Text: "   " (only contains spaces)
+- **Filtered** (not in output)
+
+**Sample 4 (Valid Text)**:
+- Text: "Another valid one."
+- Contains valid content
+- **Retained** (content_null_filter_label=1)
+
+**Use Cases**:
+- Data cleaning, removing null values and invalid data
+- Ensure data quality for downstream processing
+- Remove noise data during preprocessing phase
+- Guarantee validity of text fields
+
+**Notes**:
+- This operator filters `None`, empty strings `""`, and strings containing only whitespace characters
+- Uses the `str.strip()` method to detect whitespace-only strings
+- A fundamental filter operator in data processing pipelines
