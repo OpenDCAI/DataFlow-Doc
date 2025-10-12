@@ -5,16 +5,16 @@ permalink: /zh/api/operators/knowledge_cleaning/generate/kbcmultihopqageneratorb
 ---
 
 ## 📘 概述
-[KBCMultiHopQAGeneratorBatch](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个多跳问答（Multi-hop QA）对生成算子，用于从给定的文本数据中，自动生成需要多步推理才能解答的问题与答案。该算子通过调用大语言模型（LLM），将原始文本转换为结构化的问答数据，适用于构建复杂的问答数据集或知识库增强。
+`KBCMultiHopQAGeneratorBatch`是一个批处理多跳问答（Multi-hop QA）对生成算子，用于从给定的文本数据中，自动生成需要多步推理才能解答的问题与答案。该算子通过调用大语言模型（LLM），将原始文本转换为结构化的问答数据，适用于构建复杂的问答数据集或知识库增强。
 
 ## __init__函数
 ```python
 def __init__(self,
-             llm_serving: LLMServingABC,
-             seed: int = 0,
-             lang="en",
-             prompt_template = None
-             ):
+  llm_serving: LLMServingABC,
+  seed: int = 0,
+  lang="en",
+  prompt_template = None
+):
 ```
 ### init参数说明
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -32,10 +32,10 @@ def __init__(self,
 ## run函数
 ```python
 def run(
-        self,
-        input_key: str = 'chunk_path',
-        output_key: str = 'enhanced_chunk_path',
-        storage: DataFlowStorage = None,
+    self,
+    input_key: str = 'chunk_path',
+    output_key: str = 'enhanced_chunk_path',
+    storage: DataFlowStorage = None,
 ):
 ```
 #### 参数
@@ -46,7 +46,15 @@ def run(
 | **output_key** | str | "enhanced_chunk_path" | 输出列名，该列将存储已添加多跳问答对的增强文件路径。 |
 
 ## 🧠 示例用法
-
+```python
+self.knowledge_cleaning_step4 = KBCMultiHopQAGeneratorBatch(
+    llm_serving=self.llm_serving,
+    lang="en"
+)
+self.knowledge_cleaning_step4.run(
+    storage=self.storage.step(),
+)
+```
 
 #### 🧾 默认输出格式（Output Format）
 算子会读取 `input_key` 指定路径文件中的文本，生成问答对后，将包含问答对的完整数据写回原文件。
