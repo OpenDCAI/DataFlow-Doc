@@ -6,69 +6,111 @@ permalink: /en/api/operators/core_vision/generate/promptedvqagenerator/
 
 ## 📘 Overview
 
-The `PromptedVQAGenerator` is an operator designed for visual question answering (VQA). It takes input containing images and corresponding questions, utilizes a large language model (LLM) to generate answers, and appends these answers to the data storage.
+The `PromptedVQAGenerator` is a visual question answering (VQA) operator. Given an input image (or images) and a question prompt, it invokes a large language model (LLM) to generate corresponding answers and writes them back into the data storage.
 
 ## `__init__`
 
 ```python
-def __init__(self, llm_serving: LLMServingABC, system_prompt: str = "You are a helpful assistant.")
+def __init__(self, llm_serving: LLMServingABC, system_prompt: str = "You are a helpful assistant."):
 ```
 
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **llm_serving** | LLMServingABC | Required | An instance of a large language model serving class, used for executing inference. |
-| **system_prompt** | str | "You are a helpful assistant." | The system prompt used to define the behavior of the model. |
+| Parameter        | Type           | Default                          | Description                                                         |
+|------------------|----------------|----------------------------------|---------------------------------------------------------------------|
+| **llm_serving**  | LLMServingABC  | Required                         | An instance of an LLM serving class for running inference.         |
+| **system_prompt**| str            | "You are a helpful assistant."   | The system prompt that guides and defines the LLM’s behavior.      |
 
-### Prompt Template Descriptions
+### Prompt Construction
 
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| :--- | :--- | :--- | :--- |
-| | | | |
+This operator does not rely on a fixed prompt template file. Instead, it constructs the final prompt by combining the `system_prompt` string and the content provided under `input_key` when calling `run()`.
 
 ## `run`
 
 ```python
-def run(self, storage: DataFlowStorage, input_key: str = "raw_content", output_key: str = "generated_content")
+def run(self,
+        storage: DataFlowStorage,
+        input_key: str = "raw_content",
+        output_key: str = "generated_content")
 ```
-Executes the main logic of the operator. It reads the input data from storage, generates answers using the LLM based on the visual and text prompts, and writes the results back to storage.
 
-#### Parameters
+Executes the operator: reads data from storage, generates answers via the LLM, and writes results back into storage.
 
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The data flow storage instance, responsible for reading and writing data. |
-| **input_key** | str | "raw_content" | The name of the input column containing the visual and question data. |
-| **output_key** | str | "generated_content" | The name of the output column where the generated answers will be stored. |
+Parameters:
+
+| Name           | Type             | Default               | Description                                                     |
+|----------------|------------------|-----------------------|-----------------------------------------------------------------|
+| **storage**    | DataFlowStorage  | Required              | The data flow storage instance used for reading and writing.    |
+| **input_key**  | str              | "raw_content"         | Name of the input column containing the path(s) to the image.   |
+| **output_key** | str              | "generated_content"   | Name of the output column for storing the generated answer.     |
 
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.core_vision import PromptedVQAGenerator
+from dataflow.serving.APIVLMServing_openai import APIVLMServing_openai
+from dataflow.utils.storage import FileStorage
 
+class VQA_generator():
+    def __init__(self):
+        self.prompt = "Describe the image in detail."
+        self.storage = FileStorage(
+            first_entry_file_name="../example_data/VQA/pic_path.json",
+            cache_path="./cache",
+            file_name_prefix="vqa",
+            cache_type="json",
+        )
+        self.llm_serving = APIVLMServing_openai(
+            model_name="o4-mini",
+            api_url="https://api.openai.com/v1",  # OpenAI API URL
+            key_name_of_api_key="DF_API_KEY",
+        )
+        self.vqa_generate = PromptedVQAGenerator(
+            self.llm_serving,
+            self.prompt
+        )
+
+    def forward(self):
+        self.vqa_generate.run(
+            storage=self.storage.step(),
+            input_key="raw_content",
+        )
+
+if __name__ == "__main__":
+    generator = VQA_generator()
+    generator.forward()
 ```
 
 #### 🧾 Default Output Format
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| raw_content | any | The original input data, typically containing image and question information. |
-| generated_content | str | The VQA answer generated by the model. |
+| Field               | Type | Description                               |
+|---------------------|------|-------------------------------------------|
+| raw_content         | str  | The original input, i.e., the image path. |
+| generated_content   | str  | The answer text generated by the model.   |
 
-**Example Input:**
+Example Input:
+
 ```json
-{
-    "raw_content": [
-        {"type": "text", "text": "What color is the car in the image?"},
-        {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,..."}}
-    ]
-}
+[
+    {"raw_content": "../example_data/VQA/pdfimages/page_0.jpg"},
+    {"raw_content": "../example_data/VQA/pdfimages/page_1.jpg"},
+    {"raw_content": "../example_data/VQA/pdfimages/page_2.jpg"}
+]
 ```
-**Example Output:**
+
+Example Output:
+
 ```json
-{
-    "raw_content": [
-        {"type": "text", "text": "What color is the car in the image?"},
-        {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,..."}}
-    ],
-    "generated_content": "The car in the image is red."
-}
+[
+  {
+    "raw_content":"../example_data/VQA/pdfimages/page_0.jpg",
+    "generated_content":"The image is a photograph of a single page (numbered “86”) from a Chinese‐language geometry text.  Across the top is a small stylized “数奥” logo (an infinity‐shaped figure with Chinese characters above it).  The page contains two worked examples, labeled “例 4” and “例 5,” each stating a geometry problem in prose, followed by a step‐by‐step proof, and each accompanied by its own diagram (figures 3.13 and 3.14).\n\n1.  Example 4 (例 4)\n   – Text (in Chinese): In ΔABC, AB + BC = 3·AC, the incenter is I, and the incircle touches AB at D and BC at E.  The reflections of DE across I meet the circumcircle of ABC again at K and L.  Prove that A, C, K, L are concyclic.\n   – To the right is Figure 3.13:\n     • ΔABC is drawn with B at the top, A lower left and C lower right.\n     • The incircle of ΔABC (center I) is inscribed, touching AB at D and BC at E.\n     • Points B₁ on AB and C₁ on AC are marked so that segments BI = IB₁, BE = EC₁, etc., with small tick marks indicating equal lengths.\n     • The line DE is extended beyond E; it re‐enters the circumcircle of ABC at two points labelled K (on the arc BC) and L (on the lower side near AC).\n     • Right‐angle symbols appear at B₁ and C₁, and small arcs mark several angle‐equalities used in the proof.\n\n2.  Example 5 (例 5)\n   – Text (in Chinese): Let ΔABC’s incircle touch AB at P and AC at Q.  Rays BI and CI meet the line PQ again at K and L.  Prove that the circumcircle of triangle ILK is tangent to the circumcircle of ABC if and only if AB + AC = 3·BC.\n   – To the right is Figure 3.14:\n     • ΔABC is again drawn (without a base horizontal but slanted), with its circumcircle drawn through A, B, C.\n     • The incircle (center I) touches AB at P and AC at Q.\n     • Ray BI meets PQ at K, and ray CI meets PQ at L.\n     • The extension of line CK meets the circumcircle of ABC again at D.  D is joined back to I, forming ID (a diameter of the small circle through I, L, K).\n     • Arcs on the big circumcircle (between A–B, B–C, etc.) are hatched or marked to indicate equal arcs, and several angle‐marks appear in the interior.\n\nBoth proofs run in column format down the left half of the page, with the corresponding figure on the right.  The text uses standard Chinese proof language (“证明,” “∵…∴…,” references to “图 3.13,” “图 3.14,” etc.).  At the very bottom right of the scan is the page number “86.”"
+  },
+  {
+    "raw_content":"../example_data/VQA/pdfimages/page_1.jpg",
+    "generated_content":"The illustration is a hand-drawn figure of “Example 7” from a Chinese geometry text (labelled 图 3.16).  In words what you see is:\n\n1.  A “large” triangle A B C with A at the top, B on the left, C on the right, and the base BC roughly horizontal.\n\n2.  Its inscribed circle (the incircle) sitting in the lower half of ΔABC.  The circle touches\n    – BC at D,\n    – CA at Q,\n    – AB at P.\n\n3.  A point E is chosen on the line AD (between A and D) so that E lies on the circle in the interior of the arc BC.\n\n4.  From E two chords are drawn:\n    – the line E B meets the incircle a second time at F (so B–E–F are collinear),\n    – the line E C meets the incircle again at G (so C–E–G are collinear).\n\n5.  Inside the circle the three chords D–G, D–Q, Q–G are also drawn to set up various length ratios.  On the left, the chord E–P is likewise shown.\n\n6.  The overall goal (stated in the text beside the figure) is to prove that the three lines A D, B G and C F are concurrent.\n\nAll of the contact points (P on AB, Q on AC, D on BC), the auxiliary points E, F, G on the circle, and the chords DQ, DG, QG, EP are clearly marked.  Around the figure the authors carry out “power of a point” and Ceva‐type ratio computations to establish the concurrency."
+  },
+  {
+    "raw_content":"../example_data/VQA/pdfimages/page_2.jpg",
+    "generated_content":"The page you see is a scan from a Chinese high-school or undergraduate geometry text (page number 87), headed\n\n 第三讲 圆与切线  \n(“Lecture 3: Circles and Tangents”)\n\nImmediately beneath that heading there is a short derivation relating the distance from a vertex to the touch-point of the incircle (labelled I to D) to the sides of ΔABC.  It begins:\n\n  • “易知 ∠BDC = 90° – ½ ∠BAC, 故 ID = a⋅cot ∠BDC = a⋅tan ∠BAC.”\n  • “另一方面，设 AQ ⟂ BC 于点 Q，则 AQ = ½ (b + c – a), 其中 r 为 ΔABC 的内切圆半径。”\n  • “于是 ΔILK 的外接圆与 ΔABC 的内切圆相切，当且仅当 ΔILK 外接圆的直径等于 ΔABC 内切圆的直径， ⇒ ID = ½(c + b – a) = a ⇒ 2(c + b – a) = a.”\n\nIn other words, by equating the two expressions for ID one obtains the condition 2 (c + b – a) = a under which the circumcircle of ΔILK is tangent to the incircle of ΔABC.\n\nBelow this derivation comes “例 6” (Example 6), stated in Chinese:\n\n  “已知 ΔABC, ∠B = 90°, 内切圆分别切 BC, CA, AB 于 D, E, F，又 AD 交内切圆于异一点 P, PF ⟂ PC，求 ΔABC 三边长之比。”\n\n(Text: In right triangle ABC with right angle at B, the incircle touches BC, CA, AB at D, E, F respectively.  The ray AD meets the incircle again at P, and PF is drawn perpendicular to PC.  Find the ratio of the three sides AB : BC : AC.)\n\nTo the right of this statement is figure 3.15, a hand-drawn sketch showing:\n\n  – A right triangle ABC with A at the top, B at the lower left (right angle), C at the lower right.\n  – Its incircle, touching BC at D, CA at E, AB at F.\n  – The cevian AD cutting the incircle again at P.\n  – The chord PF dropped perpendicular to PC, with a little right-angle mark at F on PF ⟂ PC.\n  – The chords FD, DE, PE, as well as the segment FB, are all drawn and a couple of 45° angle arcs are marked (indicating ∠FBD and ∠FPD both equal 45°).\n\nThe text of the solution then proceeds in a series of angle-chasing and triangle‐similarity steps:\n\n  • By the equal arcs, ΔFBD is an isosceles right triangle, so ∠FDB = 45° and hence ∠FPD = 45°, which in turn gives ∠DPC = 45°.\n  • From that one shows ΔPFD ∼ ΔPDC, so PF/FD = PD/CD.\n  • Also ΔAPF ∼ ΔAFD and ΔAPE ∼ ΔAED give AP/AE = AF/AD = PF/FD and PE/DE = PD/ED.\n  • Noting ∠EPD = ∠EDC = ½ ∠C (they show arc-angle arguments), one concludes ΔEPD is isosceles, hence PE = PD = ED, and then uses the Law of Sines in ΔBPC to relate PC, PB to angles at C.\n  • After a little algebra they find\n     2(1 – cos C) = (AC – BC)/AC\n    and also\n     AE/AC = ½ (AB + AC – BC)/AC.\n  • Equating the two conditions forced by the isosceles and perpendicular constraints yields\n     AB + AC – BC = 4(AC – BC)\n     ⇒ AB = 3(AC – BC)\n     ⇒ AB² = 9(AC – BC)².\n\nAll of this is laid out in a single column of Chinese text on the left, with the small figure 3.15 keyed into the right margin, and the page footer giving the page number 87."
+  }
+]
 ```
