@@ -4,8 +4,9 @@ createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/hashdeduplicatefilter/
 ---
 
-## 📘 Overview [HashDeduplicateFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/filter/hash_deduplicate_filter.py)
-HashDeduplicateFilter is an exact deduplication operator that identifies and filters duplicate data by calculating hash values of specified text fields. This operator supports multiple efficient hash algorithms, including md5, sha256, and xxh3, to meet different performance and security requirements.
+## 📘 Overview
+
+`HashDeduplicateFilter` is an exact deduplication operator that identifies and filters duplicate data by calculating hash values of specified text fields. This operator supports multiple efficient hash algorithms, including md5, sha256, and xxh3, to meet different performance and security requirements.
 
 ## __init__ Function
 ```python

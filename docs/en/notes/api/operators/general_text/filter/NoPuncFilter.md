@@ -1,58 +1,115 @@
 ---
 title: NoPuncFilter
-createTime: 2025/10/09 16:52:48
+createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/nopuncfilter/
 ---
 
 ## 📘 Overview
-`NoPuncFilter` is an operator that filters text by ensuring no sentence within the text exceeds a specified word count threshold. It identifies and flags texts containing overly long sentences.
 
-## `__init__` function
+`NoPuncFilter` filters text to ensure that sentence lengths do not exceed a set threshold. It traverses each sentence in the text, calculates its word count, and filters out entries containing overly long sentences.
+
+## __init__ Function
 ```python
-def __init__(self, threshold: int=112):
+def __init__(self, threshold: int=112)
 ```
+### Init Parameters
 | Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **threshold** | int | 112 | The maximum word count threshold for a sentence. Texts containing any sentence exceeding this word count will be filtered out. |
+| :---------- | :--- | :---- | :----------------------------- |
+| **threshold** | int | 112 | Threshold for maximum sentence word count. |
 
-## `run` function
+## run Function
 ```python
 def run(self, storage: DataFlowStorage, input_key: str, output_key: str='no_punc_filter_label')
 ```
 #### Parameters
 | Name | Type | Default | Description |
-| :------------- | :---------------- | :------------------------ | :----------------- |
+| :----------- | :---------------- | :------------------------- | :------------------------------------- |
 | **storage** | DataFlowStorage | Required | DataFlow storage instance for reading and writing data. |
-| **input_key** | str | Required | The column name of the input text to be filtered. |
-| **output_key** | str | "no_punc_filter_label" | The column name for the output label, which indicates if the text passes the filter. |
-
-## Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-|---|---|---|---|
-| | | | |
+| **input_key** | str | Required | Input column name corresponding to the text field to check. |
+| **output_key** | str | 'no_punc_filter_label' | Output column name for storing filter result labels. |
 
 ## 🧠 Example Usage
+
 ```python
+from dataflow.operators.general_text import NoPuncFilter
+from dataflow.utils.storage import FileStorage
 
+class NoPuncFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/no_punc_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = NoPuncFilter(
+            threshold=112
+        )
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='no_punc_filter_label'
+        )
+
+if __name__ == "__main__":
+    test = NoPuncFilterTest()
+    test.forward()
 ```
+
 #### 🧾 Default Output Format
-The operator adds a new column (specified by `output_key`) to the input data to store the filter result.
-
+After execution, the operator adds a column specified by `output_key` (default `no_punc_filter_label`) to the original data, with a value of 1 indicating that the data passed the filter check. Finally, the operator filters and writes back all rows that pass the check.
 | Field | Type | Description |
-| :-------------- | :---- | :---------- |
-| [input_key] | str | The original input text. |
-| no_punc_filter_label | int | The filter result. `1` if the text passes the check (no sentence exceeds the threshold), `0` otherwise. |
+| :----------------------- | :---- | :----------------------------------------------------------- |
+| no_punc_filter_label | int | Filter result label. Value of 1 indicates all sentences in this text row are within the threshold. |
 
-**Example Input:**
+### 📋 Example Input
+
 ```json
-{
-"text":"This is the first sentence. This is the second sentence, which is also well within the length limit."
-}
+{"text": "This is a normal sentence. It has proper punctuation."}
+{"text": "Thisisaverylongsentencewithoutanyspacesorpunctuationwhichwillexceedthethresholdbecauseithasmanymanywordsthatcannotbecountedproperlywithoutspacesandthiswillcauseittobefiltered"}
+{"text": "Short text. Another sentence. Good punctuation throughout the entire document which is very helpful."}
 ```
-**Example Output:**
+
+### 📤 Example Output
+
 ```json
-{
-"text":"This is the first sentence. This is the second sentence, which is also well within the length limit.",
-"no_punc_filter_label": 1
-}
+{"text": "This is a normal sentence. It has proper punctuation.", "no_punc_filter_label": 1}
+{"text": "Thisisaverylongsentencewithoutanyspacesorpunctuationwhichwillexceedthethresholdbecauseithasmanymanywordsthatcannotbecountedproperlywithoutspacesandthiswillcauseittobefiltered", "no_punc_filter_label": 1}
+{"text": "Short text. Another sentence. Good punctuation throughout the entire document which is very helpful.", "no_punc_filter_label": 1}
 ```
+
+### 📊 Result Analysis
+
+**Sample 1 (Normal sentences)**:
+- Split by punctuation: ["This is a normal sentence", " It has proper punctuation", ""]
+- Max word count: About 5-6 words
+- Threshold: 112
+- **Passes filter** (5-6 ≤ 112)
+
+**Sample 2 (Long sentence without spaces)**:
+- Split by punctuation: Entire segment as one sentence
+- Tokenized with `split()`: 1 "word" (no spaces)
+- Max word count: 1
+- Threshold: 112
+- **Passes filter** (1 ≤ 112)
+
+**Sample 3 (Multiple short sentences)**:
+- Split into multiple sentences by punctuation
+- Max word count per sentence < 112
+- **Passes filter** (all sentences within threshold)
+
+**Use Cases**:
+- Filter text containing overly long sentences
+- Ensure text has good readability
+- Data quality control
+- Filter abnormal machine-generated text
+
+**Notes**:
+- Uses regex `[–.!?,;•/|…]` to split sentences
+- Uses space `split()` to count words
+- Despite the name NoPuncFilter, it actually detects overly long sentences
+- Default threshold is 112 words
+- Text without spaces is treated as a single word

@@ -4,8 +4,9 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/general_text/filter/hashdeduplicatefilter/
 ---
 
-## 📘 概述 [HashDeduplicateFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/filter/hash_deduplicate_filter.py)
-HashDeduplicateFilter 是一个精确去重算子，通过计算指定文本字段的哈希值来识别和过滤重复数据。该算子支持多种高效的哈希算法，包括 md5、sha256 和 xxh3，以适应不同的性能和安全性需求。
+## 📘 概述
+
+`HashDeduplicateFilter` 是一个精确去重算子，通过计算指定文本字段的哈希值来识别和过滤重复数据。该算子支持多种高效的哈希算法，包括 md5、sha256 和 xxh3，以适应不同的性能和安全性需求。
 
 ## __init__函数
 ```python

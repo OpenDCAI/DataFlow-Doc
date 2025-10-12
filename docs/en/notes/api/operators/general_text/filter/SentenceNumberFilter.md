@@ -1,63 +1,114 @@
 ---
 title: SentenceNumberFilter
-createTime: 2025/10/09 16:52:48
+createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/sentencenumberfilter/
 ---
 
 ## 📘 Overview
 
-**SentenceNumberFilter** is an operator designed to filter text based on whether the number of sentences it contains falls within a specified range. It uses regular expressions to identify and count sentences based on common sentence-ending punctuation.
+`SentenceNumberFilter` is a text filtering operator that checks whether the number of sentences in input text falls within a specified minimum and maximum range. It counts sentences using regular expressions and only retains text rows that meet the criteria.
 
-## `__init__` function
-
+## __init__ Function
 ```python
 def __init__(self, min_sentences: int=3, max_sentences: int=7500)
 ```
+### Init Parameters
+| Parameter              | Type | Default | Description                       |
+| :------------------ | :--- | :------- | :------------------------- |
+| **min_sentences**   | int  | 3        | Minimum number of sentences text should contain. |
+| **max_sentences**   | int  | 7500     | Maximum number of sentences text should contain. |
 
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **min_sentences** | int | 3 | The minimum number of sentences required for a text to pass the filter. |
-| **max_sentences** | int | 7500 | The maximum number of sentences allowed for a text to pass the filter. |
-
-### Prompt Template Descriptions
-
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| :--- | :--- | :--- | :--- |
-| | | | |
-
-## `run` function
-
+## run Function
 ```python
 def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'sentence_number_filter_label')
 ```
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The DataFlow storage instance for reading and writing the dataframe. |
-| **input_key** | str | Required | The name of the input column containing the text to be analyzed. |
-| **output_key** | str | "sentence_number_filter_label" | The name of the new column where the filter result (1 for pass, 0 for fail) is stored before filtering. |
+#### Parameters
+| Name          | Type              | Default                           | Description                                   |
+| :------------ | :---------------- | :------------------------------- | :------------------------------------- |
+| **storage**   | DataFlowStorage   | Required                             | DataFlow storage instance for reading and writing data.     |
+| **input_key** | str               | Required                             | Input column name corresponding to the text field to filter.       |
+| **output_key**| str               | 'sentence_number_filter_label'   | Output column name for storing filter result labels.     |
 
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.general_text import SentenceNumberFilter
+from dataflow.utils.storage import FileStorage
 
+class SentenceNumberFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/sentence_number_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = SentenceNumberFilter(
+            min_sentences=3,
+            max_sentences=7500
+        )
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='sentence_number_filter_label'
+        )
+
+if __name__ == "__main__":
+    test = SentenceNumberFilterTest()
+    test.forward()
 ```
 
-#### 🧾 Output Format
+#### 🧾 Default Output Format
 
-The operator adds a new column (specified by `output_key`) to the dataframe, which contains a boolean flag (1 for pass, 0 for fail). It then filters the dataframe, and the final output stored in the storage contains only the rows that passed the filter (i.e., where the `output_key` column has a value of 1).
+After execution, the operator adds a new field (default `sentence_number_filter_label`) to the original data with a value of 1, retaining only rows that pass filtering.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| *input_key* | str | The original input text. |
-| *output_key* | int | A value of 1, indicating the row passed the sentence count filter. |
+| sentence_number_filter_label | int | Filter result label; value of 1 indicates this data row passed filtering. |
 
-**Example Input Data (in storage):**
+### 📋 Example Input
+
 ```json
-{"text": "This is a single sentence. It will not pass the default filter."}
-{"text": "This is the first sentence. Here is the second sentence. And finally, the third sentence. This text should pass."}
+{"text": "Hi"}
+{"text": "Hello world. This is a test. It has three sentences."}
+{"text": "First sentence. Second sentence. Third sentence. Fourth sentence. Fifth sentence. Sixth sentence."}
 ```
-**Example Output Data (in storage, with default `__init__` settings):**
+
+### 📤 Example Output
+
 ```json
-{"text": "This is the first sentence. Here is the second sentence. And finally, the third sentence. This text should pass.", "sentence_number_filter_label": 1}
+{"text": "Hello world. This is a test. It has three sentences.", "sentence_number_filter_label": 1}
+{"text": "First sentence. Second sentence. Third sentence. Fourth sentence. Fifth sentence. Sixth sentence.", "sentence_number_filter_label": 1}
 ```
+
+### 📊 Result Analysis
+
+**Sample 1 ("Hi")**:
+- Matched sentence count: 1
+- Sentence count range: [3, 7500]
+- **Filtered out** (1 < 3)
+
+**Sample 2 ("Hello world. This is a test. It has three sentences.")**:
+- Matched sentence count: About 3-4 (using regex `\b[^.!?\n]+[.!?]*`)
+- Sentence count range: [3, 7500]
+- **Passes filter** (within range)
+
+**Sample 3 (6 complete sentences)**:
+- Matched sentence count: 6
+- Sentence count range: [3, 7500]
+- **Passes filter** (within range)
+
+**Use Cases**:
+- Filter overly short text fragments
+- Filter overly long documents
+- Dataset quality control
+- Ensure text has sufficient content depth
+
+**Notes**:
+- Uses regex `\b[^.!?\n]+[.!?]*` to match sentences
+- Supports Chinese and English sentence-ending punctuation (。！？.!?)
+- Empty text will be filtered
+- Sentence segmentation rules may differ across languages
