@@ -8,6 +8,29 @@ permalink: /zh/api/operators/general_text/filter/alphawordsfilter/
 
 `AlphaWordsFilter` 算子用于验证文本中字母单词的比率是否达到指定阈值。它支持两种分词模式：使用 NLTK 库进行专业分词，或通过简单的空格进行分割。该算子会过滤掉不满足比率条件的文本行。
 
+## 📦 依赖说明
+
+该算子依赖 **NLTK (Natural Language Toolkit)** 库进行分词处理。在初始化时，算子会自动下载所需的 `punkt_tab` 数据包。
+
+### NLTK 数据下载问题
+
+如果在初始化时遇到 NLTK 数据下载缓慢或卡住的情况，可以采用以下解决方案：
+
+**方法 1：手动下载数据包**
+1. 访问 NLTK 数据仓库：[https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data)
+2. 下载 `punkt_tab` 数据包
+3. 将数据包放置到 NLTK 的数据目录（通常为 `~/nltk_data/` 或通过 `nltk.data.path` 查看）
+
+**方法 2：使用国内镜像源**
+```python
+import nltk
+nltk.download('punkt_tab', download_dir='./nltk_data/')
+```
+
+**方法 3：使用非分词模式**
+
+如果不需要使用 NLTK 分词器，可以在初始化时设置 `use_tokenizer=False`，这样将使用简单的空格分割，无需下载 NLTK 数据。
+
 ## `__init__`函数
 
 ```python

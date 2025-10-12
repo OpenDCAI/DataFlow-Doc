@@ -8,6 +8,29 @@ permalink: /en/api/operators/general_text/filter/alphawordsfilter/
 
 The `AlphaWordsFilter` operator validates whether the ratio of alphabetic words in text meets a specified threshold. It supports two tokenization modes: professional tokenization using the NLTK library, or simple whitespace splitting. This operator filters out text lines that do not meet the ratio condition.
 
+## 📦 Dependencies
+
+This operator depends on the **NLTK (Natural Language Toolkit)** library for tokenization. During initialization, the operator automatically downloads the required `punkt_tab` data package.
+
+### NLTK Data Download Issues
+
+If you encounter slow or stuck NLTK data downloads during initialization, you can use the following solutions:
+
+**Method 1: Manual Download**
+1. Visit the NLTK data repository: [https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data)
+2. Download the `punkt_tab` data package
+3. Place the data package in NLTK's data directory (typically `~/nltk_data/` or check via `nltk.data.path`)
+
+**Method 2: Use Custom Download Directory**
+```python
+import nltk
+nltk.download('punkt_tab', download_dir='./nltk_data/')
+```
+
+**Method 3: Use Non-Tokenizer Mode**
+
+If you don't need the NLTK tokenizer, you can set `use_tokenizer=False` during initialization. This will use simple whitespace splitting and won't require downloading NLTK data.
+
 ## `__init__` Function
 
 ```python
