@@ -6,7 +6,7 @@ permalink: /en/api/operators/general_text/filter/nopuncfilter/
 
 ## 📘 Overview
 
-`NoPuncFilter` filters text to ensure that sentence lengths do not exceed a set threshold. It traverses each sentence in the text, calculates its word count, and filters out entries containing overly long sentences.
+`NoPuncFilter` detects and filters text lacking proper punctuation. It splits text by punctuation marks and checks the word count of each sentence fragment. If any sentence fragment exceeds the threshold word count, it indicates the text lacks necessary punctuation, and such text will be filtered out.
 
 ## __init__ Function
 ```python
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 After execution, the operator adds a column specified by `output_key` (default `no_punc_filter_label`) to the original data, with a value of 1 indicating that the data passed the filter check. Finally, the operator filters and writes back all rows that pass the check.
 | Field | Type | Description |
 | :----------------------- | :---- | :----------------------------------------------------------- |
-| no_punc_filter_label | int | Filter result label. Value of 1 indicates all sentences in this text row are within the threshold. |
+| no_punc_filter_label | int | Filter result label. Value of 1 indicates the text contains proper punctuation (all sentence fragments have word counts within the threshold). |
 
 ### 📋 Example Input
 
@@ -102,14 +102,14 @@ After execution, the operator adds a column specified by `output_key` (default `
 - **Passes filter** (all sentences within threshold)
 
 **Use Cases**:
-- Filter text containing overly long sentences
-- Ensure text has good readability
+- Filter text lacking proper punctuation
+- Ensure text has good readability and structure
 - Data quality control
-- Filter abnormal machine-generated text
+- Filter abnormal machine-generated text or unstructured text
 
 **Notes**:
-- Uses regex `[–.!?,;•/|…]` to split sentences
+- Uses regex `[–.!?,;•/|…]` to split sentence fragments
 - Uses space `split()` to count words
-- Despite the name NoPuncFilter, it actually detects overly long sentences
+- Identifies text lacking punctuation by detecting overly long sentence fragments
 - Default threshold is 112 words
 - Text without spaces is treated as a single word
