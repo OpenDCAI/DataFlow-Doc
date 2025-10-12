@@ -11,12 +11,18 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswermodeljudgefilter/
 ## `__init__`函数
 
 ```python
-def __init__(self,
-             system_prompt: str = "You are a helpful assistant specialized in evaluating answer correctness.",
-             llm_serving: LLMServingABC = None,
-             prompt_template = AnswerJudgePrompt | DIYPromptABC,
-             keep_all_samples: bool = False,
-             )
+@prompt_restrict(
+    AnswerJudgePrompt
+)
+
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerModelJudgeFilter(OperatorABC):
+    def __init__(self,
+                 system_prompt: str = "You are a helpful assistant specialized in evaluating answer correctness.",
+                 llm_serving: LLMServingABC = None,
+                 prompt_template = AnswerJudgePrompt | DIYPromptABC,
+                 keep_all_samples: bool = False,  # 新增参数，控制是否保留所有样本
+                 ):
 ```
 
 ### init参数说明
@@ -32,7 +38,7 @@ def __init__(self,
 
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | :--- | :--- | :--- | :--- |
-| | | | |
+|AnswerJudgePrompt | 用于评判答案正确性的默认提示词模板。 | 适用于一般的答案判断场景。 | 包含问题、待评判答案和参考答案的字段。 |
 
 ## `run`函数
 
@@ -54,7 +60,47 @@ def run(self, storage: DataFlowStorage, input_question_key: str = "question", in
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerModelJudgeFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
+from dataflow.prompts.reasoning.general import AnswerJudgePrompt
 
+class ReasoningAnswerModelJudgeFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningAnswerModelJudgeFilter(
+            system_prompt="You are a helpful assistant specialized in evaluating answer correctness.",
+            llm_serving=self.llm_serving,
+            prompt_template=AnswerJudgePrompt(),
+            keep_all_samples=False
+        )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_question_key="question",
+            input_answer_key="answer",
+            input_reference_key="reference_answer"  
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerModelJudgeFilterTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

@@ -7,17 +7,14 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswerpipelinerootfilter/
 ## 📘 概述 [ReasoningAnswerPipelineRootFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py)
 答案处理流程根节点，负责将输入数据根据有无真实标签（Ground Truth）分发到不同的处理分支。如果真实标签列不存在或为空，算子会尝试从模型输出的答案列中提取标签。最终，数据被拆分为带有真实标签和不带真实标签两部分，分别写入不同的输出。
 
-## __init__函数
+## `__init__`函数
 ```python
-def __init__(self)
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerPipelineRootFilter(OperatorABC):
+    def __init__(self):
 ```
-### init参数说明
-| 参数名 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
+无其它参数。
 
-## Prompt模板说明
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| --- | --- | --- | --- |
 
 ## run函数
 ```python
@@ -34,6 +31,32 @@ def run(storage, input_answer_key="output", input_gt_key="golden_answer")
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerPipelineRootFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+
+class ReasoningAnswerPipelineRootFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerPipelineRootFilter()   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_answer_key="output",
+            input_gt_key="golden_answer"    
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerPipelineRootFilterTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

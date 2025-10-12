@@ -11,7 +11,10 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswergroundtruthfilter/
 ## __init__函数
 
 ```python
-def __init__(self, compare_method: Literal["math_verify", "exact"] = "math_verify")
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerGroundTruthFilter(OperatorABC):
+    def __init__(self,
+                compare_method: Literal["math_verify", "exact"] = "math_verify"):
 ```
 
 ### init参数说明
@@ -35,6 +38,34 @@ def run(self, storage: DataFlowStorage, input_test_answer_key: str = "generated_
 | **input_gt_answer_key** | `str` | `"golden_answer"` | 输入列名，对应标准答案（ground truth）字段。 |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.reasoning import ReasoningAnswerGroundTruthFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+
+class ReasoningAnswerGroundTruthFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerGroundTruthFilter(compare_method="math_verify")
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_test_answer_key = "generated_cot",
+            input_gt_answer_key = "golden_answer"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerGroundTruthFilterTest()
+    pl.forward()
+```
 
 #### 🧾 默认输出格式（Output Format）
 该算子会过滤输入数据，只保留预测答案与标准答案匹配的数据行。输出的数据格式与输入数据格式完全相同，但只包含通过验证的子集。

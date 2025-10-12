@@ -4,12 +4,15 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/reasoning/eval/reasoningcategorydatasetevaluator/
 ---
 
-## 📘 概述 [ReasoningCategoryDatasetEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py)
-该算子用于统计数据集中的类别信息，包括主类别和次类别的分布情况。它计算每个类别的样本数量，并返回类别分布的统计结果。
+## 📘 概述 
+[ReasoningCategoryDatasetEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py)
+该算子用于统计数据集中的依据二级分类下类别分类情况，包括主类别和次类别的分布情况。它计算每个类别的样本数量，并返回类别分布的统计结果。
 
 ## __init__函数
 ```python
-def __init__(self)
+@OPERATOR_REGISTRY.register()
+class ReasoningCategoryDatasetEvaluator(OperatorABC):
+    def __init__(self):
 ```
 该函数无输入参数。
 
@@ -26,7 +29,32 @@ def run(self, storage: DataFlowStorage, input_primary_category_key: str = "prima
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningCategoryDatasetEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningCategoryDatasetEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = ReasoningCategoryDatasetEvaluator()
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_primary_category_key = "primary_category",
+            input_secondary_category_key = "secondary_category",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningCategoryDatasetEvaluatorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

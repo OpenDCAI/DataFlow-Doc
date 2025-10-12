@@ -8,14 +8,22 @@ permalink: /zh/api/operators/reasoning/generate/reasoningquestiongenerator/
 
 [ReasoningQuestionGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_question_generator.py) 是一个推理型问题生成算子，用于基于现有的问题调用大语言模型（LLM）生成新的、相似但多样化的问题。该算子可与多种 Prompt 模板（数学、通用、DIY）和 LLM 服务模块配合使用，实现问题的自动化扩增。
 
-## \_\_init\_\_函数
+## `__init__`函数
 
 ```python
-def __init__(self,
-            num_prompts: int = 1,
-            llm_serving: LLMServingABC = None,
-            prompt_template = MathQuestionSynthesisPrompt | GeneralQuestionSynthesisPrompt | DiyQuestionSynthesisPrompt | DIYPromptABC
-            )
+@prompt_restrict(
+    MathQuestionSynthesisPrompt,
+    GeneralQuestionSynthesisPrompt,
+    DiyQuestionSynthesisPrompt
+)
+
+@OPERATOR_REGISTRY.register()
+class ReasoningQuestionGenerator(OperatorABC):
+    def __init__(self,
+                num_prompts: int = 1,
+                llm_serving: LLMServingABC = None,
+                prompt_template = MathQuestionSynthesisPrompt | GeneralQuestionSynthesisPrompt | DiyQuestionSynthesisPrompt | DIYPromptABC
+                ):
 ```
 
 ### init参数说明
@@ -30,9 +38,9 @@ def __init__(self,
 
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | -------------------------------- | ------------- | ----------------------- | ----------------------------------------------------- |
-|                                  |               |                         |                                                       |
-|                                  |               |                         |                                                       |
-|                                  |               |                         |                                                       |
+|   MathQuestionSynthesisPrompt        | 数学问题生成 | 数学相关问题的扩增 | 基于数学公式和定理生成新问题，支持单步、多步计算问题。 |
+|   GeneralQuestionSynthesisPrompt     | 通用问题生成 | 通用知识问题的扩增 | 基于通用知识生成新问题，不依赖特定领域知识。             |
+|   DiyQuestionSynthesisPrompt         | 自定义问题生成 | 自定义问题的扩增 | 基于用户自定义的问题模板生成新问题。                     |
 
 ## run函数
 
@@ -55,7 +63,44 @@ def run(self,
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.reasoning import ReasoningQuestionGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
+from dataflow.prompts.reasoning.math import MathQuestionSynthesisPrompt
 
+class ReasoningQuestionGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningQuestionGenerator(
+            llm_serving = self.llm_serving,
+            prompt_template = MathQuestionSynthesisPrompt()
+        )
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "instruction",
+            output_synth_or_input_flag = "Synth_or_Input"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningQuestionGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

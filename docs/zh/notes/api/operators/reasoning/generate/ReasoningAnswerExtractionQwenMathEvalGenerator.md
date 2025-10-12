@@ -9,15 +9,18 @@ permalink: /zh/api/operators/reasoning/generate/reasoninganswerextractionqwenmat
 
 ## __init__函数
 ```python
-def __init__(self, dataset_name:str = None):
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerExtractionQwenMathEvalGenerator(OperatorABC):
+    """
+    A class to handle the process of extracting answers from a dataset.
+    """
+
+    def __init__(self, dataset_name:str = None):
 ```
 ### init参数说明
 | 参数名 | 类型 | 默认值 | 说明 |
 | :------------------ | :-------------- | :---------------------------- | :------------------------------ |
 | **dataset_name** | str | None | 数据集名称，用于特定数据集的答案提取逻辑。 |
-
-### Prompt模板说明
-
 
 ## run函数
 ```python
@@ -33,8 +36,34 @@ def run(self, storage: DataFlowStorage, response_key:str = "pseudo_correct_solut
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerExtractionQwenMathEvalGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningAnswerExtractionQwenMathEvalGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerExtractionQwenMathEvalGenerator()
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "pseudo_correct_solution_example",
+            output_key = "extraction"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerExtractionQwenMathEvalGeneratorTest()
+    pl.forward()
 ```
+
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
 | :-------------- | :---- | :---------- |
