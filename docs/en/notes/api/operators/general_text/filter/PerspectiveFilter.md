@@ -35,6 +35,35 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Persp
 | **input_key** | str | Required | Input column name corresponding to the text field for toxicity evaluation. |
 | **output_key** | str | "PerspectiveScore" | Output column name corresponding to the generated toxicity score field. |
 
+## 📦 API Key Configuration
+
+Before using `PerspectiveFilter`, you need to configure the Google Perspective API Key. There are two methods:
+
+### Method 1: Set Environment Variable
+
+```bash
+export GOOGLE_API_KEY="your-google-api-key"
+```
+
+Or set it in Python:
+```python
+import os
+os.environ["GOOGLE_API_KEY"] = "your-google-api-key"
+```
+
+### Method 2: Configure via PerspectiveAPIServing
+
+Pass the API Key directly when initializing `PerspectiveAPIServing`:
+```python
+from dataflow.serving import PerspectiveAPIServing
+
+serving = PerspectiveAPIServing(api_key="your-google-api-key", max_workers=10)
+```
+
+### Obtaining API Key
+
+To obtain a Google Perspective API Key, visit: [Google Perspective API](https://perspectiveapi.com/)
+
 ## 🧠 Example Usage
 
 ```python
@@ -121,7 +150,7 @@ if __name__ == "__main__":
 - Building healthy online communities
 
 **Notes**:
-- Requires configured Google Perspective API Key
-- API calls have rate limits
+- Requires configured Google Perspective API Key (see [📦 API Key Configuration](#📦-api-key-configuration) section above)
+- API calls have rate limits; recommend setting appropriate concurrency
 - Supports multiple languages, but works best for English
 - Samples with NaN values are automatically retained

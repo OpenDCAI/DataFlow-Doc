@@ -35,6 +35,35 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Persp
 | **input_key** | str | 必需 | 输入列名，对应待评估毒性的文本字段。 |
 | **output_key** | str | "PerspectiveScore" | 输出列名，对应生成的毒性得分字段。 |
 
+## 📦 API Key 配置
+
+使用 `PerspectiveFilter` 前，需要先配置 Google Perspective API Key。有以下两种方式：
+
+### 方式 1：设置环境变量
+
+```bash
+export GOOGLE_API_KEY="your-google-api-key"
+```
+
+或在 Python 中设置：
+```python
+import os
+os.environ["GOOGLE_API_KEY"] = "your-google-api-key"
+```
+
+### 方式 2：通过 PerspectiveAPIServing 配置
+
+在初始化 `PerspectiveAPIServing` 时直接传入 API Key：
+```python
+from dataflow.serving import PerspectiveAPIServing
+
+serving = PerspectiveAPIServing(api_key="your-google-api-key", max_workers=10)
+```
+
+### 获取 API Key
+
+如需获取 Google Perspective API Key，请访问：[Google Perspective API](https://perspectiveapi.com/)
+
 ## 🧠 示例用法
 
 ```python
@@ -121,7 +150,7 @@ if __name__ == "__main__":
 - 构建健康的在线社区
 
 **注意事项**：
-- 需要配置 Google Perspective API Key
-- API 调用有速率限制
+- 需要配置 Google Perspective API Key（详见上方 [📦 API Key 配置](#📦-api-key-配置) 部分）
+- API 调用有速率限制，建议合理设置并发数
 - 支持多种语言，但英文效果最佳
 - NaN 值的样本会被自动保留
