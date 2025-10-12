@@ -8,7 +8,7 @@ permalink: /zh/api/operators/reasoning/eval/reasoningcategorydatasetevaluator/
 [ReasoningCategoryDatasetEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py)
 该算子用于统计数据集中的依据二级分类下类别分类情况，包括主类别和次类别的分布情况。它计算每个类别的样本数量，并返回类别分布的统计结果。
 
-## __init__函数
+## `__init__`函数
 ```python
 @OPERATOR_REGISTRY.register()
 class ReasoningCategoryDatasetEvaluator(OperatorABC):

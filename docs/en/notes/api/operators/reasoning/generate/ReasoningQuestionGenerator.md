@@ -25,9 +25,9 @@ def __init__(self,
 ### Prompt Template Descriptions
 | Prompt Template Name | Primary Purpose | Applicable Scenarios | Feature Description |
 | -------------------------------- | ------------- | ------------------ | ------------------- |
-| **MathQuestionSynthesisPrompt** | | | |
-| **GeneralQuestionSynthesisPrompt** | | | |
-| **DiyQuestionSynthesisPrompt** | | | |
+| **MathQuestionSynthesisPrompt** | Math question generation | Math-related question augmentation | Generates new questions based on mathematical formulas and theorems, supports single-step and multi-step calculation problems. |
+| **GeneralQuestionSynthesisPrompt** | General question generation | General knowledge question augmentation | Generates new questions based on general knowledge, not dependent on specific domain knowledge. |
+| **DiyQuestionSynthesisPrompt** | Custom question generation | Custom question augmentation | Generates new questions based on user-defined question templates. |
 
 ## `run`
 ```python
@@ -48,7 +48,44 @@ Executes the main logic of the operator. It reads an input DataFrame from storag
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.reasoning import ReasoningQuestionGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
+from dataflow.prompts.reasoning.math import MathQuestionSynthesisPrompt
 
+class ReasoningQuestionGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningQuestionGenerator(
+            llm_serving = self.llm_serving,
+            prompt_template = MathQuestionSynthesisPrompt()
+        )
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "instruction",
+            output_synth_or_input_flag = "Synth_or_Input"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningQuestionGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 Default Output Format

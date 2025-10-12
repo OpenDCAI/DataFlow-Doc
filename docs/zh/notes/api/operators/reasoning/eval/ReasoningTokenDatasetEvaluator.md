@@ -8,7 +8,7 @@ permalink: /zh/api/operators/reasoning/eval/reasoningtokendatasetevaluator/
 
 [ReasoningTokenDatasetEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个用于评估数据集中 Token 信息的算子。它负责统计问题和回答文本的 Token 数量，并提供最小值、最大值、平均值和中位数等关键统计指标。该算子通过指定的 Tokenizer 对文本进行编码，帮助用户了解数据集的文本长度分布特征。
 
-## __init__函数
+## `__init__`函数
 
 ```python
 @OPERATOR_REGISTRY.register()

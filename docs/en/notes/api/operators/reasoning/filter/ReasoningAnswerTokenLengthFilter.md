@@ -38,30 +38,41 @@ def run(self,
 
 ## 🧠 Example Usage
 
-## 🧾 Output Format
+```python
+from dataflow.operators.reasoning import ReasoningAnswerTokenLengthFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
-The operator filters the input DataFrame. The output format is identical to the input format, but only contains the rows where the token count of the text in the `input_key` column is less than or equal to `max_answer_token_length`. No new columns are added.
+class ReasoningAnswerTokenLengthFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerTokenLengthFilter(
+            max_answer_token_length=8192,
+            tokenizer_dir="Qwen/Qwen2.5-0.5B-Instruct"
+            )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key="output"
+        )
 
-**Example Input:**
-```json
-[
-    {
-        "instruction": "Explain quantum computing in one sentence.",
-        "generated_cot": "Quantum computing is a type of computation that harnesses the collective properties of quantum states, such as superposition, interference, and entanglement, to perform calculations."
-    },
-    {
-        "instruction": "Write a short story.",
-        "generated_cot": "[A very long story text that exceeds the token limit...]"
-    }
-]
+if __name__ == "__main__":
+    pl = ReasoningAnswerTokenLengthFilterTest()
+    pl.forward()
 ```
 
-**Example Output (assuming `max_answer_token_length` is 50):**
-```json
-[
-    {
-        "instruction": "Explain quantum computing in one sentence.",
-        "generated_cot": "Quantum computing is a type of computation that harnesses the collective properties of quantum states, such as superposition, interference, and entanglement, to perform calculations."
-    }
-]
-```
+#### 🧾 Default Output Format (Output Format)
+This operator is a filter that does not change the column structure of the data. The output data format is exactly the same as the input, but only includes rows where the token length in the `input_key` column meets the `max_answer_token_length` limit.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| ... (Original input fields) | ... | All original fields from the input data will be preserved. |
+| Column specified by `input_key` | str | Answer text that has passed length validation and meets the criteria. |

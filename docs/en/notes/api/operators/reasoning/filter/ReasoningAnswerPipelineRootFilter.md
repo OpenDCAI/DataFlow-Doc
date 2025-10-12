@@ -35,9 +35,39 @@ This function executes the main logic of the operator. It reads a DataFrame, spl
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.reasoning import ReasoningAnswerPipelineRootFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+
+class ReasoningAnswerPipelineRootFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerPipelineRootFilter()   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_answer_key="output",
+            input_gt_key="golden_answer"    
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerPipelineRootFilterTest()
+    pl.forward()
+```
 
 #### 🧾 Default Output Format (Output Format)
-This operator splits the input data into two potential output files, preserving the original schema.
+This operator does not change the column structure of the original data, but splits the data flow into two outputs based on whether the `input_gt_key` column has valid values.
 
-*   **Output with GT**: A file containing rows where the `input_gt_key` column has a valid value.
-*   **Output without GT**: A file containing rows where the `input_gt_key` column is missing or empty. In this output, the `input_gt_key` column is added and set to `None`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| ... | ... | All original fields from the input data. |
+| [input_gt_key] | str | The processed ground truth label column. For data without initial labels, it may be extracted and filled from the `input_answer_key` column. |

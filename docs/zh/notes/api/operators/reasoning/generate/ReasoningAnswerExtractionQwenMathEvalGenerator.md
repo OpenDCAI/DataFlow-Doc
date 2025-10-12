@@ -7,7 +7,7 @@ permalink: /zh/api/operators/reasoning/generate/reasoninganswerextractionqwenmat
 ## 📘 概述
 [ReasoningAnswerExtractionQwenMathEvalGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 该算子用于从数学问题回答中提取规范化答案表达式，进行字符串清洗、单位处理和格式标准化。
 
-## __init__函数
+## `__init__`函数
 ```python
 @OPERATOR_REGISTRY.register()
 class ReasoningAnswerExtractionQwenMathEvalGenerator(OperatorABC):

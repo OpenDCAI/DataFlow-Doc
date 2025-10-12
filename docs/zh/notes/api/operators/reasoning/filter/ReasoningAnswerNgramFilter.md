@@ -8,7 +8,7 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswerngramfilter/
 
 [ReasoningAnswerNgramFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/filter/reasoning_answer_ngram_filter.py) 是一个基于 n-gram 重复率的过滤算子，用于检测并过滤掉包含过多重复模式的答案。该算子通过计算问题与答案文本中 n-gram 的重复分数，并根据设定的阈值范围保留合格的数据行。
 
-## __init__函数
+## `__init__`函数
 
 ```python
 @OPERATOR_REGISTRY.register()

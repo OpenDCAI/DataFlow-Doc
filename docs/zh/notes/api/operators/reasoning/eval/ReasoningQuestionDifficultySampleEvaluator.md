@@ -9,7 +9,7 @@ permalink: /zh/api/operators/reasoning/eval/reasoningquestiondifficultysampleeva
 [ReasoningQuestionDifficultySampleEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/evaluate/reasoning_question_difficulty_sample_evaluator.py)
 是一个问题难度评估算子。它通过调用大语言模型（LLM）来分析问题的复杂度，并为每个问题生成一个从1到10的难度评分。
 
-## __init__函数
+## `__init__`函数
 
 ```python
 @prompt_restrict(

@@ -33,29 +33,42 @@ def run(self, storage: DataFlowStorage, input_diffulty_key: str = "difficulty_sc
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.reasoning import ReasoningDifficultyDatasetEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningDifficultyDatasetEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = ReasoningDifficultyDatasetEvaluator()
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_diffulty_key = "difficulty_score",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningDifficultyDatasetEvaluatorTest()
+    pl.forward()
 ```
 
-#### 🧾 Output Format
-The `run` function returns a dictionary containing the statistics of the difficulty distribution. The keys of the dictionary are the unique difficulty levels found in the dataset, and the values are the counts of samples for each level.
+#### 🧾 Return Value
 
-**Example Input (Data in `storage`)**:
-A dataframe with a column named `difficulty_score` (or as specified by `input_diffulty_key`).
-```
-[
-    {"instruction": "Question A...", "difficulty_score": "easy"},
-    {"instruction": "Question B...", "difficulty_score": "medium"},
-    {"instruction": "Question C...", "difficulty_score": "easy"},
-    {"instruction": "Question D...", "difficulty_score": "hard"},
-    {"instruction": "Question E...", "difficulty_score": "medium"}
-]
-```
+This operator returns a dictionary where the keys are the difficulty levels found in the dataset, and the values are the corresponding sample counts for each difficulty level.
 
-**Example Output (Return value of `run` function)**:
+Example return value:
 ```json
 {
-    "easy": 2,
-    "medium": 2,
-    "hard": 1
+  "Easy": 150,
+  "Medium": 200,
+  "Hard": 80
 }
 ```

@@ -8,7 +8,7 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswergroundtruthfilter/
 
 [ReasoningAnswerGroundTruthFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/filter/reasoning_answer_ground_truth_filter.py) 是一个答案真值过滤算子，用于对比模型生成的预测答案与标准答案（ground truth），并筛选出答案匹配的数据行。该算子支持精确字符串匹配和数学等价性验证两种比较方式，适用于对生成结果进行自动评估和过滤的场景。
 
-## __init__函数
+## `__init__`函数
 
 ```python
 @OPERATOR_REGISTRY.register()

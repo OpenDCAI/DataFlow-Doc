@@ -38,7 +38,35 @@ Executes the main logic of the operator. It reads a DataFrame from storage, conc
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.reasoning import ReasoningPretrainFormatConvertGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningPretrainFormatConvertGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningPretrainFormatConvertGenerator()
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_read_key_question = "instruction",
+            input_read_key_answer = "output",
+            output_key = "text"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningPretrainFormatConvertGeneratorTest()
+    pl.forward()
+```
 
 #### 🧾 Default Output Format
 
