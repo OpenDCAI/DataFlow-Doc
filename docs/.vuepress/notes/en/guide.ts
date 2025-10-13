@@ -23,6 +23,15 @@ export const Guide: ThemeNote = defineNoteConfig({
             items: [
                 'install',
                 'quickstart',
+
+            ],
+        },
+        {
+            text: "Start Case",
+            collapsed: false,
+            icon: 'carbon:idea',
+            prefix: 'quickstart',
+            items: [
                 'translation',
                 'sft_synthesis',
                 'conversation_synthesis',
@@ -33,7 +42,9 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'quick_general_text_evaluation',
                 'speech_transcription',
             ],
+
         },
+        
         // {
         //     text: 'Dataflow Agent',
         //     collapsed: false,
@@ -52,8 +63,8 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "TextPipeline",
                 "ReasoningPipeline",
                 "Text2SqlPipeline",
+                "Doc2QAPipeline",
                 "AgenticRAGPipeline",
-                "AgenticRAGPipeline2",
                 "RAREPipeline",
                 "KnowledgeBaseCleaningPipeline",
                 "FuncCallPipeline",
