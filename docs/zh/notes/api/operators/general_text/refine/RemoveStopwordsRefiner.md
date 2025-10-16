@@ -39,6 +39,24 @@ def run(self, storage: DataFlowStorage, input_key: str)
 | **storage** | DataFlowStorage | 必需 | 数据流存储实例，负责读取与写入数据。 |
 | **input_key** | str | 必需 | 输入列的名称，该列包含需要移除停用词的文本。 |
 
+## 📦 NLTK 数据配置
+
+该算子依赖 NLTK 的 `stopwords` 语料库。
+
+**推荐方式：使用预下载的数据（避免网络问题）**
+
+1. 从 [https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data) 下载所需数据包：
+   - `stopwords/`
+
+2. 设置环境变量指向数据路径：
+   ```bash
+   export NLTK_DATA=/path/to/nltk_data
+   ```
+
+**自动下载方式：**
+
+首次使用时，算子会自动检测并下载所需数据。如果遇到网络问题导致下载卡住，建议使用上述手动下载方式。
+
 ## 🧠 示例用法
 
 ```python
