@@ -30,3 +30,66 @@ def run(self, storage: DataFlowStorage, input_key: str)
 | **input_key** | str | 必需 | 输入列名，对应待处理的文本字段。 |
 
 ## 🧠 示例用法
+
+```python
+from dataflow.operators.general_text import RemoveEmoticonsRefiner
+from dataflow.utils.storage import FileStorage
+
+class RemoveEmoticonsRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_emoticons_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveEmoticonsRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveEmoticonsRefinerTest()
+    test.forward()
+```
+
+#### 🧾 默认输出格式（Output Format）
+
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 移除文本表情符号后的文本 |
+
+### 📋 示例输入
+
+```json
+{"text":"Hello world!"}
+{"text":"I am happy :) today :D"}
+{"text":"Sad face :( and angry >:("}
+```
+
+### 📤 示例输出
+
+```json
+{"text":"Hello world!"}
+{"text":"I am happy  today "}
+{"text":"Sad face  and angry >"}
+```
+
+### 📊 结果分析
+
+**样本1**：无表情符号，保持不变
+**样本2**：移除 `:)` 和 `:D`
+**样本3**：移除 `:(` 但 `>:(` 只部分移除
+
+**应用场景**：
+- 清理社交媒体文本
+- 移除文本表情符号（非 emoji）
+- 文本标准化
+
+**注意事项**：
+- 仅移除基于字符的表情符号（如 :) :D :(）
+- 不移除 Unicode emoji（请使用 RemoveEmojiRefiner）

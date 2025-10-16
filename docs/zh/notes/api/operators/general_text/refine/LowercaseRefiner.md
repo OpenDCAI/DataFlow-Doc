@@ -26,20 +26,99 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 示例用法
 
-#### 🧾 默认输出格式（Output Format）
-算子会修改输入 DataFrame 中 `input_key` 指定的列，并保留所有其他列。
+```python
+from dataflow.operators.general_text import LowercaseRefiner
+from dataflow.utils.storage import FileStorage
 
-示例输入：
-```json
-{
-"text": "This is an EXAMPLE text to DEMONSTRATE the functionality.",
-"other_field": 123
-}
+class LowercaseRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/lowercase_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = LowercaseRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = LowercaseRefinerTest()
+    test.forward()
 ```
-示例输出：
+
+#### 🧾 默认输出格式（Output Format）
+
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 转换为小写后的文本 |
+
+### 📋 示例输入
+
 ```json
-{
-"text": "this is an example text to demonstrate the functionality.",
-"other_field": 123
-}
+{"text":"Hello World! This Is A Test."}
+{"text":"SHOUTING IN ALL CAPS"}
+{"text":"MiXeD CaSe TeXt"}
+{"text":"already lowercase text"}
+{"text":"123 Numbers DON'T CHANGE 456"}
 ```
+
+### 📤 示例输出
+
+```json
+{"text":"hello world! this is a test."}
+{"text":"shouting in all caps"}
+{"text":"mixed case text"}
+{"text":"already lowercase text"}
+{"text":"123 numbers don't change 456"}
+```
+
+### 📊 结果分析
+
+在本测试中，5条输入数据中有4条被修改：
+
+**样本1（标题大小写）**：
+- 原文："Hello World! This Is A Test."
+- 所有大写字母转换为小写
+- 结果："hello world! this is a test."
+- **已修改**
+
+**样本2（全大写）**：
+- 原文："SHOUTING IN ALL CAPS"
+- 所有字母转换为小写
+- 结果："shouting in all caps"
+- **已修改**
+
+**样本3（混合大小写）**：
+- 原文："MiXeD CaSe TeXt"
+- 所有大写字母转换为小写
+- 结果："mixed case text"
+- **已修改**
+
+**样本4（已是小写）**：
+- 原文："already lowercase text"
+- 文本已经全部小写
+- **未修改**（保持原样）
+
+**样本5（数字和缩写）**：
+- 原文："123 Numbers DON'T CHANGE 456"
+- 字母转换为小写，数字保持不变
+- 结果："123 numbers don't change 456"
+- **已修改**
+
+**应用场景**：
+- 文本标准化和规范化处理
+- 为不区分大小写的文本匹配做准备
+- 数据去重前的预处理
+- NLP 任务中的文本归一化
+
+**注意事项**：
+- 该算子使用 Python 的 `lower()` 方法
+- 数字和标点符号保持不变
+- 建议在文本分析和匹配前使用
+- 可能影响专有名词的识别

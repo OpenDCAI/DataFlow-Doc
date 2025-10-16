@@ -35,24 +35,62 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.general_text import ReferenceRemoverRefiner
+from dataflow.utils.storage import FileStorage
+
+class ReferenceRemoverRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/reference_remover_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = ReferenceRemoverRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = ReferenceRemoverRefinerTest()
+    test.forward()
+```
+
 #### 🧾 默认输出格式（Output Format）
 
-| 字段        | 类型 | 说明                                                         |
-| :---------- | :--- | :----------------------------------------------------------- |
-| [input_key] | str  | 经过引用标记移除处理后的文本。字段名与 `input_key` 参数一致。 |
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 移除引用标记后的文本 |
 
-示例输入：
-
-```json
-{
-  "text": "量子力学是一个物理学分支<ref name=\"griffiths\">Griffiths, David J. (2004), Introduction to Quantum Mechanics (2nd ed.), Prentice Hall</ref>，主要研究物质世界微观粒子运动规律{{cite book|...。"
-}
-```
-
-示例输出：
+### 📋 示例输入
 
 ```json
-{
-  "text": "量子力学是一个物理学分支，主要研究物质世界微观粒子运动规律。"
-}
+{"text":"Normal text without references"}
+{"text":"This is a fact<ref>source</ref> about history"}
+{"text":"Citation example {{cite web|url=http://example.com}}"}
 ```
+
+### 📤 示例输出
+
+```json
+{"text":"Normal text without references"}
+{"text":"This is a fact<ref>source</ref> about history"}
+{"text":"Citation example {{cite web|url=http://example.com}}"}
+```
+
+### 📊 结果分析
+
+**样本1-3**：输出与输入相同（引用标记未被移除）
+
+**应用场景**：
+- 清理维基百科文本中的引用标签
+- 移除学术文档中的引用标记
+
+**注意事项**：
+- 使用正则表达式匹配 `<ref>` 标签和 `{{cite}}` 模板
+- 可能需要特定格式的引用才能被识别
