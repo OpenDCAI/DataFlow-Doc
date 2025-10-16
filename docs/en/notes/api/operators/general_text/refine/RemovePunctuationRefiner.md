@@ -16,13 +16,10 @@ def __init__(self)
 | :--- | :--- | :--- | :--- |
 | **-** | - | - | No parameters required for initialization. |
 
-### Prompt Template Descriptions
-
 ## run function
 ```python
 def run(self, storage: DataFlowStorage, input_key: str)
 ```
-Executes the main logic of the operator. It reads a DataFrame from storage, removes punctuation from the text in the specified input column, and writes the modified DataFrame back to storage.
 #### Parameters
 | Name | Type | Default Value | Description |
 | :------------- | :---------------- | :---------------- | :----------------- |
@@ -31,18 +28,100 @@ Executes the main logic of the operator. It reads a DataFrame from storage, remo
 
 ## 🧠 Example Usage
 
-#### 🧾 Default Output Format
-The operator modifies the specified `input_key` column in the DataFrame by removing punctuation. The output will have the same structure as the input, but with the text in the target column refined.
+```python
+from dataflow.operators.general_text import RemovePunctuationRefiner
+from dataflow.utils.storage import FileStorage
 
-Example Input:
-```json
-{
-"text_data": "Hello, world! This is a test sentence; let's see how it works."
-}
+class RemovePunctuationRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_punctuation_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemovePunctuationRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemovePunctuationRefinerTest()
+    test.forward()
 ```
-Example Output (assuming `input_key`="text_data"):
+
+#### 🧾 Default Output Format
+
+| Field | Type | Description |
+| :--- | :---- | :---------- |
+| text | str | Text with punctuation removed |
+
+### 📋 Sample Input
+
 ```json
-{
-"text_data": "Hello world This is a test sentence lets see how it works"
-}
+{"text":"Hello world"}
+{"text":"Hello, world! How are you?"}
+{"text":"Price: $100; Discount: 20%"}
+{"text":"Email: test@example.com"}
+{"text":"It's a wonderful day... isn't it?!"}
 ```
+
+### 📤 Sample Output
+
+```json
+{"text":"Hello world"}
+{"text":"Hello world How are you"}
+{"text":"Price 100 Discount 20"}
+{"text":"Email testexamplecom"}
+{"text":"Its a wonderful day isnt it"}
+```
+
+### 📊 Results Analysis
+
+In this test, 4 out of 5 input samples were modified:
+
+**Sample 1 (No Punctuation)**:
+- Original: "Hello world"
+- Contains no punctuation marks
+- **Unchanged** (remains as is)
+
+**Sample 2 (Common Punctuation)**:
+- Original: "Hello, world! How are you?"
+- Removed comma, exclamation mark, question mark
+- Result: "Hello world How are you"
+- **Modified**
+
+**Sample 3 (Special Symbols)**:
+- Original: "Price: $100; Discount: 20%"
+- Removed colon, dollar sign, semicolon, percent sign
+- Result: "Price 100 Discount 20"
+- **Modified**
+
+**Sample 4 (Email Symbols)**:
+- Original: "Email: test@example.com"
+- Removed colon, @ symbol, periods
+- Result: "Email testexamplecom"
+- **Modified**
+
+**Sample 5 (Contractions and Ellipsis)**:
+- Original: "It's a wonderful day... isn't it?!"
+- Removed apostrophes, ellipsis, question mark, exclamation mark
+- Result: "Its a wonderful day isnt it"
+- **Modified**
+
+**Use Cases**:
+- Text standardization and normalization
+- Prepare data for word frequency analysis
+- Remove noisy symbols from text
+- Preprocessing before text classification
+
+**Notes**:
+- This operator is based on `string.punctuation` set, which includes: `!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~`
+- Removes all English punctuation marks
+- Does not remove Chinese punctuation (e.g., 。，！？etc.)
+- May leave extra spaces or cause word concatenation after punctuation removal
+- Recommend using with `RemoveExtraSpacesRefiner` to clean extra spaces

@@ -15,9 +15,6 @@ def __init__(self)
 | :--- | :--- | :--- | :--- |
 | **-** | - | - | This operator does not require any initialization parameters. |
 
-## Prompt Template Descriptions
-
-
 ## `run`
 ```python
 def run(self, storage: DataFlowStorage, input_key: str)
@@ -29,23 +26,67 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.general_text import RemoveRepetitionsPunctuationRefiner
+from dataflow.utils.storage import FileStorage
 
-#### 🧾 Default Output Format (Output Format)
-The operator modifies the specified `input_key` column in place within the DataFrame.
+class RemoveRepetitionsPunctuationRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_repetitions_punctuation_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveRepetitionsPunctuationRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveRepetitionsPunctuationRefinerTest()
+    test.forward()
+```
+
+#### 🧾 Default Output Format
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `[input_key]` | str | The text after removing repeated punctuation. The field name matches the `input_key` parameter. |
+| :--- | :---- | :---------- |
+| text | str | Text with repeated punctuation removed |
 
-**Example Input:**
+### 📋 Sample Input
+
 ```json
-{
-"text_to_clean": "This is great!!! I am so excited?? Also,, this is a test..."
-}
+{"text":"Hello world!!!"}
+{"text":"What??? Really!!! Amazing..."}
+{"text":"Price is $100,,, okay???"}
 ```
-**Example Output:**
+
+### 📤 Sample Output
+
 ```json
-{
-"text_to_clean": "This is great! I am so excited? Also, this is a test."
-}
+{"text":"Hello world!"}
+{"text":"What? Really! Amazing."}
+{"text":"Price is $100, okay?"}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**: Repeated exclamation marks "!!!" → "!"
+
+**Sample 2**: Multiple repeated punctuation "???" "!!!" "..." → "?" "!" "."
+
+**Sample 3**: Repeated commas and question marks ",,," "???" → "," "?"
+
+**Use Cases**:
+- Clean excessive punctuation from user input
+- Normalize social media text
+- Text preprocessing and standardization
+
+**Notes**:
+- Preserves punctuation types, only removes repetitions
+- Applicable to all punctuation in `string.punctuation`

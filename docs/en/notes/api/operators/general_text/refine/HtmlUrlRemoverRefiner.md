@@ -5,45 +5,92 @@ permalink: /en/api/operators/general_text/refine/htmlurlremoverrefiner/
 ---
 
 ## 📘 Overview
-[HtmlUrlRemoverRefiner](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/refine/html_url_remover_refiner.py) is an operator designed to clean text data by removing URL links and HTML tags. It uses regular expressions to identify and eliminate these elements, resulting in purified text content. This is useful for preprocessing text data before further analysis or model training.
 
-## __init__函数
+`HtmlUrlRemoverRefiner` is a text cleaning operator designed to remove URL links and HTML tags from text content. This operator uses regular expressions to match and remove various forms of URLs and HTML tags, achieving effective text data cleansing.
+
+## `__init__` function
+
 ```python
 def __init__(self)
 ```
-This operator does not require any parameters during initialization.
 
-## run函数
+### init parameter description
+
+This function requires no parameters.
+
+## `run` function
+
 ```python
-def run(self, storage: DataFlowStorage, input_key: str)
+def run(storage: DataFlowStorage, input_key: str)
 ```
-Executes the main logic of the operator. It reads a DataFrame from storage, cleans the specified text column by removing URLs and HTML tags, and writes the modified DataFrame back to storage.
 
-#### 参数
-| 名称          | 类型              | 默认值 | 说明                                                                   |
-| :------------ | :---------------- | :----- | :--------------------------------------------------------------------- |
-| **storage**   | DataFlowStorage   | 必需   | DataFlow storage instance, responsible for reading and writing data.   |
-| **input_key** | str               | 必需   | The name of the column in the DataFrame that contains the text to be cleaned. |
+#### Parameters
 
-## Prompt Template Descriptions
-Not applicable for this operator.
+| Name        | Type            | Default | Description                                     |
+| :---------- | :-------------- | :-----  | :---------------------------------------------- |
+| **storage** | DataFlowStorage | Required | Data flow storage instance for reading and writing data. |
+| **input_key** | str             | Required | Input column name for text field to be cleaned. |
 
 ## 🧠 Example Usage
+
 ```python
+from dataflow.operators.general_text import HtmlUrlRemoverRefiner
+from dataflow.utils.storage import FileStorage
+
+class HtmlUrlRemoverRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/html_url_remover_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = HtmlUrlRemoverRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = HtmlUrlRemoverRefinerTest()
+    test.forward()
 ```
 
-#### 🧾 默认输出格式（Output Format）
-The operator modifies the input DataFrame in-place. The column specified by `input_key` will have its content cleaned.
+#### 🧾 Default Output Format
 
-示例输入：
+| Field | Type | Description |
+| :--- | :---- | :---------- |
+| text | str | Text with URLs and HTML tags removed |
+
+### 📋 Sample Input
+
 ```json
-{
-"text_data": "This is a test. Visit our website: <a href='https://example.com'>Click here</a> for more info."
-}
+{"text":"Visit https://example.com for more info"}
+{"text":"<p>Hello <b>world</b>!</p>"}
+{"text":"Check http://test.org and <div>content</div>"}
 ```
-示例输出：
+
+### 📤 Sample Output
+
 ```json
-{
-"text_data": "This is a test. Visit our website: Click here for more info."
-}
+{"text":"Visit  for more info"}
+{"text":"Hello world!"}
+{"text":"Check  and content"}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**: Removed URL "https://example.com"
+**Sample 2**: Removed HTML tags `<p>` `<b>`
+**Sample 3**: Removed both URL and HTML tags
+
+**Use Cases**:
+- Clean text scraped from web pages
+- Remove formatting tags from rich text
+- Text preprocessing
+
+**Notes**:
+- May leave extra spaces after removing URLs and tags
