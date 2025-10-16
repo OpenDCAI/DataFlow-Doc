@@ -98,3 +98,31 @@ if __name__ == "__main__":
 {"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold.", "CiderScore": 0.8292019111}
 {"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning.", "CiderScore": 0.6053086919}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**:
+- CiderScore: 2.146 (high)
+- Highest TF-IDF weighted n-gram overlap with good keyword matching
+
+**Sample 2**:
+- CiderScore: 0.888 (medium)
+- Partial keyword overlap, moderate score after TF-IDF weight adjustment
+
+**Sample 3**:
+- CiderScore: 0.582 (medium-low)
+- Significant sentence restructuring affects consecutive n-gram matching
+
+**Sample 4**:
+- CiderScore: 0.829 (medium)
+- Core concept words present but with noticeable expression differences
+
+**Sample 5**:
+- CiderScore: 0.605 (medium-low)
+- Large vocabulary differences, but TF-IDF weighting still captures some relevance
+
+**Application Scenarios**:
+- Image caption generation evaluation
+- Video subtitle quality assessment
+- Text generation tasks requiring consideration of word importance
+- Evaluation scenarios balancing diversity and consistency

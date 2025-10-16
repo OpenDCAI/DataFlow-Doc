@@ -92,3 +92,31 @@ if __name__ == "__main__":
 {"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold.", "BertScore": 0.9327103496}
 {"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning.", "BertScore": 0.8256326318}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**:
+- BertScore: 0.960 (high similarity)
+- Both sentences are semantically very similar, with only slight differences in word choice (jumps vs leaps, quick vs fast)
+
+**Sample 2**:
+- BertScore: 0.897 (moderately high similarity)
+- Subject and location remain consistent, with slight changes in verb tense (sells vs selling, seashore vs beach)
+
+**Sample 3**:
+- BertScore: 0.864 (medium similarity)
+- Core semantics are the same but sentence structure has noticeable adjustments
+
+**Sample 4**:
+- BertScore: 0.933 (high similarity)
+- Semantics are almost identical with different expressions
+
+**Sample 5**:
+- BertScore: 0.826 (medium similarity)
+- Completely different vocabulary expressing the same meaning, demonstrating BERT's semantic understanding capabilities
+
+**Application Scenarios**:
+- Text generation quality assessment
+- Machine translation evaluation
+- Summarization quality evaluation
+- Semantic similarity computation

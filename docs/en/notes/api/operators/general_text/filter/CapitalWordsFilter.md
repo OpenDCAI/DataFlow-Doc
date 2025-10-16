@@ -28,6 +28,31 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='capital
 | **input_key** | str | Required | Input column name corresponding to the text field to be checked. |
 | **output_key** | str | 'capital_words_filter' | Output column name for storing the filter result flag (1 means passed, 0 means failed). |
 
+## 📦 NLTK Data Configuration
+
+When `use_tokenizer=True`, this operator requires NLTK's `punkt` tokenizer data.
+
+### Recommended Configuration
+
+**Method 1: Manual Download + Environment Variable (Recommended)**
+
+1. Manually download NLTK data:
+   - Visit [https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data)
+   - Download the `punkt` package to a local directory
+
+2. Set environment variable:
+```bash
+export NLTK_DATA=/path/to/your/nltk_data
+```
+
+**Method 2: Automatic Download**
+
+If the `NLTK_DATA` environment variable is not set, the operator will automatically download the required data on first use.
+
+**Notes**:
+- Method 1 is recommended to avoid download failures or hanging due to network issues
+- If not using the tokenizer (`use_tokenizer=False`), no NLTK data configuration is needed
+
 ## 🧠 Example Usage
 
 ```python

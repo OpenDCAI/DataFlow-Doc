@@ -89,3 +89,30 @@ if __name__ == "__main__":
 {"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold.", "BleuScore": 0.4999999998}
 {"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning.", "BleuScore": 0.1238396999}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**:
+- BleuScore: 0.556 (medium)
+- More n-gram overlaps (brown, fox, over, lazy, dog), but differences in word order and vocabulary
+
+**Sample 2**:
+- BleuScore: 0.423 (medium)
+- Partial vocabulary overlap (sells/selling, shells, by), but overall structure changes significantly
+
+**Sample 3**:
+- BleuScore: 0.400 (medium)
+- Key words "be" and "question" repeated, but sentence restructuring is obvious
+
+**Sample 4**:
+- BleuScore: 0.500 (medium)
+- Core concept words retained but expression completely different
+
+**Sample 5**:
+- BleuScore: 0.124 (low)
+- Almost no identical vocabulary despite same semantics, demonstrating BLEU's dependence on lexical matching
+
+**Application Scenarios**:
+- Machine translation quality evaluation
+- Literal similarity assessment for text generation
+- Scenarios requiring precise vocabulary matching
