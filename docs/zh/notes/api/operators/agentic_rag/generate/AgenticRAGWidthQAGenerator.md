@@ -11,15 +11,13 @@ permalink: /zh/api/operators/agentic_rag/generate/agenticragwidthqagenerator/
 ```python
 def __init__(self, llm_serving: LLMServingABC = None)
 ```
-### init参数说明
+
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **llm_serving** | LLMServingABC | 可选 | 大语言模型服务实例，用于执行推理与生成。 |
 
 ### Prompt模板说明
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| :--- | :--- | :--- | :--- |
-| | | | |
+该算子不使用提示模板；它通过多步推理直接生成、合并和验证复杂的问答对，而不依赖中间提示模板。
 
 ## `run`函数
 ```python
@@ -36,35 +34,69 @@ def run(self, storage: DataFlowStorage, input_question_key:str = "question", inp
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.agentic_rag.generate.agenticrag_width_qa_generator import AgenticRAGWidthQAGenerator
+from dataflow.utils.storage import DataFlowStorage
 
+# 初始化算子
+generator = AgenticRAGWidthQAGenerator(
+    llm_serving=your_llm_serving_instance
+)
+
+# 运行算子
+storage = DataFlowStorage()
+generator.run(
+    storage=storage,
+    input_question_key="question",
+    input_identifier_key="identifier",
+    input_answer_key="answer",
+    output_question_key="generated_width_task"
+)
 ```
-#### 🧾 默认输出格式（Output Format）
+
+#### 🧾 输出格式
+该算子通过添加多个新列来修改输入DataFrame。
+
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| original_question | list[str] | 用于生成新问题的原始问题列表。 |
-| original_answer | list[str] | 对应原始问题的答案列表。 |
-| content_identifier | any | 内容标识符。 |
-| generated_width_task | str | 模型生成的组合性新问题。 |
+| **generated_width_task** | str | 生成的结合多个问答对的复杂问题 |
+| **content_identifier** | str | 合并问题的组合内容标识符 |
+| **qa_index** | list | 被合并的原始问答对的索引 |
+| **index** | int | 生成问题的索引 |
+| **original_answer** | list | 来自合并问答对的原始答案列表 |
+| **original_question** | list | 来自合并问答对的原始问题列表 |
+| **state** | int | 验证状态（1表示有效，0表示无效） |
 
-示例输入（`storage` 中 DataFrame 的两行）：
+**示例输入:**
 ```json
-{
-    "question": "法国的首都是哪里？",
-    "identifier": "法国概况",
-    "answer": "法国的首都是巴黎。"
-}
-{
-    "question": "法国的官方货币是什么？",
-    "identifier": "法国概况",
-    "answer": "法国的官方货币是欧元。"
-}
+[
+  {
+    "question": "什么是机器学习？",
+    "identifier": "ml_concepts",
+    "answer": "机器学习是人工智能的一个子集，使计算机能够在没有明确编程的情况下学习。"
+  },
+  {
+    "question": "深度学习是如何工作的？",
+    "identifier": "dl_concepts", 
+    "answer": "深度学习使用多层神经网络来处理数据并进行预测。"
+  }
+]
 ```
-示例输出（写入 `storage` 的 DataFrame 中的一行）：
+
+**示例输出:**
 ```json
 {
-    "original_question": ["法国的首都是哪里？", "法国的官方货币是什么？"],
-    "original_answer": ["法国的首都是巴黎。", "法国的官方货币是欧元。"],
-    "content_identifier": "法国概况",
-    "generated_width_task": "法国的首都及其官方货币分别是什么？"
+  "generated_width_task": "机器学习和深度学习在现代AI系统中如何协同工作？",
+  "content_identifier": "ml_dl_integration",
+  "qa_index": [0, 1],
+  "index": 0,
+  "original_answer": [
+    "机器学习是人工智能的一个子集，使计算机能够在没有明确编程的情况下学习。",
+    "深度学习使用多层神经网络来处理数据并进行预测。"
+  ],
+  "original_question": [
+    "什么是机器学习？",
+    "深度学习是如何工作的？"
+  ],
+  "state": 1
 }
 ```

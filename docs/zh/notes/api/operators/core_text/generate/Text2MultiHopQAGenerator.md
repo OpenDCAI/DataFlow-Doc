@@ -4,7 +4,8 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/core_text/generate/text2multihopqagenerator/
 ---
 
-## 📘 概述 [Text2MultiHopQAGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个多跳问答对生成算子，用于从给定的文本中自动生成需要多步推理才能回答的问题与答案。该算子通过调用大语言模型（LLM），将输入文本转化为一系列结构化的、包含推理步骤的多跳问答对，适用于构建复杂的问答数据集或评估模型的推理能力。
+## 📘 概述 
+`Text2MultiHopQAGenerator` 是一个多跳问答对生成算子，用于从给定的文本中自动生成需要多步推理才能回答的问题与答案。该算子通过调用大语言模型（LLM），将输入文本转化为一系列结构化的、包含推理步骤的多跳问答对，适用于构建复杂的问答数据集或评估模型的推理能力。
 
 ## __init__函数
 `__init__(self, llm_serving, seed=0, lang="en", prompt_template=None, num_q=5)`
@@ -21,7 +22,7 @@ permalink: /zh/api/operators/core_text/generate/text2multihopqagenerator/
 ### Prompt模板说明
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | -------------------------------- | ------------- | ----------------------- | ----------------------------------------------------- |
-| **Text2MultiHopQAGeneratorPrompt** | | | |
+| **Text2MultiHopQAGeneratorPrompt** | 从文本生成多跳问答对 | 需要从大段上下文中构建复杂推理问题的场景 | 内置专用模板，引导模型生成问题、推理步骤、最终答案和支撑事实，确保输出的结构化和逻辑性。 |
 
 ## run函数
 `run(self, storage, input_key='cleaned_chunk', output_key='QA_pairs', output_meta_key='QA_metadata')`
@@ -36,7 +37,16 @@ permalink: /zh/api/operators/core_text/generate/text2multihopqagenerator/
 
 ## 🧠 示例用法
 ```python
-
+self.knowledge_cleaning_step4 = Text2MultiHopQAGenerator(
+    llm_serving=self.llm_serving,
+    lang="en",
+    num_q = 5
+)
+self.knowledge_cleaning_step4.run(
+    storage=self.storage.step(),
+    # input_key=
+    # output_key=
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
