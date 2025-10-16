@@ -4,69 +4,88 @@ createTime: 2025/10/09 16:52:48
 permalink: /en/api/operators/knowledge_cleaning/generate/kbctextcleanerbatch/
 ---
 
-# 📘 KBCTextCleanerBatch
-KBCTextCleanerBatch is a knowledge cleaning operator designed for RAG. It standardizes raw content by cleaning HTML tags, normalizing special characters, and optimizing structure to improve the quality of the knowledge base.
+## 📘 Overview
 
-## \_\_init\_\_ function
+`KBCTextCleanerBatch` is a **batch knowledge-cleaning operator** designed to standardize raw knowledge content by removing HTML tags, normalizing special characters, processing hyperlinks, and optimizing structure — all to enhance the quality of RAG (Retrieval-Augmented Generation) knowledge bases.
+
+---
+
+## **init** Function
+
 ```python
-def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template = None)
+def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template=None)
 ```
-### init Parameters
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **llm\_serving** | LLMServingABC | Required | Large language model serving instance. |
-| **lang** | str | "en" | Language for the prompt template ('en' or 'zh'). |
-| **prompt\_template** | PromptABC | None | Prompt template object. Defaults to `KnowledgeCleanerPrompt`. |
 
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Purpose | Applicable Scenarios | Feature Description |
-| ---------------------- | ------------- | -------------------- | ------------------- |
-| | | | |
+### Initialization Parameters
 
-## run function
+| Parameter           | Type          | Default  | Description                                                                                                                         |
+| :------------------ | :------------ | :------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| **llm_serving**     | LLMServingABC | Required | The large language model service instance used for inference and text generation.                                                   |
+| **lang**            | str           | "en"     | Specifies the language of the prompt. Supports `"zh"` (Chinese) and `"en"` (English).                                               |
+| **prompt_template** | PromptABC     | None     | The prompt template object for constructing cleaning instructions. If not specified, the built-in `KnowledgeCleanerPrompt` is used. |
+
+---
+
+### Prompt Template Description
+
+| Prompt Template            | Purpose                         | Application Scenario            | Key Features                                                     |
+| -------------------------- | ------------------------------- | ------------------------------- | ---------------------------------------------------------------- |
+| **KnowledgeCleanerPrompt** | Multi-dimensional text cleaning | Private knowledge base cleaning | Removes sensitive information and noise; performs normalization. |
+
+---
+
+## run Function
+
 ```python
-def run(self, storage: DataFlowStorage, input_key: str = "chunk_path", output_key: str = "cleaned_chunk_path")
+def run(storage, input_key="chunk_path", output_key="cleaned_chunk_path")
 ```
-#### Parameters
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | DataFlow storage instance for reading and writing data. |
-| **input\_key** | str | "chunk_path" | Input column name containing the path to the chunk file. |
-| **output\_key** | str | "cleaned_chunk_path" | Output column name to store the path of the cleaned chunk file. |
+
+Executes the main logic of the operator — it reads the input DataFrame from the storage, cleans the text files located at the given paths, and writes the cleaned results back to new files.
+
+### Parameters
+
+| Name           | Type            | Default              | Description                                                                               |
+| :------------- | :-------------- | :------------------- | :---------------------------------------------------------------------------------------- |
+| **storage**    | DataFlowStorage | Required             | The data flow storage instance responsible for reading and writing data.                  |
+| **input_key**  | str             | "chunk_path"         | The input column name that contains the file paths of the knowledge chunks to be cleaned. |
+| **output_key** | str             | "cleaned_chunk_path" | The output column name that stores the file paths of the cleaned knowledge chunks.        |
+
+---
 
 ## 🧠 Example Usage
+
 ```python
-
+self.knowledge_cleaning_step3 = KBCTextCleanerBatch(
+    llm_serving=self.llm_serving,
+    lang="en"
+)
+self.knowledge_cleaning_step3.run(
+    storage=self.storage.step(),
+)
 ```
-#### 🧾 Default Output Format (Output Format)
-The operator reads a dataframe, finds file paths specified in the `input_key` column, cleans the content within those files, and overwrites them. It then adds an `output_key` column to the dataframe containing the same paths and saves the updated dataframe.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| *original_columns* | any | The original columns from the input dataframe. |
-| cleaned\_chunk\_path | str | Path to the file containing the cleaned chunks. This is the same path as the input file, which is modified in-place. |
+---
 
-Example Input (`dataframe`):
+## 🧾 Default Output Format
+
+| Field                  | Type | Description                                                |
+| :--------------------- | :--- | :--------------------------------------------------------- |
+| **chunk_path**         | str  | Path to the original raw knowledge text.                   |
+| **cleaned_chunk_path** | str  | Path to the cleaned knowledge text generated by the model. |
+
+### Example Input (File pointed by `chunk_path`)
+
 ```json
 {
-"chunk_path":"/path/to/chunks.jsonl"
+"raw_chunk":"<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>"
 }
 ```
-Example Input File Content (`/path/to/chunks.jsonl`):
-```json
-{"raw_chunk": "Content with <b>HTML</b> and &quot;special&quot; characters."}
-```
-Example Output (`dataframe`):
+
+### Example Output (File pointed by `cleaned_chunk_path`)
+
 ```json
 {
-"chunk_path":"/path/to/chunks.jsonl",
-"cleaned_chunk_path":"/path/to/chunks.jsonl"
-}
-```
-Example Output File Content (`/path/to/chunks.jsonl` after execution):
-```json
-{
-    "raw_chunk": "Content with <b>HTML</b> and &quot;special&quot; characters.",
-    "cleaned_chunk": "Content with HTML and \"special\" characters."
+"raw_chunk":"<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>",
+"cleaned_chunk":"标题文本\n\n正文段落，包括特殊符号，例如\"直引号\"、-破折号等\n\n[Image: 示意图 example.jpg]\n\n链接文本\n\n<code>代码片段</code>"
 }
 ```

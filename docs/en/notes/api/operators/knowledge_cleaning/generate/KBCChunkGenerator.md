@@ -4,71 +4,90 @@ createTime: 2025/10/09 16:52:48
 permalink: /en/api/operators/knowledge_cleaning/generate/kbcchunkgenerator/
 ---
 
-## 📘 KBCChunkGenerator
-KBCChunkGenerator is a lightweight text segmentation tool that supports multiple chunking methods (token/sentence/semantic/recursive) with configurable size and overlap, optimized for RAG applications.
+## 📘 Overview
 
-## __init__ function
+`KBCChunkGenerator` is a lightweight text chunking tool that supports multiple splitting methods, including word-, sentence-, semantic-, and recursive-based approaches. It allows flexible configuration of chunk size, overlap length, and minimum token count per chunk.
+
+## **init** Function
+
 ```python
 def __init__(self,
-            chunk_size: int = 512,
-            chunk_overlap: int = 50,
-            split_method: str = "token",
-            min_tokens_per_chunk: int = 100,
-            tokenizer_name: str = "bert-base-uncased",
-            )
+  chunk_size: int = 512,
+  chunk_overlap: int = 50,
+  split_method: str = "token",
+  min_tokens_per_chunk: int = 100,
+  tokenizer_name: str = "bert-base-uncased",
+):
 ```
-### init parameter description
-| Parameter              | Type | Default               | Description                                                                                 |
-| :--------------------- | :--- | :-------------------- | :------------------------------------------------------------------------------------------ |
-| **chunk_size**         | int  | 512                   | The target size of each text chunk.                                                         |
-| **chunk_overlap**      | int  | 50                    | The number of overlapping tokens/characters between consecutive chunks.                     |
-| **split_method**       | str  | "token"               | The method to split text. Supported values: "token", "sentence", "semantic", "recursive".   |
-| **min_tokens_per_chunk**| int | 100                  | The minimum number of tokens for a chunk to be considered valid.                            |
-| **tokenizer_name**     | str  | "bert-base-uncased"   | The name or path of the Hugging Face tokenizer to be used.                                  |
 
-## run function
+### init Parameter Description
+
+| Parameter                | Type | Default             | Description                                                                        |
+| :----------------------- | :--- | :------------------ | :--------------------------------------------------------------------------------- |
+| **chunk_size**           | int  | 512                 | Target size of each text chunk.                                                    |
+| **chunk_overlap**        | int  | 50                  | Number of overlapping units (e.g., tokens) between adjacent chunks.                |
+| **split_method**         | str  | "token"             | Text splitting method. Supports "token", "sentence", "semantic", and "recursive".  |
+| **min_tokens_per_chunk** | int  | 100                 | Minimum number of tokens required per chunk.                                       |
+| **tokenizer_name**       | str  | "bert-base-uncased" | Name of the pretrained tokenizer used for tokenization, from the Hugging Face Hub. |
+
+## run Function
+
 ```python
 def run(self, storage: DataFlowStorage, input_key:str='text_path', output_key:str="raw_chunk")
 ```
+
 #### Parameters
-| Name         | Type            | Default       | Description                                                                           |
-| :----------- | :-------------- | :------------ | :------------------------------------------------------------------------------------ |
-| **storage**  | DataFlowStorage | Required      | The DataFlow storage instance for reading the input DataFrame and writing the results.  |
-| **input_key**| str             | "text_path"   | The column name in the input DataFrame that contains the path to the text file to chunk.|
-| **output_key**| str             | "raw_chunk"   | The column name to be added to the output DataFrame, containing the generated text chunk. |
+
+| Name           | Type            | Default     | Description                                                                    |
+| :------------- | :-------------- | :---------- | :----------------------------------------------------------------------------- |
+| **storage**    | DataFlowStorage | Required    | Data flow storage instance responsible for reading and writing DataFrame data. |
+| **input_key**  | str             | "text_path" | Input column name containing the path to the text file to be processed.        |
+| **output_key** | str             | "raw_chunk" | Output column name used to store the generated text chunks.                    |
 
 ## 🧠 Example Usage
-```python
 
+```python
+self.knowledge_cleaning_step2 = KBCChunkGenerator(
+    split_method="token",
+    chunk_size=512,
+    tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
+)
+self.knowledge_cleaning_step2.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
 ```
 
-#### 🧾 Default Output Format (Output Format)
-The operator preserves all columns from the input data and adds a new column (specified by `output_key`) for each generated chunk. If one input row's text file is split into multiple chunks, it will result in multiple output rows.
+#### 🧾 Default Output Format
 
-| Field                     | Type | Description                                                                 |
-| :------------------------ | :--- | :-------------------------------------------------------------------------- |
-| `<...all_input_columns>`  | any  | All original columns from the input data are preserved for each output row. |
-| `raw_chunk`               | str  | The generated text chunk. The field name is determined by `output_key`.     |
+This operator reads a DataFrame, splits the text from the column specified by `input_key` into chunks, and produces a new DataFrame. For each row in the input DataFrame, the number of output rows corresponds to the number of chunks generated from its text. Each new row retains all original fields and adds a new column (defined by `output_key`) containing the chunked text.
 
-Example Input (`input_key`="text_path"):
+Example Input (one row in DataFrame):
+
 ```json
 {
-    "doc_id": "doc-001",
-    "text_path": "/path/to/your/document.txt"
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md"
 }
 ```
-Example Output (`output_key`="raw_chunk"):
+
+Example Output (resulting DataFrame will contain multiple rows as shown below):
+
 ```json
-[
-    {
-        "doc_id": "doc-001",
-        "text_path": "/path/to/your/document.txt",
-        "raw_chunk": "This is the first chunk of text from the document. It is created by the KBCChunkGenerator based on the specified splitting method and chunk size."
-    },
-    {
-        "doc_id": "doc-001",
-        "text_path": "/path/to/your/document.txt",
-        "raw_chunk": "This is the second chunk, which may have some overlapping text with the previous chunk to maintain context across boundaries."
-    }
-]
+{
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
+  "raw_chunk": "This is the first text chunk extracted from the document..."
+},
+{
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
+  "raw_chunk": "...This is the second chunk, overlapping with the previous one..."
+},
+{
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
+  "raw_chunk": "...This is the third text chunk..."
+}
 ```

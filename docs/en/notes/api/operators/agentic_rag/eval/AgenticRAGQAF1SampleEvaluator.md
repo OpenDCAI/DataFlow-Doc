@@ -15,6 +15,7 @@ def __init__(self)
 This operator does not require any parameters during initialization.
 
 ### Prompt Template Descriptions
+This operator does not use prompt templates as it performs direct text normalization and F1 score calculation.
 
 ## `run` function
 ```python

@@ -6,7 +6,7 @@ permalink: /zh/api/operators/knowledge_cleaning/generate/kbctextcleanerbatch/
 
 ## 📘 概述
 
-[KBCTextCleanerBatch](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个知识清洗算子，用于对原始知识内容进行标准化处理，包括HTML标签清理、特殊字符规范化、链接处理和结构优化，以提升RAG知识库的质量。
+`KBCTextCleanerBatch` 是一个批处理知识清洗算子，用于对原始知识内容进行标准化处理，包括HTML标签清理、特殊字符规范化、链接处理和结构优化，以提升RAG知识库的质量。
 
 ## \_\_init\_\_函数
 
@@ -24,9 +24,10 @@ def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template = None
 
 ### Prompt模板说明
 
+### Prompt模板说明
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| :--- | :--- | :--- | :--- |
-| | | | |
+| --- | --- | --- | --- |
+|KnowledgeCleanerPrompt |多维度清洗用户文本 |私有知识库清洗 |去隐私，去噪声，标准化 |
 
 ## run函数
 
@@ -45,3 +46,32 @@ def run(storage, input_key="chunk_path", output_key="cleaned_chunk_path")
 | **output_key** | str | "cleaned_chunk_path" | 输出列名，对应已清洗知识文件路径的字段。 |
 
 ## 🧠 示例用法
+```python
+self.knowledge_cleaning_step3 = KBCTextCleanerBatch(
+    llm_serving=self.llm_serving,
+    lang="en"
+)
+self.knowledge_cleaning_step3.run(
+    storage=self.storage.step(),
+)
+```
+
+#### 🧾 默认输出格式（Output Format）
+| 字段 | 类型 | 说明 |
+| :-------------- | :---- | :---------- |
+| chunk_path | str | 输入的原始知识文本路径。 |
+| cleaned_chunk_path | str | 模型生成的清洗后知识文本路径。 |
+
+示例输入chunk_path指向的文件内容：
+```json
+{
+"raw_chunk":"<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>"
+}
+```
+示例输出cleaned_chunk_path指向的文件内容：
+```json
+{
+"raw_chunk":"<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>",
+"cleaned_chunk":"标题文本\n\n正文段落，包括特殊符号，例如\"直引号\"、-破折号等\n\n[Image: 示意图 example.jpg]\n\n链接文本\n\n<code>代码片段</code>"
+}
+```
