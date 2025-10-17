@@ -56,7 +56,7 @@ class BlocklistFilterTest():
         self.filter = BlocklistFilter(
             language='en',
             threshold=1,
-            use_tokenizer=False
+            use_tokenizer=True
         )
         
     def forward(self):
@@ -82,25 +82,28 @@ if __name__ == "__main__":
 
 ```json
 {"text": "This is a normal and clean text without any problematic words."}
-{"text": "This text contains some bad words that should be filtered."}
-{"text": "Just a regular sentence about technology and science."}
+{"text": "This article discusses the anatomy of frogs and their anal glands."}
+{"text": "You bastard asshole, this is complete shit!"}
 ```
 
 ### 📤 Sample Output
 
 ```json
 {"text": "This is a normal and clean text without any problematic words.", "blocklist_filter_label": 1}
-{"text": "This text contains some bad words that should be filtered.", "blocklist_filter_label": 1}
-{"text": "Just a regular sentence about technology and science.", "blocklist_filter_label": 1}
+{"text": "This article discusses the anatomy of frogs and their anal glands.", "blocklist_filter_label": 1}
 ```
 
 ### 📊 Result Analysis
 
-In this test, all 3 texts passed the filter (blocklist_filter_label=1) because:
+In this test, 2 texts passed the filter and 1 was filtered out:
+- **Sample 1** (Passed): Contains no blocklist words, blocklist count=0 ≤ 1 ✓
+- **Sample 2** (Passed): Contains 1 blocklist word "anal", blocklist count=1 ≤ 1 ✓
+- **Sample 3** (Filtered): Contains 3 blocklist words "bastard", "asshole", "shit", blocklist count=3 > 1 ✗
+
+Filtering Logic Explanation:
 - The system loaded the English blocklist (403 sensitive words)
 - The threshold was set to 1, meaning at most 1 blocklist word is allowed
-- Words like "bad" in the test texts are not in the blocklist
-- All texts have blocklist word counts ≤ 1
+- Using `use_tokenizer=True` for precise word-level matching that correctly handles punctuation
 
 **Use Cases**:
 - Filter text containing sensitive words, profanity, or offensive content

@@ -74,7 +74,7 @@ class BlocklistFilterTest():
         self.filter = BlocklistFilter(
             language='en',
             threshold=1,
-            use_tokenizer=False
+            use_tokenizer=True
         )
         
     def forward(self):
@@ -100,25 +100,28 @@ if __name__ == "__main__":
 
 ```json
 {"text": "This is a normal and clean text without any problematic words."}
-{"text": "This text contains some bad words that should be filtered."}
-{"text": "Just a regular sentence about technology and science."}
+{"text": "This article discusses the anatomy of frogs and their anal glands."}
+{"text": "You bastard asshole, this is complete shit!"}
 ```
 
 ### 📤 示例输出
 
 ```json
 {"text": "This is a normal and clean text without any problematic words.", "blocklist_filter_label": 1}
-{"text": "This text contains some bad words that should be filtered.", "blocklist_filter_label": 1}
-{"text": "Just a regular sentence about technology and science.", "blocklist_filter_label": 1}
+{"text": "This article discusses the anatomy of frogs and their anal glands.", "blocklist_filter_label": 1}
 ```
 
 ### 📊 结果分析
 
-在本测试中，所有3条文本都通过了过滤（blocklist_filter_label=1），这是因为：
+在本测试中，2条文本通过了过滤，1条被过滤掉：
+- **样本1**（通过）：不含任何阻止列表词汇，阻止词计数=0 ≤ 1 ✓
+- **样本2**（通过）：包含1个阻止词 "anal"，阻止词计数=1 ≤ 1 ✓
+- **样本3**（过滤）：包含3个阻止词 "bastard"、"asshole"、"shit"，阻止词计数=3 > 1 ✗
+
+过滤逻辑说明：
 - 系统加载了英文阻止列表（403个敏感词）
 - 设置的阈值为1，表示允许最多1个阻止列表词汇
-- 测试文本中的"bad"等词语不在阻止列表中
-- 所有文本的阻止词计数都≤1
+- 使用 `use_tokenizer=True` 进行精确的单词级匹配，能正确处理标点符号
 
 **应用场景**：
 - 过滤包含敏感词、脏话、冒犯性内容的文本
