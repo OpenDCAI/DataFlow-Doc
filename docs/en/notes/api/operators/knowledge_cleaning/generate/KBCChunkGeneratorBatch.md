@@ -5,81 +5,98 @@ permalink: /en/api/operators/knowledge_cleaning/generate/kbcchunkgeneratorbatch/
 ---
 
 ## 📘 Overview
-KBCChunkGeneratorBatch is a lightweight text segmentation tool that supports multiple chunking methods (token/sentence/semantic/recursive) with configurable size and overlap, optimized for RAG applications.
 
-## `__init__`
+`KBCChunkGeneratorBatch` is a batch text segmentation operator designed to divide long texts or corpora into smaller, more manageable chunks. It supports multiple segmentation strategies, including token-based, sentence-based, semantic, and recursive methods. The operator allows customization of chunk size, overlap, and minimum chunk length, and is specifically optimized for RAG (Retrieval-Augmented Generation) applications.
+
+## `__init__` Function
+
 ```python
 def __init__(self,
-             chunk_size: int = 512,
-             chunk_overlap: int = 50,
-             split_method: str = "token",
-             min_tokens_per_chunk: int = 100,
-             tokenizer_name: str = "bert-base-uncased"
-             )
+    chunk_size: int = 512,
+    chunk_overlap: int = 50,
+    split_method: str = "token",
+    min_tokens_per_chunk: int = 100,
+    tokenizer_name: str = "bert-base-uncased",
+)
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **chunk_size** | int | 512 | The target size of each text chunk (in tokens or other units depending on the split method). |
-| **chunk_overlap** | int | 50 | The number of tokens to overlap between consecutive chunks to maintain context. |
-| **split_method** | str | "token" | The method used for splitting text. Supported methods: "token", "sentence", "semantic", "recursive". |
-| **min_tokens_per_chunk** | int | 100 | The minimum number of tokens required for a valid chunk. |
-| **tokenizer_name** | str | "bert-base-uncased" | The name or path of the pretrained tokenizer model from Hugging Face. |
 
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| :--- | :--- | :--- | :--- |
-| | | | |
+### init Parameter Description
 
-## `run`
+| Parameter                | Type | Default             | Description                                                                             |
+| :----------------------- | :--- | :------------------ | :-------------------------------------------------------------------------------------- |
+| **chunk_size**           | int  | 512                 | Target size for each text chunk (in tokens or characters, depending on `split_method`). |
+| **chunk_overlap**        | int  | 50                  | Overlap size between adjacent chunks to preserve context continuity.                    |
+| **split_method**         | str  | "token"             | Text segmentation method. Options: "token", "sentence", "semantic", "recursive".        |
+| **min_tokens_per_chunk** | int  | 100                 | Minimum number of tokens allowed in each chunk.                                         |
+| **tokenizer_name**       | str  | "bert-base-uncased" | Name of the tokenizer used for token splitting and counting.                            |
+
+### Segmentation Method Description
+
+| Method        | Primary Use                      | Applicable Scenario                            | Key Features                                                                           |
+| ------------- | -------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **token**     | Split by fixed token count       | When strict input length control is needed     | Direct method ensuring each chunk stays within `chunk_size`.                           |
+| **sentence**  | Split by sentence boundaries     | When sentence integrity must be preserved      | Keeps full sentences together, avoiding semantic breaks.                               |
+| **semantic**  | Split by semantic similarity     | For topically coherent documents or paragraphs | Uses semantic clustering to group related content.                                     |
+| **recursive** | Recursive hierarchical splitting | For complex or unstructured text               | Uses layered delimiters (paragraphs, sentences, words) for robust, adaptive splitting. |
+
+## `run` Function
+
 ```python
-def run(self, 
-        storage: DataFlowStorage, 
-        input_key: str = "text_path", 
-        output_key: str = "chunk_path"
-        )
+def run(self, storage: DataFlowStorage, input_key: str = "text_path", output_key: str = "chunk_path")
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The data flow storage instance responsible for reading and writing data. |
-| **input_key** | str | "text_path" | The column name in the input DataFrame that contains the path to the text file to be chunked. |
-| **output_key** | str | "chunk_path" | The column name in the output DataFrame where the path to the generated chunk file will be stored. |
+
+#### Parameters
+
+| Name           | Type            | Default      | Description                                                                        |
+| :------------- | :-------------- | :----------- | :--------------------------------------------------------------------------------- |
+| **storage**    | DataFlowStorage | Required     | Data flow storage instance responsible for reading and writing data.               |
+| **input_key**  | str             | "text_path"  | Input column containing the path to the original text file to be chunked.          |
+| **output_key** | str             | "chunk_path" | Output column used to store the path of the generated chunk file (in JSON format). |
 
 ## 🧠 Example Usage
-```python
 
+```python
+self.knowledge_cleaning_step2 = KBCChunkGeneratorBatch(
+    split_method="token",
+    chunk_size=512,
+    tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
+)
+self.knowledge_cleaning_step2.run(
+    storage=self.storage.step(),
+)
 ```
 
 #### 🧾 Default Output Format
-The operator appends the `output_key` column to the input DataFrame. This new column contains the file path to a JSON file where the generated text chunks are stored.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| *input_columns* | - | All original columns from the input DataFrame are preserved. |
-| chunk_path | str | The path to the output JSON file containing the list of text chunks. |
+After execution, the operator adds a new column (default `chunk_path`) to the input DataFrame, containing the paths to the generated JSON files. Each JSON file has the following structure:
 
-**Example Input DataFrame row:**
+Example Input (one row in DataFrame):
+
 ```json
 {
-    "text_path": "./data/sample.txt"
+"text_path":"/path/to/your/document.txt"
 }
 ```
 
-**Example Output DataFrame row:**
+Example Output (one row in DataFrame):
+
 ```json
 {
-    "text_path": "./data/sample.txt",
-    "chunk_path": "./data/extract/sample_chunk.json"
+"text_path":"/path/to/your/document.txt",
+"chunk_path":"/path/to/your/extract/document_chunk.json"
 }
 ```
 
-**Content of `sample_chunk.json`:**
+Example content of `document_chunk.json`:
+
 ```json
 [
     {
-        "raw_chunk": "This is the first chunk of the document. It provides an introduction to the main topic and sets the context for the following sections."
+        "raw_chunk": "This is the content of the first text chunk..."
     },
     {
-        "raw_chunk": "The following sections delve deeper into specific aspects. This is the second chunk, which continues the discussion from the first."
-    }
+        "raw_chunk": "This is the second text chunk, overlapping partially with the first one..."
+    },
+    ...
 ]
 ```

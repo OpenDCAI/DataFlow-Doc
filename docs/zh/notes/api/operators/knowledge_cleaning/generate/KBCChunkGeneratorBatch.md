@@ -5,17 +5,17 @@ permalink: /zh/api/operators/knowledge_cleaning/generate/kbcchunkgeneratorbatch/
 ---
 
 ## 📘 概述
-KBCChunkGeneratorBatch 是一个文本分割算子，旨在将长文本或语料库分割成更小、更易于管理的块（chunks）。该算子支持多种分割策略，包括按 token、句子、语义或递归方式进行分割，并允许用户自定义块大小、重叠部分和最小块长度，特别为 RAG（检索增强生成）应用进行了优化。
+`KBCChunkGeneratorBatch` 是批量处理文本分割算子，旨在将长文本或语料库分割成更小、更易于管理的块（chunks）。该算子支持多种分割策略，包括按 token、句子、语义或递归方式进行分割，并允许用户自定义块大小、重叠部分和最小块长度，特别为 RAG（检索增强生成）应用进行了优化。
 
 ## `__init__`函数
 ```python
 def __init__(self,
-             chunk_size: int = 512,
-             chunk_overlap: int = 50,
-             split_method: str = "token",
-             min_tokens_per_chunk: int = 100,
-             tokenizer_name: str = "bert-base-uncased",
-             )
+    chunk_size: int = 512,
+    chunk_overlap: int = 50,
+    split_method: str = "token",
+    min_tokens_per_chunk: int = 100,
+    tokenizer_name: str = "bert-base-uncased",
+)
 ```
 ### init参数说明
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -47,7 +47,14 @@ def run(self, storage: DataFlowStorage, input_key: str = "text_path", output_key
 
 ## 🧠 示例用法
 ```python
-
+self.knowledge_cleaning_step2 = KBCChunkGeneratorBatch(
+    split_method="token",
+    chunk_size=512,
+    tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
+)
+self.knowledge_cleaning_step2.run(
+    storage=self.storage.step(),
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）

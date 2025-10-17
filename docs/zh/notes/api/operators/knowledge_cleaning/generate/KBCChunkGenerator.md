@@ -4,17 +4,19 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/knowledge_cleaning/generate/kbcchunkgenerator/
 ---
 
-## 📘 概述 [KBCChunkGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个轻量级文本分割工具，支持词、句、语义、递归等多种分块方法，并可灵活配置块大小、重叠长度和最小块长度。
+## 📘 概述
+
+`KBCChunkGenerator`是一个轻量级文本分割工具，支持词、句、语义、递归等多种分块方法，并可灵活配置块大小、重叠长度和最小块长度。
 
 ## __init__函数
 ```python
 def __init__(self,
-             chunk_size: int = 512,
-             chunk_overlap: int = 50,
-             split_method: str = "token",
-             min_tokens_per_chunk: int = 100,
-             tokenizer_name: str = "bert-base-uncased",
-             ):
+  chunk_size: int = 512,
+  chunk_overlap: int = 50,
+  split_method: str = "token",
+  min_tokens_per_chunk: int = 100,
+  tokenizer_name: str = "bert-base-uncased",
+):
 ```
 ### init参数说明
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -38,7 +40,16 @@ def run(self, storage: DataFlowStorage, input_key:str='text_path', output_key:st
 
 ## 🧠 示例用法
 ```python
-
+self.knowledge_cleaning_step2 = KBCChunkGenerator(
+    split_method="token",
+    chunk_size=512,
+    tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
+)
+self.knowledge_cleaning_step2.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -47,25 +58,25 @@ def run(self, storage: DataFlowStorage, input_key:str='text_path', output_key:st
 示例输入（DataFrame中的一行）：
 ```json
 {
-  "doc_id": "doc_001",
-  "text_path": "/path/to/your/document.txt"
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md"
 }
 ```
 示例输出（生成的 DataFrame 将包含多行，如下所示）：
 ```json
 {
-  "doc_id": "doc_001",
-  "text_path": "/path/to/your/document.txt",
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
   "raw_chunk": "这是从文档中切分出的第一个文本块..."
 },
 {
-  "doc_id": "doc_001",
-  "text_path": "/path/to/your/document.txt",
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
   "raw_chunk": "...这是第二个文本块，与前一个有重叠部分..."
 },
 {
-  "doc_id": "doc_001",
-  "text_path": "/path/to/your/document.txt",
+  "source": "doc_001",
+  "text_path": "/path/to/your/document.md",
   "raw_chunk": "...这是第三个文本块..."
 }
 ```

@@ -21,7 +21,7 @@ def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template = Know
 ### Prompt模板说明
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | --- | --- | --- | --- |
-| | | | |
+|KnowledgeCleanerPrompt |多维度清洗用户文本 |私有知识库清洗 |去隐私，去噪声，标准化 |
 
 ## run函数
 ```python
@@ -38,7 +38,15 @@ def run(self, storage: DataFlowStorage, input_key:str = "raw_chunk", output_key:
 
 ## 🧠 示例用法
 ```python
-
+self.knowledge_cleaning_step3 = KBCTextCleaner(
+    llm_serving=self.llm_serving,
+    lang="en"
+)
+self.knowledge_cleaning_step3.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）

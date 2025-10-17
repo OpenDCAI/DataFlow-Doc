@@ -5,59 +5,90 @@ permalink: /en/api/operators/knowledge_cleaning/generate/kbctextcleaner/
 ---
 
 ## 📘 Overview
-[KBCTextCleaner](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) standardizes raw HTML/text content for RAG quality improvement. Key functions:
-1. Removes redundant HTML tags while preserving semantic tags
-2. Normalizes special characters (e.g., curly quotes, dashes)
-3. Processes hyperlinks and retains their text
-4. Preserves paragraph structure and code indentation
-5. Ensures factual content remains unchanged
 
-## `__init__` function
+`KBCTextCleaner` is a **knowledge-cleaning operator** designed to standardize raw knowledge content by removing HTML tags, normalizing special characters, handling hyperlinks, and optimizing text structure.
+Its goal is to improve the **quality and reliability** of RAG (Retrieval-Augmented Generation) knowledge bases.
+
+---
+
+## **init** Function
+
 ```python
-def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template = None)
+def __init__(self, llm_serving: LLMServingABC, lang="en", prompt_template = KnowledgeCleanerPrompt)
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **llm_serving** | LLMServingABC | Required | LLM serving instance for executing generation. |
-| **lang** | str | "en" | Language of the knowledge content, affects prompt selection. Supports 'en' and 'zh'. |
-| **prompt_template** | PromptABC | None | Prompt template object for building the cleaning instructions. Defaults to `KnowledgeCleanerPrompt`. |
 
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| --- | --- | --- | --- |
-| | | | |
+### Initialization Parameters
 
-## `run` function
+| Parameter           | Type          | Default                    | Description                                                                                     |
+| :------------------ | :------------ | :------------------------- | :---------------------------------------------------------------------------------------------- |
+| **llm_serving**     | LLMServingABC | Required                   | The LLM service instance used for inference and text generation.                                |
+| **lang**            | str           | "en"                       | Language setting for selecting the prompt template. Supports `'zh'` and `'en'`.                 |
+| **prompt_template** | PromptABC     | `KnowledgeCleanerPrompt()` | The prompt template object. If not provided, the default `KnowledgeCleanerPrompt` will be used. |
+
+---
+
+### Prompt Template Description
+
+| Prompt Template            | Purpose                         | Application Scenario            | Key Features                                                    |
+| -------------------------- | ------------------------------- | ------------------------------- | --------------------------------------------------------------- |
+| **KnowledgeCleanerPrompt** | Multi-dimensional text cleaning | Private knowledge base cleaning | Removes sensitive information and noise, performs normalization |
+
+---
+
+## run Function
+
 ```python
-def run(self, storage: DataFlowStorage, input_key:str = "raw_chunk", output_key:str = "cleaned_chunk")
+def run(self, storage: DataFlowStorage, input_key: str = "raw_chunk", output_key: str = "cleaned_chunk")
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | DataFlow storage instance for reading and writing data. |
-| **input_key** | str | "raw_chunk" | Input column name containing the raw text to be cleaned. |
-| **output_key** | str | "cleaned_chunk" | Output column name for the cleaned text. |
+
+Executes the main logic of the operator — it reads the input DataFrame from the storage, generates cleaned text, and writes the result back to storage.
+
+### Parameters
+
+| Name           | Type            | Default         | Description                                                            |
+| :------------- | :-------------- | :-------------- | :--------------------------------------------------------------------- |
+| **storage**    | DataFlowStorage | Required        | DataFlow storage instance responsible for reading and writing data.    |
+| **input_key**  | str             | "raw_chunk"     | Input column name corresponding to the raw knowledge chunk field.      |
+| **output_key** | str             | "cleaned_chunk" | Output column name corresponding to the cleaned knowledge chunk field. |
+
+---
 
 ## 🧠 Example Usage
-```python
 
+```python
+self.knowledge_cleaning_step3 = KBCTextCleaner(
+    llm_serving=self.llm_serving,
+    lang="en"
+)
+self.knowledge_cleaning_step3.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
 ```
 
-#### 🧾 Default Output Format
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| raw_chunk | str | The input raw text. |
-| cleaned_chunk | str | The model-generated cleaned text. |
+---
 
-Example Input:
+## 🧾 Default Output Format
+
+| Field             | Type | Description                                               |
+| :---------------- | :--- | :-------------------------------------------------------- |
+| **raw_chunk**     | str  | The input raw knowledge text.                             |
+| **cleaned_chunk** | str  | The cleaned and standardized text generated by the model. |
+
+### Example Input
+
 ```json
 {
-"raw_chunk":"<div class=\"container\">\n  <h1>Title Text</h1>\n  <p>Paragraph with “curly quotes” and – dashes</p>\n  <img src=\"example.jpg\" alt=\"Diagram\">\n  <a href=\"...\">Link text</a>\n  <pre><code>Code block</code></pre>\n</div>"
+"raw_chunk": "<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>"
 }
 ```
-Example Output:
+
+### Example Output
+
 ```json
 {
-"raw_chunk":"<div class=\"container\">\n  <h1>Title Text</h1>\n  <p>Paragraph with “curly quotes” and – dashes</p>\n  <img src=\"example.jpg\" alt=\"Diagram\">\n  <a href=\"...\">Link text</a>\n  <pre><code>Code block</code></pre>\n</div>",
-"cleaned_chunk":"Title Text\n\nParagraph with \"straight quotes\" and - dashes\n\n[Image: Diagram example.jpg]\n\nLink text\n\n<code>Code block</code>"
+"raw_chunk": "<div class=\"container\">\n  <h1>标题文本</h1>\n  <p>正文段落，包括特殊符号，例如“弯引号”、–破折号等</p>\n  <img src=\"example.jpg\" alt=\"示意图\">\n  <a href=\"...\">链接文本</a>\n  <pre><code>代码片段</code></pre>\n</div>",
+"cleaned_chunk": "标题文本\n\n正文段落，包括特殊符号，例如\"直引号\"、-破折号等\n\n[Image: 示意图 example.jpg]\n\n链接文本\n\n<code>代码片段</code>"
 }
 ```

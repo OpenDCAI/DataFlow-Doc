@@ -11,7 +11,7 @@ permalink: /zh/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconv
 ## __init__函数
 
 ```python
-def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", mineru_backend: str = "vlm-sglang-engine"):
+def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", mineru_backend: str = "vlm-vllm-engine", ):
 ```
 
 ### init参数说明
@@ -20,13 +20,13 @@ def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", min
 | :--- | :--- | :--- | :--- |
 | **intermediate_dir** | str | "intermediate" | 用于存储转换过程中生成的中间文件的目录路径。 |
 | **lang** | str | "en" | 指定文档的主要语言（如'zh'为中文，'en'为英文），用于优化解析效果。 |
-| **mineru_backend** | str | "vlm-sglang-engine" | 设置 MinerU 的后端引擎，用于处理PDF等复杂文档。可选值为 "pipeline" 或 "vlm-sglang-engine"。 |
+| **mineru_backend** | str | "vlm-sglang-engine" | 设置 MinerU 的后端引擎，用于处理PDF等复杂文档。可选值为 "pipeline" 或 "vlm-transformers", 'vlm-vllm-engine', vlm-http-client'。 |
 
 ### Prompt模板说明
 
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | --- | --- | --- | --- |
-| | | | |
+|-- |-- |-- |-- |
 
 ## run函数
 
@@ -45,7 +45,16 @@ def run(self, storage: DataFlowStorage, input_key: str = "source", output_key: s
 ## 🧠 示例用法
 
 ```python
-
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
+    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
+    lang="en",
+    mineru_backend="vlm-vllm-engine",
+)
+self.knowledge_cleaning_step1.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
