@@ -1,3 +1,9 @@
+---
+title: 命令行评估流水线
+icon: hugeicons:chart-evaluation
+createTime: 2025/10/17 15:00:50
+permalink: /zh/guide/enty5kqg/
+---
 # 评估流水线
 
 仅支持QA对形式的评估
@@ -6,7 +12,7 @@
 
 ```
 cd DataFlow
-pip install -e .[llamafactory]
+pip install -e .[vllm]
 
 cd ..
 mkdir workspace

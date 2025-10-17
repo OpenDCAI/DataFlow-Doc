@@ -1,3 +1,9 @@
+---
+title: Command Model Evaluation Pipeline
+icon: hugeicons:chart-evaluation
+createTime: 2025/10/17 15:00:50
+permalink: /en/guide/qi6ikv5s/
+---
 # **Evaluation Pipeline** 
 
 Only supports QA pair format evaluation 

@@ -71,6 +71,16 @@ export const Guide: ThemeNote = defineNoteConfig({
             ]
         },
         {
+            text: "Model Evaluation",
+            collapsed: false,
+            icon: 'carbon:flow',
+            prefix: 'model_evaluation',
+            items: [
+                "command_eval",
+                "easy_evaluation",
+            ]
+        },
+        {
             text: "General Operators",
             collapsed: false,
             icon: 'material-symbols:analytics-outline',

@@ -70,6 +70,16 @@ export const Guide: ThemeNote = defineNoteConfig({
             ]
         },
         {
+            text:"模型自动评估",
+            collapsed: false,
+            icon: 'carbon:flow',
+            prefix: 'model_evaluation',
+            items: [
+                "command_eval",
+                "easy_evaluation",
+            ]
+        },
+        {
             text: "通用算子(移动到API)",
             collapsed: false,
             icon: 'material-symbols:analytics-outline',
