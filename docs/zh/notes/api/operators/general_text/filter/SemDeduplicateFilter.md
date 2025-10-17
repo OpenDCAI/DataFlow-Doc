@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The weather is sunny today."}
-{"text": "It is a bright and sunny day."}
+{"text": "Today the weather is sunny."}
 {"text": "I need to buy some apples."}
 ```
 
@@ -100,26 +100,27 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The weather is sunny today.", "minhash_deduplicated_label": 1}
-{"text": "It is a bright and sunny day.", "minhash_deduplicated_label": 1}
 {"text": "I need to buy some apples.", "minhash_deduplicated_label": 1}
 ```
 
 ### 📊 结果分析
 
-**样本1（"The weather is sunny today."）**：
+在本测试中，2条文本被保留，1条被过滤掉：
+
+**样本1（保留）- "The weather is sunny today."**：
 - 计算 BERT 嵌入向量
 - 首次出现，作为基准
-- **保留**（唯一样本）
+- 结果：**保留** ✓（唯一样本）
 
-**样本2（"It is a bright and sunny day."）**：
-- 与样本1语义相关（都关于晴天）
-- 计算余弦相似度 < 0.95（1 - eps）
-- **保留**（相似度未达到重复阈值）
+**样本2（过滤）- "Today the weather is sunny."**：
+- 与样本1语义高度相似（仅词序不同）
+- 计算余弦相似度 ≥ 0.95（1 - eps）
+- 结果：**被过滤** ✗（语义重复，相似度超过阈值）
 
-**样本3（"I need to buy some apples."）**：
+**样本3（保留）- "I need to buy some apples."**：
 - 与前面样本语义完全不同
 - 余弦相似度很低
-- **保留**（唯一样本）
+- 结果：**保留** ✓（唯一样本）
 
 **工作原理**：
 1. 使用 BERT 模型将文本转换为嵌入向量

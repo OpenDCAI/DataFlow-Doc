@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The weather is sunny today."}
-{"text": "It is a bright and sunny day."}
+{"text": "Today the weather is sunny."}
 {"text": "I need to buy some apples."}
 ```
 
@@ -100,26 +100,27 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The weather is sunny today.", "minhash_deduplicated_label": 1}
-{"text": "It is a bright and sunny day.", "minhash_deduplicated_label": 1}
 {"text": "I need to buy some apples.", "minhash_deduplicated_label": 1}
 ```
 
 ### 📊 Result Analysis
 
-**Sample 1 ("The weather is sunny today.")**:
+In this test, 2 texts were retained and 1 was filtered out:
+
+**Sample 1 (Retained) - "The weather is sunny today."**:
 - Calculate BERT embedding vector
 - First occurrence, serves as baseline
-- **Retained** (unique sample)
+- Result: **Retained** ✓ (unique sample)
 
-**Sample 2 ("It is a bright and sunny day.")**:
-- Semantically related to Sample 1 (both about sunny weather)
-- Calculated cosine similarity < 0.95 (1 - eps)
-- **Retained** (similarity below duplicate threshold)
+**Sample 2 (Filtered) - "Today the weather is sunny."**:
+- Highly semantically similar to Sample 1 (only word order differs)
+- Calculated cosine similarity ≥ 0.95 (1 - eps)
+- Result: **Filtered** ✗ (semantic duplicate, similarity exceeds threshold)
 
-**Sample 3 ("I need to buy some apples.")**:
+**Sample 3 (Retained) - "I need to buy some apples."**:
 - Semantically completely different from previous samples
 - Very low cosine similarity
-- **Retained** (unique sample)
+- Result: **Retained** ✓ (unique sample)
 
 **How It Works**:
 1. Use BERT model to convert text into embedding vectors
