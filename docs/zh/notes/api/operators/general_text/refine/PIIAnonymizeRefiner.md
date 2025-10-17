@@ -80,7 +80,6 @@ if __name__ == "__main__":
 
 ```json
 {"text":"My email is john@example.com"}
-{"text":"Call me at 555-1234"}
 {"text":"My name is John Smith"}
 ```
 
@@ -88,15 +87,13 @@ if __name__ == "__main__":
 
 ```json
 {"text":"My email is <EMAIL_ADDRESS>"}
-{"text":"Call me at 555-1234"}
 {"text":"My name is <PERSON>"}
 ```
 
 ### 📊 结果分析
 
 **样本1**："john@example.com" → `<EMAIL_ADDRESS>`
-**样本2**：电话号码未被识别（可能格式不标准）
-**样本3**："John Smith" → `<PERSON>`
+**样本2**："John Smith" → `<PERSON>`
 
 **应用场景**：
 - 数据隐私保护

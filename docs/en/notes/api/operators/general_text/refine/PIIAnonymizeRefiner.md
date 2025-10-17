@@ -74,7 +74,6 @@ if __name__ == "__main__":
 
 ```json
 {"text":"My email is john@example.com"}
-{"text":"Call me at 555-1234"}
 {"text":"My name is John Smith"}
 ```
 
@@ -82,15 +81,13 @@ if __name__ == "__main__":
 
 ```json
 {"text":"My email is <EMAIL_ADDRESS>"}
-{"text":"Call me at 555-1234"}
 {"text":"My name is <PERSON>"}
 ```
 
 ### 📊 Results Analysis
 
 **Sample 1**: "john@example.com" → `<EMAIL_ADDRESS>`
-**Sample 2**: Phone number not recognized (may be non-standard format)
-**Sample 3**: "John Smith" → `<PERSON>`
+**Sample 2**: "John Smith" → `<PERSON>`
 
 **Use Cases**:
 - Data privacy protection
