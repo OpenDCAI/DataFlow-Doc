@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The quick brown fox jumps over the lazy dog"}
-{"text": "good good good good good good good good"}
+{"text": "good good good good good good good good good good"}
 {"text": "This is a simple test with various different words"}
 ```
 
@@ -86,29 +86,30 @@ if __name__ == "__main__":
 
 ```json
 {"text": "The quick brown fox jumps over the lazy dog", "unique_words_filter": 1}
-{"text": "good good good good good good good good", "unique_words_filter": 1}
 {"text": "This is a simple test with various different words", "unique_words_filter": 1}
 ```
 
 ### 📊 结果分析
 
-**样本1（高唯一性文本）**：
+在本测试中，2条文本通过了过滤，1条被过滤掉：
+
+**样本1（通过）- 高唯一性文本**：
 - 总单词数：9
 - 唯一单词数：8（"the" 出现2次）
-- 唯一单词比率：8 / 9 ≈ 0.89 (89%)
-- **通过过滤**（0.89 > 0.1 阈值）
+- 唯一单词比率：8 / 9 ≈ 0.889 (88.9%)
+- 结果：**通过过滤** ✓（0.889 > 0.1 阈值）
 
-**样本2（低唯一性文本）**：
-- 总单词数：8
+**样本2（过滤）- 极低唯一性文本**：
+- 总单词数：10
 - 唯一单词数：1（只有 "good"）
-- 唯一单词比率：1 / 8 = 0.125 (12.5%)
-- **通过过滤**（0.125 > 0.1 阈值）
+- 唯一单词比率：1 / 10 = 0.1 (10%)
+- 结果：**被过滤** ✗（0.1 ≤ 0.1 阈值，需要严格大于）
 
-**样本3（完全唯一）**：
+**样本3（通过）- 完全唯一文本**：
 - 总单词数：9
 - 唯一单词数：9（所有单词都不重复）
 - 唯一单词比率：9 / 9 = 1.0 (100%)
-- **通过过滤**（1.0 > 0.1 阈值）
+- 结果：**通过过滤** ✓（1.0 > 0.1 阈值）
 
 **工作原理**：
 1. 将文本转换为小写

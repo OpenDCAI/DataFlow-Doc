@@ -78,7 +78,7 @@ The operator returns a filtered DataFrame containing only rows where the unique 
 
 ```json
 {"text": "The quick brown fox jumps over the lazy dog"}
-{"text": "good good good good good good good good"}
+{"text": "good good good good good good good good good good"}
 {"text": "This is a simple test with various different words"}
 ```
 
@@ -86,29 +86,30 @@ The operator returns a filtered DataFrame containing only rows where the unique 
 
 ```json
 {"text": "The quick brown fox jumps over the lazy dog", "unique_words_filter": 1}
-{"text": "good good good good good good good good", "unique_words_filter": 1}
 {"text": "This is a simple test with various different words", "unique_words_filter": 1}
 ```
 
 ### 📊 Result Analysis
 
-**Sample 1 (High uniqueness text)**:
+In this test, 2 texts passed the filter and 1 was filtered out:
+
+**Sample 1 (Passed) - High uniqueness text**:
 - Total word count: 9
 - Unique word count: 8 ("the" appears twice)
-- Unique word ratio: 8 / 9 ≈ 0.89 (89%)
-- **Passes filter** (0.89 > 0.1 threshold)
+- Unique word ratio: 8 / 9 ≈ 0.889 (88.9%)
+- Result: **Passes filter** ✓ (0.889 > 0.1 threshold)
 
-**Sample 2 (Low uniqueness text)**:
-- Total word count: 8
+**Sample 2 (Filtered) - Extremely low uniqueness text**:
+- Total word count: 10
 - Unique word count: 1 (only "good")
-- Unique word ratio: 1 / 8 = 0.125 (12.5%)
-- **Passes filter** (0.125 > 0.1 threshold)
+- Unique word ratio: 1 / 10 = 0.1 (10%)
+- Result: **Filtered out** ✗ (0.1 ≤ 0.1 threshold, must be strictly greater than)
 
-**Sample 3 (Fully unique)**:
+**Sample 3 (Passed) - Fully unique text**:
 - Total word count: 9
 - Unique word count: 9 (all words are distinct)
 - Unique word ratio: 9 / 9 = 1.0 (100%)
-- **Passes filter** (1.0 > 0.1 threshold)
+- Result: **Passes filter** ✓ (1.0 > 0.1 threshold)
 
 **How It Works**:
 1. Convert text to lowercase
