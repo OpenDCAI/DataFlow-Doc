@@ -1,9 +1,9 @@
 ---
-title: Pdf2ModelPipeline
+title: PDF-to-Model Model Simulation Pipeline
 createTime: 2025/08/30 14:27:01
 permalink: /en/guide/yu798e6s/
 ---
-# DataFlow-pdf2model & LlaMA-Factory
+# PDF-to-Model Model Simulation Pipeline
 
 ## Quick Start
 
@@ -14,6 +14,11 @@ git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
 #prepare environment
 pip install -e .[llamafactory]
+# Supports mineru2.5. If you only want to run the pipeline backend, you can skip downloading the whl file and proceed directly to model preparation.
+wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+
+pip install flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+
 #prepare models
 mineru-models-download
 
@@ -42,6 +47,14 @@ conda activate dataflow
 cd DataFlow
 
 pip install -e .[llamafactory]
+
+# Supports mineru2.5. If you only want to run the pipeline backend, you can skip downloading the whl file and proceed directly to model preparation
+# Download flash-attn whl file. You need to download the corresponding whl based on your environment
+# For example, if your environment is python3.10 torch2.4 cuda12.1 https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+# Version selection URL: https://github.com/Dao-AILab/flash-attention/releases
+wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+
+pip install flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
 ```
 
 

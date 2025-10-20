@@ -1,17 +1,14 @@
 ---
-title: Model QA Capability Assessment Pipeline
-icon: hugeicons:chart-evaluation
-createTime: 2025/10/20 10:41:21
-permalink: /en/guide/qmvjcv9o/
+title: Model Capability Assessment Pipeline
+createTime: 2025/08/30 14:27:02
+permalink: /en/guide/evaluation-pipeline/
 ---
 
-
-# Model QA Capability Assessment Pipeline
+# Model Capability Assessment Pipeline
 
 Only supports QA pair format evaluation
 
 ## Quick Start
-
 ```bash
 cd DataFlow
 pip install -e .[eval]
@@ -37,7 +34,6 @@ dataflow eval api / dataflow eval local
 ## Step 1: Install Evaluation Environment
 
 Download evaluation environment
-
 ```bash
 cd DataFlow
 pip install -e .[eval]
@@ -58,13 +54,11 @@ cd workspace
 ## Step 3: Prepare Evaluation Data and Initialize Configuration Files
 
 Initialize configuration files
-
 ```bash
 dataflow eval init
 ```
 
 After initialization, the project directory structure becomes:
-
 ```
 Project Root/
 ├── eval_api.py      # Configuration file for API model evaluator
@@ -75,12 +69,9 @@ Project Root/
 
 ## Step 4: Prepare Evaluation Data
 
-
-
 ### Method 1: JSON Format
 
 Please prepare a JSON format file with data structure similar to the example below:
-
 ```json
 [
     {
@@ -91,7 +82,6 @@ Please prepare a JSON format file with data structure similar to the example bel
 ```
 
 In this example data:
-
 - `input` is the question (can also be question + answer choices merged into one input)
 
 - `output` is the standard answer
@@ -101,7 +91,6 @@ In this example data:
 ### Method 2: Custom Field Mapping
 
 You can also skip data preprocessing (as long as you have clear question and standard answer fields) and configure field name mapping through `eval_api.py` and `eval_local.py`:
-
 ```python
 EVALUATOR_RUN_CONFIG = {
     "input_test_answer_key": "model_generated_answer",  # Field name for model-generated answers
@@ -117,7 +106,6 @@ EVALUATOR_RUN_CONFIG = {
 If you want to use a local model as the evaluator, please modify the parameters in the `eval_local.py` file.
 
 If you want to use an API model as the evaluator, please modify the parameters in the `eval_api.py` file.
-
 ```python
 # Target Models Configuration (same as API mode)
 
@@ -155,12 +143,11 @@ TARGET_MODELS = [
 ## Step 6: Run Evaluation
 
 Run local evaluation:
-
 ```bash
 dataflow eval local
 ```
 
 Run API evaluation:
-
 ```bash
 dataflow eval api
+```

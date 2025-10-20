@@ -1,17 +1,15 @@
 ---
-title: 模型QA能力评估流水线
-icon: hugeicons:chart-evaluation
-createTime: 2025/10/20 10:41:22
-permalink: /zh/guide/2k5wjgls/
+title: EvalPipeline
+createTime: 2025/10/20 11:30:42
+permalink: /zh/guide/cqro9oa8/
 ---
-
-# 模型QA能力评估流水线
+# 模型能力评估流水线
 
 仅支持QA对形式的评估
 
 ## 快速开始
 
-```bash
+```
 cd DataFlow
 pip install -e .[eval]
 
@@ -35,7 +33,7 @@ dataflow eval api / dataflow eval local
 
 下载评估环境
 
-```bash
+```
 cd DataFlow
 pip install -e .[eval]
 cd ..
@@ -45,7 +43,7 @@ cd ..
 
 ## 第二步：创建并进入dataflow工作文件夹
 
-```bash
+```
 mkdir workspace
 cd workspace
 ```
@@ -56,13 +54,13 @@ cd workspace
 
 初始化配置文件
 
-```bash
+```
 dataflow eval init
 ```
 
 初始化完成后，项目目录变成：
 
-```bash
+```
 项目根目录/
 ├── eval_api.py  # 评估器为api模型的配置文件
 └──  eval_local.py # 评估器为本地模型的配置文件
@@ -76,7 +74,7 @@ dataflow eval init
 
 请准备好json格式文件，数据格式与展示类似
 
-```python
+```
 [
     {
         "input": "What properties indicate that material PI-1 has excellent processing characteristics during manufacturing processes?",
@@ -97,7 +95,7 @@ dataflow eval init
 
 也可以不处理数据（需要有明确的问题和标准答案这两个字段），通过eval_api.py以及eval_local.py来进行配置映射字段名字
 
-```python
+```
 EVALUATOR_RUN_CONFIG = {
     "input_test_answer_key": "model_generated_answer",  # 模型生成的答案字段名
     "input_gt_answer_key": "output",  # 标准答案字段名（原始数据的字段）
@@ -113,7 +111,7 @@ EVALUATOR_RUN_CONFIG = {
 
 假设想用api模型作为评估器，请修改`eval_api.py`文件中的参数
 
-```python
+```
 Target Models Configuration (same as API mode)
 
 TARGET_MODELS = [
@@ -153,12 +151,12 @@ TARGET_MODELS = [
 
 运行本地评估
 
-```bash
+```
 dataflow eval local
 ```
 
 运行api评估
 
-```bash
+```
 dataflow eval api
 ```

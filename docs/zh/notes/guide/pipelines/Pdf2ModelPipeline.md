@@ -1,9 +1,9 @@
 ---
-title: Pdf2ModelPipeline
+title: Pdf-to-Model模型微调流水线
 createTime: 2025/08/30 14:27:02
 permalink: /zh/guide/i2pk9pwh/
 ---
-# DataFlow-Pdf2Model&LlaMA-Factory
+# Pdf-to-Model模型微调流水线
 
 ## 快速开始
 
@@ -13,7 +13,11 @@ conda activate dataflow
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
 #环境准备
-pip install -e .[llamafactory]
+pip install -e .[pdf2model]
+# 支持mineru2.5 如果仅想运行pipeline backend 可不下载whl文件，直接跳到模型准备
+wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+
+pip install flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
 #模型准备
 mineru-models-download
 
@@ -35,12 +39,20 @@ dataflow chat
 
 ## 第一步: 安装dataflow环境
 
-```
+```bash
 conda create -n dataflow python=3.10
 conda activate dataflow
 
 cd DataFlow
-pip install -e .[llamafactory]
+pip install -e .[pdf2model]
+
+# 支持mineru2.5 如果仅想运行pipeline backend 可不下载whl文件，直接跳到模型准备
+# 下载flan-attn whl文件 需要根据环境来下载相应的whl
+# 例如 环境是python3.10 torch2.4 cuda12.1 https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+# 版本选择网址:https://github.com/Dao-AILab/flash-attention/releases
+wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
+
+pip install flash_attn-2.8.3+cu121torch2.4cxx11abiTRUE-cp310-cp310-linux_x86_64.whl
 ```
 
 
