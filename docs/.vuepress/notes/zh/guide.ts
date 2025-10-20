@@ -23,15 +23,7 @@ export const Guide: ThemeNote = defineNoteConfig({
             items: [
                 'install',
                 'quickstart',
-                'translation',
-                'sft_synthesis',
-                'conversation_synthesis',
-                "reasoning_general",
-                "prompted_vqa",
-                "mathquestion_extract",
-                'knowledge_cleaning',
-                'quick_general_text_evaluation',
-                'speech_transcription',
+
             ],
         },
         //         {
@@ -44,6 +36,24 @@ export const Guide: ThemeNote = defineNoteConfig({
         //     ],
         // },
         {
+            text: '上手案例',
+            collapsed: false,
+            icon: 'carbon:idea',
+            prefix: 'quickstart',
+            items: [
+                'translation',
+                'sft_synthesis',
+                'conversation_synthesis',
+                "reasoning_general",
+                "prompted_vqa",
+                "mathquestion_extract",
+                'knowledge_cleaning',
+                'quick_general_text_evaluation',
+                'speech_transcription',
+            ],
+        },
+
+        {
             text:"流水线教程",
             collapsed: false,
             icon: 'carbon:flow',
@@ -52,15 +62,25 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "TextPipeline",
                 "ReasoningPipeline",
                 "Text2SqlPipeline",
+                "Doc2QAPipeline",
                 "AgenticRAGPipeline",
-                "AgenticRAGPipeline2",
                 "RAREPipeline",
                 "KnowledgeBaseCleaningPipeline",
                 "FuncCallPipeline",
             ]
         },
         {
-            text: "通用算子",
+            text:"模型自动评估",
+            collapsed: false,
+            icon: 'carbon:flow',
+            prefix: 'model_evaluation',
+            items: [
+                "command_eval",
+                "easy_evaluation",
+            ]
+        },
+        {
+            text: "通用算子(移动到API)",
             collapsed: false,
             icon: 'material-symbols:analytics-outline',
             prefix: 'general_operators',
@@ -71,7 +91,7 @@ export const Guide: ThemeNote = defineNoteConfig({
             ]
         },
         {
-            text: "专用算子",
+            text: "专用算子(移动到API)",
             collapsed: false,
             icon: 'material-symbols:analytics-outline',
             prefix: 'domain_specific_operators',

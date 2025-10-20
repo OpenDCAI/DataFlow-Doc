@@ -6,7 +6,7 @@ icon: basil:lightning-alt-outline
 ---
 
 # Quick Start
-To enable **DataFlow** to support image‑generation capabilities, we have implemented large‑scale image creation and editing using the latest diffusion‑based methods available in [diffusers](https://github.com/huggingface/diffusers). We then evaluate the quality of the generated images with the [Qwen‑VL](https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct) model. A detailed explanation follows.
+To enable **DataFlow** to support image‑generation capabilities, we have implemented large‑scale image creation and editing using the latest diffusion‑based methods available in [diffusers](https://github.com/huggingface/diffusers). Additionally, we support using the nano banana (gemini-2.5-flash-image) API for image editing.
 
 ## Text‑to‑Image Generation
 ### Step 1 – Install the DataFlow environment
@@ -14,19 +14,7 @@ To enable **DataFlow** to support image‑generation capabilities, we have imple
 pip install open-dataflow
 ```
 
-### Step 2 – Use a local model for image generation
-```python
-from dataflow.serving import LocalImageGenServing
-
-self.serving = LocalImageGenServing(
-    hf_model_name_or_path="black-forest-labs/FLUX.1-dev",
-    hf_cache_dir="~/.cache/huggingface",
-    hf_local_dir="./ckpt/models/",
-    device="cuda"
-)
-```
-
-### Step 3 – Prepare the text‑prompt data for generation
+### Step 2 – Prepare the text‑prompt data for generation
 ```jsonl
 {"conversations": [{"content": "a fox darting between snow-covered pines at dusk", "role": "user"}], "images": [""]}
 {"conversations": [{"content": "a kite surfer riding emerald waves under a cloudy sky", "role": "user"}], "images": [""]}
@@ -38,11 +26,23 @@ from dataflow.utils.storage import FileStorage
 
 self.storage = FileStorage(
     first_entry_file_name="your path",
-    cache_path="./cache",
+    cache_path="./cache_local",
     file_name_prefix="dataflow_cache_step",
-    cache_type="jsonl",
-    media_key="images",
-    media_type="image"
+    cache_type="jsonl"
+)
+```
+
+### Step 3 – Use a local model for image generation
+```python
+from dataflow.serving.local_image_gen_serving import LocalImageGenServing
+from dataflow.io import ImageIO
+
+self.serving = LocalImageGenServing(
+    image_io=ImageIO(save_path=os.path.join(self.storage.cache_path, "images")),
+    batch_size=4,
+    hf_model_name_or_path="black-forest-labs/FLUX.1-dev",
+    hf_cache_dir="~/.cache/huggingface",
+    hf_local_dir="./ckpt/models/"
 )
 ```
 
@@ -54,8 +54,8 @@ self.generator = Text2ImageGenerator(pipe=self.serving)
 
 self.generator.run(
     storage=self.storage.step(),
-    input_key="conversations",
-    output_key="images"
+    input_conversation_key="conversations",
+    output_image_key="images"
 )
 ```
 
@@ -64,15 +64,18 @@ The workflow is almost identical to text‑to‑image generation; only minor twe
 
 ### Call a local model
 ```python
-from dataflow.serving import LocalImageGenServing
+from dataflow.serving.local_image_gen_serving import LocalImageGenServing
 
 self.serving = LocalImageGenServing(
+    image_io=ImageIO(save_path=os.path.join(self.storage.cache_path, "images")),
     hf_model_name_or_path="black-forest-labs/FLUX.1-Kontext-dev",
-    hf_cache_dir="~/.cache/huggingface",
+    hf_cache_dir="./cache_local",
     hf_local_dir="./ckpt/models/",
-    device="cuda",
     Image_gen_task="imageedit",
-    diffuser_model_name="FLUX-Kontext"
+    batch_size=4,
+    diffuser_model_name="FLUX-Kontext",
+    diffuser_num_inference_steps=28,
+    diffuser_guidance_scale=3.5,
 )
 ```
 
@@ -84,58 +87,31 @@ self.serving = LocalImageGenServing(
 
 ### Run the editing pipeline
 ```python
-from dataflow.operators import ImageEditor
+from dataflow.operators.core_vision import PromptedImageEditGenerator
 
-self.generator = ImageEditor(pipe=self.serving)
+self.generator = PromptedImageEditGenerator(pipe=self.serving)
 
 self.generator.run(
     storage=self.storage.step(),
-    input_key=["conversations", "images"],
-    output_key="edited_images",
-    save_interval=save_interval
+    input_image_key="images",
+    input_conversation_key="conversations",
+    output_image_key="edited_images",
 )
 ```
 
-## Image Quality Assessment
-We use a multimodal large model to score and filter generated images.
-
-### Data format
-```jsonl
-{"conversations": [{"content": "four cups were filled with hot coffee", "role": "user"}], "images": ["./dataflow/example/test_text_to_image_eval/images/four cups were filled with hot coffee_001005.png"]}
-{"conversations": [{"content": "four balloons, one cup, four desks, two dogs and four microwaves", "role": "user"}], "images": ["./dataflow/example/test_text_to_image_eval/images/four balloons, one cup, four desks, two dogs and four microwaves_003032.png"]}
-```
-
-### Evaluation script
+### Calling nano-banana
+We have currently integrated image editing using nano-banana. Referring to the image editing section above, you can run tests with nano-banana by simply modifying the corresponding serving component. The model invocation method is as follows:
 ```python
-from dataflow.prompts.EvalImageGenerationPrompt import EvalImageGenerationPrompt
-from dataflow.serving import LocalModelLLMServing_vllm
-from qwen_vl_utils import process_vision_info
-from dataflow.operators.eval.image.image_evaluator import EvalImageGenerationGenerator
-from dataflow.utils.storage import FileStorage
+import os
+from dataflow.serving.api_vlm_serving_openai import APIVLMServing_openai
 
-model = LocalModelLLMServing_vllm(
-    hf_model_name_or_path=model_path,
-    vllm_tensor_parallel_size=2,
-    vllm_temperature=0.7,
-    vllm_top_p=0.9,
-    vllm_max_tokens=512,
-)
+os.environ['DF_API_KEY'] = args.api_key
 
-captionGenerator = EvalImageGenerationGenerator(
-    model,
-    EvalImageGenerationPrompt(),
-    process_vision_info,
-)
-
-storage = FileStorage(
-    first_entry_file_name="./dataflow/example/test_text_to_image_eval/prompts.jsonl",
-    cache_path="jsonl",
-    media_key="images",
-    media_type="image",
-)
-
-captionGenerator.run(
-    storage=storage,
-    output_key="caption",
+self.serving = APIVLMServing_openai(
+    api_url=api_url,
+    model_name="gemini-2.5-flash-image-preview",               # try nano-banana
+    image_io=ImageIO(save_path=os.path.join(self.storage.cache_path, "images")),
+    send_request_stream=True,
 )
 ```
+The API we use is provided by [huiyun](http://123.129.219.111:3000)

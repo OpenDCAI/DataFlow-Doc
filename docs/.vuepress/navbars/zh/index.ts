@@ -86,14 +86,14 @@ export const zhNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG数据合成流水线-Alpha",
-                        link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
+                        text: "Doc-to-QA数据合成流水线",
+                        link: "/zh/notes/guide/pipelines/Doc2QAPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG数据合成流水线-Beta",
-                        link: "/zh/notes/guide/pipelines/AgenticRAGPipeline2.md",
+                        text: "Agentic RAG数据合成流水线",
+                        link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
@@ -126,51 +126,51 @@ export const zhNavbar = defineNavbarConfig([
     //     icon: 'material-symbols:article-outline'
     // },
     {
-        text: '多模态指南（飞速施工中）',
-        // link: '/zh/notes/mm_guide/basicinfo/intro.md',
+        text: 'API文档',
+        link: '/zh/notes/api/1.home.md',
         icon: 'material-symbols:article-outline',
-        items: [
-            {
-                text: '基本信息',
-                items: [
-                            {
-                                text: '简介',
-                                link: '/zh/notes/mm_guide/basicinfo/intro.md',
-                                icon: 'mdi:tooltip-text-outline',
-                                activeMatch: '^/guide/'
-                            },
-                            {
-                                text: '框架设计',
-                                link: '/zh/notes/mm_guide/basicinfo/framework.md',
-                                icon: 'material-symbols:auto-transmission-sharp',
-                                activeMatch: '^/guide/'
-                            },
-                ]
-            },
-            {
-                text: '快速开始',
-                items: [
-                    {
-                        text: '安装',
-                        link: '/zh/notes/mm_guide/quickstart/install.md',
-                        icon: 'material-symbols-light:download-rounded',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: '快速开始',
-                        link: '/zh/notes/mm_guide/quickstart/quickstart.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: '图片生成示例',
-                        link: '/zh/notes/mm_guide/quickstart/image_generation.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                ]
-            }
-        ]
+        // items: [
+        //     {
+        //         text: '基本信息',
+        //         items: [
+        //                     {
+        //                         text: '简介',
+        //                         link: '/zh/notes/mm_guide/basicinfo/intro.md',
+        //                         icon: 'mdi:tooltip-text-outline',
+        //                         activeMatch: '^/guide/'
+        //                     },
+        //                     {
+        //                         text: '框架设计',
+        //                         link: '/zh/notes/mm_guide/basicinfo/framework.md',
+        //                         icon: 'material-symbols:auto-transmission-sharp',
+        //                         activeMatch: '^/guide/'
+        //                     },
+        //         ]
+        //     },
+        //     {
+        //         text: '快速开始',
+        //         items: [
+        //             {
+        //                 text: '安装',
+        //                 link: '/zh/notes/mm_guide/quickstart/install.md',
+        //                 icon: 'material-symbols-light:download-rounded',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: '快速开始',
+        //                 link: '/zh/notes/mm_guide/quickstart/quickstart.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: '图片生成示例',
+        //                 link: '/zh/notes/mm_guide/quickstart/image_generation.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //         ]
+        //     }
+        // ]
     },
     {
         text: '开发者指南',
