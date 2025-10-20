@@ -1,12 +1,13 @@
 ---
 title: Model Capability Assessment Pipeline
 createTime: 2025/08/30 14:27:02
+icon: hugeicons:chart-evaluation
 permalink: /en/guide/evaluation-pipeline/
 ---
 
 # Model Capability Assessment Pipeline
 
-Only supports QA pair format evaluation
+⚠️Only supports QA pair format evaluation
 
 ## Quick Start
 ```bash
@@ -58,7 +59,7 @@ Initialize configuration files
 dataflow eval init
 ```
 
-After initialization, the project directory structure becomes:
+💡After initialization, the project directory structure becomes:
 ```bash
 Project Root/
 ├── eval_api.py      # Configuration file for API model evaluator
@@ -81,7 +82,7 @@ Please prepare a JSON format file with data structure similar to the example bel
 ]
 ```
 
-In this example data:
+💡In this example data:
 - `input` is the question (can also be question + answer choices merged into one input)
 
 - `output` is the standard answer

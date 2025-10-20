@@ -84,7 +84,7 @@ cd run_dataflow
 dataflow pdf2model init
 ```
 
-初始化完成后，项目目录变成：
+💡初始化完成后，项目目录变成：
 
 ```bash
 项目根目录/
@@ -103,7 +103,7 @@ dataflow pdf2model init
 dataflow pdf2model train
 ```
 
-微调完成完成后，项目目录变成类似结构：
+💡微调完成完成后，项目目录变成类似结构：
 
 ```bash
 项目根目录/
