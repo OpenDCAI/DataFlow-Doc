@@ -117,12 +117,6 @@ export const enNavbar = defineNavbarConfig([
                         link: "/en/notes/guide/pipelines/Pdf2ModelPipeline.md",
                         icon: "solar:cpu-bolt-linear", 
                         activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Model QA Capability Assessment Pipeline",
-                        link: "/en/notes/guide/pipelines/EvalPipeline.md",
-                        icon: "carbon:chart-evaluation", 
-                        activeMatch: '^/guide/'
                     }
                 ]
             }

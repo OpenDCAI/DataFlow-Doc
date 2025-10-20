@@ -59,7 +59,7 @@ dataflow eval init
 ```
 
 After initialization, the project directory structure becomes:
-```
+```bash
 Project Root/
 ├── eval_api.py      # Configuration file for API model evaluator
 └── eval_local.py    # Configuration file for local model evaluator

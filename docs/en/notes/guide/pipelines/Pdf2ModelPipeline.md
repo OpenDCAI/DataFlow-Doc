@@ -1,6 +1,7 @@
 ---
 title: PDF-to-Model Model Simulation Pipeline
 createTime: 2025/08/30 14:27:01
+icon: solar:cpu-bolt-linear
 permalink: /en/guide/yu798e6s/
 ---
 # PDF-to-Model Model Simulation Pipeline
@@ -89,7 +90,7 @@ dataflow pdf2model init
 
 After initialization is complete, the project directory becomes:
 
-```shell
+```bash
 Project Root/
 ├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory
@@ -108,7 +109,7 @@ dataflow pdf2model train
 
 After fine-tuning is complete, the project directory becomes:
 
-```
+```bash
 Project Root/
 ├── pdf_to_qa_pipeline.py  # pipeline execution file
 └── .cache/            # cache directory

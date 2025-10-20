@@ -120,12 +120,6 @@ export const zhNavbar = defineNavbarConfig([
                         link: "/zh/notes/guide/pipelines/Pdf2ModelPipeline.md",
                         icon: "solar:cpu-bolt-linear", 
                         activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "模型QA能力评估流水线",
-                        link: "/zh/notes/guide/pipelines/EvalPipeline.md",
-                        icon: "carbon:chart-evaluation", 
-                        activeMatch: '^/guide/'
                     }
                 ]
             }
