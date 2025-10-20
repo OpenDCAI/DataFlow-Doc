@@ -7,11 +7,12 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswerformatterfilter/
 ## 📘 概述
 `ReasoningAnswerFormatterFilter` 是一个答案格式化过滤器算子，用于检查生成的答案格式是否符合预定规范（例如，数学答案是否包含 `\boxed{}` 标记），并筛选出格式正确的数据。
 
-## \_\_init\_\_函数
+## `__init__`函数
 ```python
-def __init__(self)
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerFormatterFilter(OperatorABC):
+    def __init__(self):
 ```
-### init参数说明
 该函数没有参数。
 
 ## run函数
@@ -27,3 +28,30 @@ def run(storage, input_key="generated_cot")
 | **input_key** | str             | "generated_cot" | 输入列名，对应待检查格式的答案字段。 |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.reasoning import ReasoningAnswerFormatterFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+
+class ReasoningAnswerFormatterFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerFormatterFilter()
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "output",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerFormatterFilterTest()
+    pl.forward()
+```

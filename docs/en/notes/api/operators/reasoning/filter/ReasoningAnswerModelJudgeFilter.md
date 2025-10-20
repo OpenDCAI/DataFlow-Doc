@@ -26,7 +26,7 @@ def __init__(self,
 ### Prompt Template Descriptions
 | Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
 | :--- | :--- | :--- | :--- |
-| | | | |
+| AnswerJudgePrompt | Default prompt template for evaluating answer correctness. | Suitable for general answer judgment scenarios. | Contains fields for question, answer to be judged, and reference answer. |
 
 ## `run` function
 ```python
@@ -41,7 +41,47 @@ def run(self, storage: DataFlowStorage, input_question_key: str = "question", in
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerModelJudgeFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
+from dataflow.prompts.reasoning.general import AnswerJudgePrompt
 
+class ReasoningAnswerModelJudgeFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningAnswerModelJudgeFilter(
+            system_prompt="You are a helpful assistant specialized in evaluating answer correctness.",
+            llm_serving=self.llm_serving,
+            prompt_template=AnswerJudgePrompt(),
+            keep_all_samples=False
+        )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_question_key="question",
+            input_answer_key="answer",
+            input_reference_key="reference_answer"  
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerModelJudgeFilterTest()
+    pl.forward()
 ```
 
 #### 🧾 Output Format
@@ -50,5 +90,25 @@ def run(self, storage: DataFlowStorage, input_question_key: str = "question", in
 | question | str | The original input question text. (Or content from `input_question_key`) |
 | answer | str | The original answer text to be judged. (Or content from `input_answer_key`) |
 | reference_answer | str | The original reference answer text. (Or content from `input_reference_key`) |
-| ... | | Other original columns from the input are preserved. |
-| **answer_match_result** | bool | The result of the judgment: `True` if the answer is considered correct, `False` otherwise. |
+| answer_match_result | bool | The result of the judgment: `True` if the answer is considered correct, `False` otherwise. |
+
+Example input:
+
+```json
+{
+    "question": "What is the highest mountain in the world?",
+    "answer": "Mount Everest is the highest mountain in the world.",
+    "reference_answer": "Mount Everest"
+}
+```
+
+Example output:
+
+```json
+{
+    "question": "What is the highest mountain in the world?",
+    "answer": "Mount Everest is the highest mountain in the world.",
+    "reference_answer": "Mount Everest",
+    "answer_match_result": true
+}
+```

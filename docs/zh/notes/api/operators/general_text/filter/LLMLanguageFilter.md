@@ -19,12 +19,6 @@ def __init__(self, llm_serving: LLMServingABC = None, allowed_languages: list[st
 | **llm_serving** | LLMServingABC | None | 大语言模型服务实例，用于执行语言识别。 |
 | **allowed_languages** | list[str] | ['en'] | 允许通过的语言列表，使用 ISO 639-1 双字母语言代码（例如 'en' 代表英语，'zh' 代表中文）。 |
 
-### Prompt模板说明
-
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| :--- | :--- | :--- | :--- |
-| | | | |
-
 ## `run`函数
 
 ```python
@@ -35,9 +29,47 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'langu
 | :--- | :--- | :--- | :--- |
 | **storage** | DataFlowStorage | 必需 | 数据流存储实例，负责读取与写入数据。 |
 | **input_key** | str | 必需 | 输入列名，对应需要进行语言识别的文本字段。 |
-| **output_key** | str | 'language_label' | 输出列名，对应 LLM 生成的语言标签字段。 |
+| **output_key** | str | 'language_label' | 输出列名，对应 LLM 生成的语言标签字段（1表示通过，0表示未通过）。 |
 
 ## 🧠 示例用法
+
+```python
+from dataflow.operators.general_text import LLMLanguageFilter
+from dataflow.serving import LocalModelLLMServing
+from dataflow.utils.storage import FileStorage
+
+class LLMLanguageFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/llm_language_filter_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # 初始化 LLM 服务
+        llm_serving = LocalModelLLMServing(
+            model_name="Qwen/Qwen2.5-7B-Instruct",
+            device="cuda"
+        )
+        
+        # 只允许英文和中文
+        self.filter = LLMLanguageFilter(
+            llm_serving=llm_serving,
+            allowed_languages=['en', 'zh']
+        )
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='language_label'
+        )
+
+if __name__ == "__main__":
+    test = LLMLanguageFilterTest()
+    test.forward()
+```
 
 #### 🧾 默认输出格式（Output Format）
 
@@ -45,6 +77,50 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'langu
 
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| [input_key] | str | 输入的原始文本字段。 |
-| language_label | str | 模型识别出的语言标签（例如 'en', 'zh'）。 |
-| ... | - | 其他原始输入字段将被保留。 |
+| text | str | 输入的原始文本字段。 |
+| language_label | str | LLM识别出的语言标签（例如 'en', 'zh', 'fr' 等）。 |
+
+### 📋 示例输入
+
+```json
+{"text": "Hello, this is a test message in English."}
+{"text": "你好，这是一条中文测试消息。"}
+{"text": "Bonjour, ceci est un message de test en français."}
+```
+
+### 📤 示例输出
+
+```json
+{"text": "Hello, this is a test message in English.", "language_label": "en"}
+{"text": "你好，这是一条中文测试消息。", "language_label": "zh"}
+```
+
+### 📊 结果分析
+
+**样本1（英文文本）**：
+- LLM 识别语言：en
+- 允许语言列表：['en', 'zh']
+- **通过过滤**（en 在允许列表中）
+
+**样本2（中文文本）**：
+- LLM 识别语言：zh
+- 允许语言列表：['en', 'zh']
+- **通过过滤**（zh 在允许列表中）
+
+**样本3（法语文本）**：
+- LLM 识别语言：fr
+- 允许语言列表：['en', 'zh']
+- **未通过过滤**（fr 不在允许列表中）
+
+**应用场景**：
+- 使用 LLM 进行更精准的语言识别
+- 处理复杂、混合语言的文本
+- 构建高质量的多语言数据集
+- 过滤特定语言的训练数据
+
+**注意事项**：
+- 需要配置 LLM 服务（如 LocalModelLLMServing、APILLMServing 等）
+- 使用 ISO 639-1 双字母语言代码（如 'en', 'zh', 'fr', 'es', 'ja' 等）
+- LLM 识别的准确性取决于模型质量
+- 相比 FastText，LLM 识别更准确但速度较慢
+- 适合处理较小规模但要求高准确性的数据集

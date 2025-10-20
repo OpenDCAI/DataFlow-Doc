@@ -21,7 +21,7 @@ def __init__(self, llm_serving: LLMServingABC = None, max_times: int = 3):
 ### Prompt Template Description
 | Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
 | :--- | :--- | :--- | :--- |
-| | | | |
+| MathAnswerGeneratorPrompt | Generate answers for questions | Pseudo answer generation | Takes a question as input and outputs an answer |
 
 ## `run` function
 
@@ -49,7 +49,46 @@ def run(
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.reasoning import ReasoningPseudoAnswerGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
 
+class ReasoningPseudoAnswerGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningPseudoAnswerGenerator(
+            llm_serving = self.llm_serving,
+            max_times = 3
+        )
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "instruction",
+            output_key_answer = "pseudo_answers",
+            output_key_answer_value = "pseudo_answer_value",
+            output_key_solutions = "pseudo_solutions",
+            output_key_correct_solution_example = "pseudo_correct_solution_example",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningPseudoAnswerGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 Default Output Format (Output Format)

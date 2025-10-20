@@ -36,30 +36,63 @@ def run(storage, input_key)
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.general_text import HtmlUrlRemoverRefiner
+from dataflow.utils.storage import FileStorage
 
+class HtmlUrlRemoverRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/html_url_remover_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = HtmlUrlRemoverRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = HtmlUrlRemoverRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
-算子会就地修改输入`DataFrame`中`input_key`对应列的内容。
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 移除 URL 和 HTML 标签后的文本 |
 
-| 字段        | 类型 | 说明                                                         |
-| :---------- | :--- | :----------------------------------------------------------- |
-| [input_key] | str  | 净化后的文本内容，其中的URL和HTML标签已被移除。字段名与输入时指定的`input_key`相同。 |
-
-**示例输入：**
-（假设 `input_key` = "content"）
+### 📋 示例输入
 
 ```json
-{
-"content":"这是一段示例文本，包含一个链接 <a href='https://example.com'>点击这里</a> 和一个裸URL https://another-example.org/page"
-}
+{"text":"Visit https://example.com for more info"}
+{"text":"<p>Hello <b>world</b>!</p>"}
+{"text":"Check http://test.org and <div>content</div>"}
 ```
 
-**示例输出：**
+### 📤 示例输出
 
 ```json
-{
-"content":"这是一段示例文本，包含一个链接 点击这里 和一个裸URL "
-}
+{"text":"Visit  for more info"}
+{"text":"Hello world!"}
+{"text":"Check  and content"}
 ```
+
+### 📊 结果分析
+
+**样本1**：移除 URL "https://example.com"
+**样本2**：移除 HTML 标签 `<p>` `<b>`
+**样本3**：同时移除 URL 和 HTML 标签
+
+**应用场景**：
+- 清理网页爬取的文本
+- 移除富文本中的格式标签
+- 文本预处理
+
+**注意事项**：
+- 移除 URL 和标签后可能产生多余空格

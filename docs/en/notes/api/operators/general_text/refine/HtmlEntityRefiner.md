@@ -6,54 +6,94 @@ permalink: /en/api/operators/general_text/refine/htmlentityrefiner/
 
 ## 📘 Overview
 
-The `HtmlEntityRefiner` is an operator designed to remove HTML entities from text. It handles standard entities (e.g., `&nbsp;`, `&lt;`) as well as various non-standard formats, such as those using full-width ampersands or Chinese semicolons. Users can customize the list of HTML entities to be removed.
+`HtmlEntityRefiner` is a text cleaning operator designed to remove HTML entities from text, such as `&nbsp;`, `&lt;`, etc. It can handle not only standard HTML entities, but also recognize and remove various variant forms (e.g., using full-width ampersand `＆` or Chinese semicolon `；`). This operator supports custom lists of HTML entities to remove, providing flexible text preprocessing capabilities.
 
-## `__init__`
+## `__init__` function
+
 ```python
 def __init__(self, html_entities: list = [
             "nbsp", "lt", "gt", "amp", "quot", "apos", "hellip", "ndash", "mdash", 
             "lsquo", "rsquo", "ldquo", "rdquo"
         ]):
 ```
-| Parameter | Type | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| **html_entities** | list | `["nbsp", "lt", ...]` | A list of HTML entity names to be removed from the text. |
 
-### Prompt Template Descriptions
-| Prompt Template Name | Primary Use | Applicable Scenarios | Feature Description |
-| :--- | :--- | :--- | :--- |
-| | | | |
+### init parameter description
 
-## `run`
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **html_entities** | list | `["nbsp", "lt", "gt", ...]` | A list of strings, where each string is the name of an HTML entity to be removed (without `&` and `;`). |
+
+## `run` function
+
 ```python
 def run(self, storage: DataFlowStorage, input_key: str):
 ```
-| Parameter | Type | Default Value | Description |
+
+#### Parameters
+
+| Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The data flow storage instance, responsible for reading and writing data. |
-| **input_key** | str | Required | The name of the input column containing the text to be processed. |
+| **storage** | DataFlowStorage | Required | Data flow storage instance for reading and writing data. |
+| **input_key** | str | Required | Name of input column containing text with HTML entities to clean. |
 
 ## 🧠 Example Usage
-```python
 
+```python
+from dataflow.operators.general_text import HtmlEntityRefiner
+from dataflow.utils.storage import FileStorage
+
+class HtmlEntityRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/html_entity_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = HtmlEntityRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = HtmlEntityRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 Default Output Format
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `[input_key]` | str | The input text with the specified HTML entities removed. |
-| `...` | any | Other columns from the input DataFrame remain unchanged. |
 
-**Example Input:**
-(Assuming the input data is in a DataFrame and `input_key` is set to `"text"`)
+| Field | Type | Description |
+| :--- | :---- | :---------- |
+| text | str | Text with HTML entities removed |
+
+### 📋 Sample Input
+
 ```json
-{
-"text":"This text contains an entity&nbsp;and another one&lt;."
-}
+{"text":"Hello&nbsp;world&lt;test&gt;"}
+{"text":"Copyright&copy;2024&mdash;All rights"}
+{"text":"Price&colon;$100"}
 ```
-**Example Output:**
+
+### 📤 Sample Output
+
 ```json
-{
-"text":"This text contains an entityand another one."
-}
+{"text":"Helloworldtest"}
+{"text":"Copyright&copy;2024All rights"}
+{"text":"Price&colon;$100"}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**: Removed `&nbsp;` `&lt;` `&gt;`
+**Sample 2-3**: Some entities not removed (`&copy;` `&colon;` not in predefined list)
+
+**Use Cases**:
+- Clean HTML text
+- Remove common HTML entities
+
+**Notes**:
+- Only removes HTML entities in predefined list

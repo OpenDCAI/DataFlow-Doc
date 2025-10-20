@@ -1,59 +1,140 @@
 ---
 title: PresidioFilter
-createTime: 2025/10/09 16:52:48
+createTime: 2025/10/09 17:09:04
 permalink: /en/api/operators/general_text/filter/presidiofilter/
 ---
 
 ## 📘 Overview
 
-The `PresidioFilter` is a data filtering operator that scores and filters text based on the presence of Personally Identifiable Information (PII). It utilizes the Microsoft Presidio model to detect various types of sensitive data, such as names, email addresses, and phone numbers. This operator is essential for data privacy protection and compliance checks, allowing users to retain or discard data based on a specified range of PII counts.
+`PresidioFilter` is a PII (Personally Identifiable Information) score-based data filtering operator. It utilizes the Microsoft Presidio model to identify and count private entities (such as names, emails, phone numbers, etc.) in text, and filters data according to set score threshold ranges. This operator is mainly used in data privacy protection and compliance checking scenarios.
 
-## `__init__`
+## __init__ Function
+
 ```python
-def __init__(self, min_score: int = 0, max_score: int = 5, lang='en', device='cuda', model_cache_dir='./dataflow_cache')
+def __init__(self, min_score: int = 0, max_score: int = 5, lang='en', device='cuda', model_cache_dir='./dataflow_cache'):
 ```
 
-| Parameter | Type | Default Value | Description |
-| :------------------ | :---- | :--------------------- | :------------------------------------------------------------------ |
-| **min_score** | int | 0 | Minimum PII count threshold for retaining samples. |
-| **max_score** | int | 5 | Maximum PII count threshold for retaining samples. |
-| **lang** | str | 'en' | Text language for the Presidio model. |
-| **device** | str | 'cuda' | The device to run the model on (e.g., 'cuda', 'cpu'). |
-| **model_cache_dir** | str | './dataflow_cache' | The directory to cache downloaded models. |
+### Init Parameters
 
-## Prompt Template Descriptions
+| Parameter              | Type | Default               | Description                           |
+| :------------------ | :--- | :--------------------- | :----------------------------- |
+| **min_score**       | int  | 0                      | Minimum PII count threshold for retaining samples.     |
+| **max_score**       | int  | 5                      | Maximum PII count threshold for retaining samples.     |
+| **lang**            | str  | 'en'                   | Text language.                       |
+| **device**          | str  | 'cuda'                 | Device for model execution.                   |
+| **model_cache_dir** | str  | './dataflow_cache' | Model cache directory.                   |
 
-## `run`
+## run Function
+
 ```python
-def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'PresidioScore')
+def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'PresidioScore'):
 ```
 
-| Parameter | Type | Default Value | Description |
-| :------------- | :---------------- | :---------------- | :----------------------------------------------------------------- |
-| **storage** | DataFlowStorage | Required | DataFlow storage instance for reading and writing data. |
-| **input_key** | str | Required | The name of the input column containing the text to be analyzed. |
-| **output_key** | str | 'PresidioScore' | The name of the output column to store the calculated PII score. |
+#### Parameters
+
+| Name          | Type              | Default          | Description                                 |
+| :------------ | :---------------- | :---------------- | :----------------------------------- |
+| **storage**   | DataFlowStorage   | Required              | DataFlow storage instance for reading and writing data.   |
+| **input_key** | str               | Required              | Input column name corresponding to the text field for PII detection. |
+| **output_key**| str               | 'PresidioScore' | Output column name corresponding to the PII score field.        |
 
 ## 🧠 Example Usage
 
-#### 🧾 Default Output Format
-| Field | Type | Description |
-| :-------------- | :---- | :--------------------------------------------------------- |
-| {input_key} | str | The original input text from the specified `input_key` column. |
-| PresidioScore | int | The number of PII entities detected in the text. |
+```python
+from dataflow.operators.general_text import PresidioFilter
+from dataflow.utils.storage import FileStorage
 
-**Example Input:**
-*(Assuming `input_key` is "text")*
-```json
-{
-"text":"My name is John Doe and my email is john.doe@example.com."
-}
+class PresidioFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/presidio_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = PresidioFilter(
+            min_score=0,
+            max_score=5,
+            lang='en',
+            device='cuda',
+            model_cache_dir='./dataflow_cache'
+        )
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='PresidioScore'
+        )
+
+if __name__ == "__main__":
+    test = PresidioFilterTest()
+    test.forward()
 ```
-**Example Output:**
-*(The operator filters the dataset. For a single record that passes the filter, this is how the data would be augmented before being written.)*
+
+#### 🧾 Default Output Format
+
+| Field          | Type | Description                           |
+| :------------ | :--- | :----------------------------- |
+| PresidioScore | int  | Number of PII entities in text generated by model. |
+
+### 📋 Example Input
+
 ```json
-{
-"text":"My name is John Doe and my email is john.doe@example.com.",
-"PresidioScore": 2
-}
+{"text": "The weather is nice today. Let's go for a walk in the park."}
+{"text": "My name is John Smith and I live in New York."}
+{"text": "Please contact me at john.doe@example.com or call me at +1-555-123-4567. My credit card number is 4532-1234-5678-9010."}
 ```
+
+### 📤 Example Output
+
+```json
+{"text": "The weather is nice today. Let's go for a walk in the park.", "PresidioScore": 0}
+{"text": "My name is John Smith and I live in New York.", "PresidioScore": 2}
+{"text": "Please contact me at john.doe@example.com or call me at +1-555-123-4567. My credit card number is 4532-1234-5678-9010.", "PresidioScore": 4}
+```
+
+### 📊 Result Analysis
+
+**Sample 1 (Normal text)**:
+- Detected PII count: 0
+- Score range: [0, 5]
+- **Passes filter** (0 within range)
+- Characteristics: No personal identifiable information
+
+**Sample 2 (Contains name and location)**:
+- Detected PII count: 2
+  - PERSON: "John Smith"
+  - LOCATION: "New York"
+- Score range: [0, 5]
+- **Passes filter** (2 within range)
+
+**Sample 3 (Sensitive information text)**:
+- Detected PII count: 4
+  - EMAIL_ADDRESS: "john.doe@example.com"
+  - PHONE_NUMBER: "+1-555-123-4567"
+  - CREDIT_CARD: "4532-1234-5678-9010"
+  - Possibly other entities
+- Score range: [0, 5]
+- **Passes filter** (4 within range)
+
+**Supported PII Types**:
+- Name (PERSON)
+- Location (LOCATION)
+- Email address (EMAIL_ADDRESS)
+- Phone number (PHONE_NUMBER)
+- Credit card number (CREDIT_CARD)
+- ID numbers, etc.
+
+**Use Cases**:
+- Data privacy protection
+- Compliance checking (GDPR, CCPA)
+- Sensitive information detection
+- Pre-anonymization assessment
+
+**Notes**:
+- Uses `dslim/bert-base-NER` model
+- Supports multiple languages via `lang` parameter
+- `min_score` and `max_score` define PII count range for retaining samples
+- Can set smaller `max_score` to filter high-risk text

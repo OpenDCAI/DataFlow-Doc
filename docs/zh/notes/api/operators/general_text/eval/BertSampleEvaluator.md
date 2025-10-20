@@ -37,12 +37,85 @@ def run(self, storage: DataFlowStorage, input_key: str, reference_key: str, outp
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.general_text import BertSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+class BertSampleEvaluatorTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/gen_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = BertSampleEvaluator(
+            lang='en',
+            model_cache_dir='./dataflow_cache'
+        )
+        
+    def forward(self):
+        self.evaluator.run(
+            storage=self.storage.step(),
+            input_key='input_key',
+            input_reference_key='reference_key',
+            output_key='BertScore'
+        )
+
+if __name__ == "__main__":
+    test = BertSampleEvaluatorTest()
+    test.forward()
 ```
+
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
 | :--- | :---- | :---------- |
-| | | |
+| input_key | str | 原始的生成文本 |
+| reference_key | str | 原始的参考文本 |
+| BertScore | float | BERTScore F1 分数（0-1之间，越高表示相似度越高） |
 
-示例输入：
+### 📋 示例输入
+```json
+{"input_key": "The quick brown fox jumps over the lazy dog.", "reference_key": "A fast brown fox leaps over a lazy dog."}
+{"input_key": "She sells seashells by the seashore.", "reference_key": "She is selling shells by the beach."}
+{"input_key": "To be or not to be, that is the question.", "reference_key": "The question is whether to be or not."}
+{"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold."}
+{"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning."}
+```
 
-示例输出：
+### 📤 示例输出
+```json
+{"input_key": "The quick brown fox jumps over the lazy dog.", "reference_key": "A fast brown fox leaps over a lazy dog.", "BertScore": 0.9599858522}
+{"input_key": "She sells seashells by the seashore.", "reference_key": "She is selling shells by the beach.", "BertScore": 0.8968580365}
+{"input_key": "To be or not to be, that is the question.", "reference_key": "The question is whether to be or not.", "BertScore": 0.8636844754}
+{"input_key": "All that glitters is not gold.", "reference_key": "Not everything that shines is gold.", "BertScore": 0.9327103496}
+{"input_key": "A picture is worth a thousand words.", "reference_key": "A single image can convey so much meaning.", "BertScore": 0.8256326318}
+```
+
+### 📊 结果分析
+
+**样本1**：
+- BertScore: 0.960（高相似度）
+- 两句话语义高度相似，仅在词汇选择上略有差异（jumps vs leaps, quick vs fast）
+
+**样本2**：
+- BertScore: 0.897（较高相似度）
+- 主语和地点保持一致，动词时态略有变化（sells vs selling, seashore vs beach）
+
+**样本3**：
+- BertScore: 0.864（中等相似度）
+- 核心语义相同但句式结构有明显调整
+
+**样本4**：
+- BertScore: 0.933（高相似度）
+- 语义几乎完全一致，表达方式有所不同
+
+**样本5**：
+- BertScore: 0.826（中等相似度）
+- 用完全不同的词汇表达相同含义，展示了 BERT 对语义理解的能力
+
+**应用场景**：
+- 文本生成质量评估
+- 机器翻译评估
+- 摘要生成评估
+- 语义相似度计算

@@ -8,14 +8,21 @@ permalink: /zh/api/operators/reasoning/filter/reasoningquestionfilter/
 
 [ReasoningQuestionFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/filter/reasoning_question_filter.py) 是一个问题过滤算子，用于对输入的问题进行正确性检查。它利用大语言模型（LLM）判断问题在格式、语义、逻辑以及信息充分性等方面是否合格，并只保留通过检查的合格问题。
 
-## \_\_init\_\_函数
+## `__init__`函数
 
 ```python
-def __init__(self,
-             system_prompt: str = "You are a helpful assistant.",
-             llm_serving: LLMServingABC = None,
-             prompt_template = MathQuestionFilterPrompt | GeneralQuestionFilterPrompt | DiyQuestionFilterPrompt | DIYPromptABC
-             ):
+@prompt_restrict(
+    MathQuestionFilterPrompt, 
+    GeneralQuestionFilterPrompt, 
+    DiyQuestionFilterPrompt
+)
+@OPERATOR_REGISTRY.register()
+class ReasoningQuestionFilter(OperatorABC):
+    def __init__(self,
+                 system_prompt: str = "You are a helpful assistant.",
+                 llm_serving: LLMServingABC = None,
+                 prompt_template = MathQuestionFilterPrompt | GeneralQuestionFilterPrompt | DiyQuestionFilterPrompt | DIYPromptABC
+                 ):
 ```
 
 ### init参数说明
@@ -30,7 +37,9 @@ def __init__(self,
 
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | :----------------------------- | :------- | :------- | :------- |
-|                                |          |          |          |
+|     MathQuestionFilterPrompt        | 数学问题过滤 | 数学相关问题 | 检查问题是否符合数学格式，是否包含必要的计算步骤。 |  
+|     GeneralQuestionFilterPrompt     | 通用问题过滤 | 非数学问题 | 检查问题是否符合一般语法规则，是否包含必要的信息。 |  
+|     DiyQuestionFilterPrompt        | 自定义问题过滤 | 自定义问题类型 | 允许用户根据需求定义特定的问题过滤规则。 |  
 
 ## run函数
 
@@ -48,6 +57,46 @@ def run(self, storage: DataFlowStorage, input_key: str = "math_problem")
 | **input\_key**  | str             | "math\_problem" | 输入列名，对应需要被过滤的问题字段。   |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.reasoning import ReasoningQuestionFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
+from dataflow.prompts.reasoning.math import MathQuestionFilterPrompt
+
+class ReasoningQuestionFilterTest():    
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.operator = ReasoningQuestionFilter(
+            system_prompt="You are a helpful assistant.",
+            llm_serving=self.llm_serving,
+            prompt_template=MathQuestionFilterPrompt()
+            )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key="output"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningQuestionFilterTest()
+    pl.forward()
+```
 
 ## 🧾 默认输出格式（Output Format）
 

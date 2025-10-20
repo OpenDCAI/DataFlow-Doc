@@ -4,49 +4,99 @@ createTime: 2025/10/09 16:52:48
 permalink: /en/api/operators/general_text/refine/piianonymizerefiner/
 ---
 
-## 📘 PIIAnonymizeRefiner
-The `PIIAnonymizeRefiner` is an operator that identifies and anonymizes Personally Identifiable Information (PII) in text using Presidio and BERT-NER models. It supports the detection and anonymization of various PII types.
+## 📘 Overview
 
-## __init__
+`PIIAnonymizeRefiner` is an operator that uses Presidio and BERT-NER models to identify and anonymize Personally Identifiable Information (PII) in text. It supports detection and anonymization of multiple PII types, effectively protecting data privacy.
+
+## `__init__` function
+
 ```python
 def __init__(self, lang='en', device='cuda', model_cache_dir='./dataflow_cache', model_name='dslim/bert-base-NER')
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **lang** | str | 'en' | The language code of the text to be processed (e.g., 'en' for English). |
-| **device** | str | 'cuda' | The device to run the model on (e.g., 'cuda' or 'cpu'). |
-| **model_cache_dir** | str | './dataflow_cache' | The directory to cache the downloaded NER model. |
-| **model_name** | str | 'dslim/bert-base-NER' | The name of the pre-trained NER model from the Hugging Face Hub. |
 
-## Prompt Template Descriptions
+### init parameter description
 
-## run
+| Parameter          | Type | Default                | Description                         |
+| :----------------- | :--- | :---------------------- | :---------------------------------- |
+| **lang**           | str  | 'en'                    | Language code for text, used to select appropriate model. |
+| **device**         | str  | 'cuda'                  | Device for running model, e.g., 'cuda' or 'cpu'. |
+| **model_cache_dir** | str  | './dataflow_cache'      | Local cache directory for storing downloaded NER models. |
+| **model_name**     | str  | 'dslim/bert-base-NER'   | Name of pre-trained NER model to use. |
+
+## `run` function
+
 ```python
 def run(self, storage: DataFlowStorage, input_key: str)
 ```
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | The DataFlow storage instance for reading and writing data. |
-| **input_key** | str | Required | The name of the column in the DataFrame that contains the text to be anonymized. |
+
+#### Parameters
+
+| Name        | Type            | Default | Description                                       |
+| :---------- | :-------------- | :------ | :------------------------------------------------ |
+| **storage** | DataFlowStorage | Required | Data flow storage instance for reading and writing data. |
+| **input_key** | str             | Required | Input column name for text field to perform PII anonymization. |
 
 ## 🧠 Example Usage
 
-#### 🧾 Default Output Format (Output Format)
-The operator modifies the input DataFrame in place. The column specified by `input_key` will have its PII content replaced with placeholders.
+```python
+from dataflow.operators.general_text import PIIAnonymizeRefiner
+from dataflow.utils.storage import FileStorage
+
+class PIIAnonymizeRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/pii_anonymize_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = PIIAnonymizeRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = PIIAnonymizeRefinerTest()
+    test.forward()
+```
+
+#### 🧾 Default Output Format
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| {input_key} | str | The text from the input column, now with PII anonymized. |
+| :--- | :---- | :---------- |
+| text | str | Text with PII information replaced by anonymization labels |
 
-**Example Input:**
+### 📋 Sample Input
+
 ```json
-{
-"text": "My name is John Doe and my phone number is 212-555-1234."
-}
+{"text":"My email is john@example.com"}
+{"text":"My name is John Smith"}
 ```
-**Example Output:**
+
+### 📤 Sample Output
+
 ```json
-{
-"text": "My name is <PERSON> and my phone number is <PHONE_NUMBER>."
-}
+{"text":"My email is <EMAIL_ADDRESS>"}
+{"text":"My name is <PERSON>"}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**: "john@example.com" → `<EMAIL_ADDRESS>`
+**Sample 2**: "John Smith" → `<PERSON>`
+
+**Use Cases**:
+- Data privacy protection
+- GDPR compliance processing
+- Sensitive information de-identification
+- Preprocessing before data sharing
+
+**Notes**:
+- Uses Presidio and BERT-NER models for PII recognition
+- Supports recognition of multiple PII types including person names, emails, phones, addresses, etc.
+- First use will download BERT model
+- Recognition accuracy depends on model and text format

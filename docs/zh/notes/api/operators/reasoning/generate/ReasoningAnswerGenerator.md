@@ -8,7 +8,7 @@ permalink: /zh/api/u4zfvr4i/
 [ReasoningAnswerGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个推理型答案生成算子，用于根据输入问题自动构建提示词（prompt）并调用大语言模型（LLM）生成推理式答案。
 该算子可与多种 Prompt 模板（数学、通用、DIY）和 LLM 服务模块配合使用，实现自动化的问答生成流程。
 
-## __init__函数
+## `__init__`函数
 ```python
 @prompt_restrict(
     MathAnswerGeneratorPrompt,

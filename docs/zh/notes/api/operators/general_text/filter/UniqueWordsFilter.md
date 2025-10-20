@@ -36,6 +36,35 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='unique_
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.general_text import UniqueWordsFilter
+from dataflow.utils.storage import FileStorage
+
+class UniqueWordsFilterTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/unique_words_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.filter = UniqueWordsFilter(
+            threshold=0.1
+        )
+        
+    def forward(self):
+        self.filter.run(
+            storage=self.storage.step(),
+            input_key='text',
+            output_key='unique_words_filter'
+        )
+
+if __name__ == "__main__":
+    test = UniqueWordsFilterTest()
+    test.forward()
+```
+
 ## 🧾 默认输出格式（Output Format）
 
 算子会返回一个被过滤后的 DataFrame，其中仅包含唯一单词比率大于 `threshold` 的行。DataFrame 中会新增一个 `output_key` 指定的列，其值恒为 1。
@@ -44,4 +73,59 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='unique_
 | :---------------- | :---- | :----------------------------------------------- |
 | `<input_key>` | str | 输入的原始文本字段（保留）。 |
 | `<output_key>` | int | 过滤结果标志，输出的 DataFrame 中该字段值均为 1。 |
-| ... | ... | 其他输入字段（保留）。 |
+
+### 📋 示例输入
+
+```json
+{"text": "The quick brown fox jumps over the lazy dog"}
+{"text": "good good good good good good good good good good"}
+{"text": "This is a simple test with various different words"}
+```
+
+### 📤 示例输出
+
+```json
+{"text": "The quick brown fox jumps over the lazy dog", "unique_words_filter": 1}
+{"text": "This is a simple test with various different words", "unique_words_filter": 1}
+```
+
+### 📊 结果分析
+
+在本测试中，2条文本通过了过滤，1条被过滤掉：
+
+**样本1（通过）- 高唯一性文本**：
+- 总单词数：9
+- 唯一单词数：8（"the" 出现2次）
+- 唯一单词比率：8 / 9 ≈ 0.889 (88.9%)
+- 结果：**通过过滤** ✓（0.889 > 0.1 阈值）
+
+**样本2（过滤）- 极低唯一性文本**：
+- 总单词数：10
+- 唯一单词数：1（只有 "good"）
+- 唯一单词比率：1 / 10 = 0.1 (10%)
+- 结果：**被过滤** ✗（0.1 ≤ 0.1 阈值，需要严格大于）
+
+**样本3（通过）- 完全唯一文本**：
+- 总单词数：9
+- 唯一单词数：9（所有单词都不重复）
+- 唯一单词比率：9 / 9 = 1.0 (100%)
+- 结果：**通过过滤** ✓（1.0 > 0.1 阈值）
+
+**工作原理**：
+1. 将文本转换为小写
+2. 使用空格分割成单词列表
+3. 使用集合（set）计算唯一单词数量
+4. 计算唯一单词比率 = 唯一单词数 / 总单词数
+5. 比率 > threshold 则保留
+
+**应用场景**：
+- 过滤重复内容过多的文本
+- 检测机器生成的低质量文本
+- 识别语言单调性问题
+- 数据集多样性质量控制
+
+**注意事项**：
+- 大小写不敏感（转换为小写后比较）
+- 使用空格分词
+- `threshold` 越高，过滤越严格
+- 默认 threshold=0.1，非常宽松，只过滤极端重复的文本

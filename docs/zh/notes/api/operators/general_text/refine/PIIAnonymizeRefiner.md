@@ -45,30 +45,64 @@ def run(self, storage: DataFlowStorage, input_key: str)
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.general_text import PIIAnonymizeRefiner
+from dataflow.utils.storage import FileStorage
 
+class PIIAnonymizeRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/pii_anonymize_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = PIIAnonymizeRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = PIIAnonymizeRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
-该算子会修改输入数据中指定 `input_key` 列的内容，将识别出的PII信息替换为匿名化标签（如 `<PERSON>`, `<PHONE_NUMBER>` 等）。
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | PII 信息被匿名化标签替换后的文本 |
 
-| 字段      | 类型 | 说明                   |
-| :-------- | :--- | :--------------------- |
-| input_key | str  | 经过PII匿名化处理后的文本。 |
-
-**示例输入：**
+### 📋 示例输入
 
 ```json
-{
-  "text": "My name is John Doe and I live in New York. You can call me at 212-555-1234."
-}
+{"text":"My email is john@example.com"}
+{"text":"My name is John Smith"}
 ```
 
-**示例输出：**
-(假设 `input_key` 为 "text")
+### 📤 示例输出
 
 ```json
-{
-  "text": "My name is <PERSON> and I live in <LOCATION>. You can call me at <PHONE_NUMBER>."
-}
+{"text":"My email is <EMAIL_ADDRESS>"}
+{"text":"My name is <PERSON>"}
 ```
+
+### 📊 结果分析
+
+**样本1**："john@example.com" → `<EMAIL_ADDRESS>`
+**样本2**："John Smith" → `<PERSON>`
+
+**应用场景**：
+- 数据隐私保护
+- GDPR 合规处理
+- 敏感信息脱敏
+- 数据共享前的预处理
+
+**注意事项**：
+- 使用 Presidio 和 BERT-NER 模型进行 PII 识别
+- 支持识别人名、邮箱、电话、地址等多种 PII 类型
+- 首次使用会下载 BERT 模型
+- 识别准确率依赖于模型和文本格式

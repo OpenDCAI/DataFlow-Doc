@@ -9,7 +9,7 @@ permalink: /en/api/u4zfvr4i/
 [ReasoningAnswerGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) is a reasoning-based answer generation operator designed to automatically construct prompts and invoke large language models (LLMs) to produce reasoning-style answers based on input questions.
 This operator can be used in conjunction with various Prompt templates (Mathematical, General, DIY) and LLM service modules to automate the question–answer generation workflow.
 
-## **init** Function
+## `__init__` Function
 
 ```python
 @prompt_restrict(
@@ -28,7 +28,7 @@ class ReasoningAnswerGenerator(OperatorABC):
                 ):
 ```
 
-### init Parameters
+### `__init__` Parameters
 
 | Parameter Name      | Type            | Default Value                                                                                                                    | Description                                                                                                      |
 | :------------------ | :-------------- | :------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------- |

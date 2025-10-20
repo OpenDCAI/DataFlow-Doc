@@ -34,29 +34,66 @@ def run(storage, input_key)
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.general_text import RemoveRepetitionsPunctuationRefiner
+from dataflow.utils.storage import FileStorage
 
+class RemoveRepetitionsPunctuationRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_repetitions_punctuation_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveRepetitionsPunctuationRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveRepetitionsPunctuationRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
-该算子会就地修改输入DataFrame，将处理后的文本更新到`input_key`指定的列中。
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 移除了重复标点的文本 |
 
-| 字段        | 类型 | 说明                 |
-| :---------- | :--- | :------------------- |
-| `input_key` | str  | 移除了重复标点的文本。 |
-
-**示例输入：**
+### 📋 示例输入
 
 ```json
-{
-  "text": "你好世界!!! 这是一段测试文本,,"
-}
+{"text":"Hello world!!!"}
+{"text":"What??? Really!!! Amazing..."}
+{"text":"Price is $100,,, okay???"}
 ```
 
-**示例输出：**
+### 📤 示例输出
 
 ```json
-{
-  "text": "你好世界! 这是一段测试文本,"
-}
+{"text":"Hello world!"}
+{"text":"What? Really! Amazing."}
+{"text":"Price is $100, okay?"}
 ```
+
+### 📊 结果分析
+
+**样本1**：重复感叹号 "!!!" → "!"
+
+**样本2**：多处重复标点 "???" "!!!" "..." → "?" "!" "."
+
+**样本3**：重复逗号和问号 ",,," "???" → "," "?"
+
+**应用场景**：
+- 清理用户输入的过度标点
+- 规范化社交媒体文本
+- 文本预处理和标准化
+
+**注意事项**：
+- 保留标点符号的类型，只移除重复
+- 适用于所有 `string.punctuation` 中的标点

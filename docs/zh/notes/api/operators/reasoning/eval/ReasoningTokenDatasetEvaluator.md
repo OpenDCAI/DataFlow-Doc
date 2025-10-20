@@ -8,17 +8,19 @@ permalink: /zh/api/operators/reasoning/eval/reasoningtokendatasetevaluator/
 
 [ReasoningTokenDatasetEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个用于评估数据集中 Token 信息的算子。它负责统计问题和回答文本的 Token 数量，并提供最小值、最大值、平均值和中位数等关键统计指标。该算子通过指定的 Tokenizer 对文本进行编码，帮助用户了解数据集的文本长度分布特征。
 
-## __init__函数
+## `__init__`函数
 
 ```python
-def __init__(self)
+@OPERATOR_REGISTRY.register()
+class ReasoningTokenDatasetEvaluator(OperatorABC):
+    def __init__(self, model_name_or_path: str):
 ```
 
 ### init参数说明
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | :----- | :--- | :----- | :--- |
-|        |      |        | 无   |
+| **model_name_or_path** | str | 必需 | 用于分词的 tokenizer 模型路径或其在 Hugging Face 上的路径。 |
 
 ## run函数
 
@@ -40,7 +42,32 @@ def run(self, storage: DataFlowStorage, input_question_key: str, input_answer_ke
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.reasoning import ReasoningTokenDatasetEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningTokenDatasetEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = ReasoningTokenDatasetEvaluator(model_name_or_path="Qwen/Qwen2.5-0.5B-Instruct")
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_question_key = "instruction",
+            input_answer_key = "output",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningTokenDatasetEvaluatorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

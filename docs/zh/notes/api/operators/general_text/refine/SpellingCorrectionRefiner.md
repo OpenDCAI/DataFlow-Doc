@@ -46,29 +46,67 @@ def run(self, storage: DataFlowStorage, input_key: str)
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.general_text import SpellingCorrectionRefiner
+from dataflow.utils.storage import FileStorage
 
+class SpellingCorrectionRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/spelling_correction_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = SpellingCorrectionRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = SpellingCorrectionRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
-该算子会直接修改输入 DataFrame 中 `input_key` 对应的列，不会新增列。
-
 | 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `<input_key>` | str | 经过拼写纠错后的文本。 |
+| :--- | :---- | :---------- |
+| text | str | 拼写纠正后的文本 |
 
-**示例输入：**
-
-```json
-{
-    "text": "this is a testt sentance"
-}
-```
-
-**示例输出：**
+### 📋 示例输入
 
 ```json
-{
-    "text": "this is a test sentence"
-}
+{"text":"This is a corect sentence"}
+{"text":"I hav a speling eror"}
+{"text":"The qwick brown fox"}
 ```
+
+### 📤 示例输出
+
+```json
+{"text":"this is a correct sentence"}
+{"text":"a have a spelling error"}
+{"text":"the quick brown fox"}
+```
+
+### 📊 结果分析
+
+**样本1**："corect" → "correct"
+**样本2**："hav" → "have", "speling" → "spelling", "eror" → "error"
+**样本3**："qwick" → "quick"
+
+**应用场景**：
+- 文本数据清洗
+- 用户输入校正
+- OCR 识别结果优化
+- 搜索查询优化
+
+**注意事项**：
+- 使用 SymSpell 算法进行快速拼写纠正
+- 基于词频字典进行纠正
+- 可能会将一些专有名词纠正为常见词汇
+- 首次使用会自动下载词频字典

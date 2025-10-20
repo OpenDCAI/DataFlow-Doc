@@ -9,9 +9,11 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswertokenlengthfilter/
 
 ## `__init__`函数
 ```python
-def __init__(self,
-            max_answer_token_length: int = 8192,
-            tokenizer_dir: str = "Qwen/Qwen2.5-0.5B-Instruct")
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerTokenLengthFilter(OperatorABC):
+    def __init__(self,
+                max_answer_token_length: int = 8192,
+                tokenizer_dir: str = "Qwen/Qwen2.5-0.5B-Instruct"):
 ```
 ### init参数说明
 | 参数名                      | 类型 | 默认值                         | 说明                               |
@@ -33,7 +35,34 @@ def run(self,
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerTokenLengthFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningAnswerTokenLengthFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerTokenLengthFilter(
+            max_answer_token_length=8192,
+            tokenizer_dir="Qwen/Qwen2.5-0.5B-Instruct"
+            )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key="output"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerTokenLengthFilterTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

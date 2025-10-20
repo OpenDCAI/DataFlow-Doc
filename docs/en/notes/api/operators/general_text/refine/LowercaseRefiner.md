@@ -14,8 +14,6 @@ def __init__(self)
 ### init parameters
 This operator does not require any parameters during initialization.
 
-### Prompt Template Descriptions
-
 ## `run`
 ```python
 def run(self, storage: DataFlowStorage, input_key: str)
@@ -28,26 +26,99 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 Example Usage
 
-#### 🧾 Default Output Format (Output Format)
-The operator modifies the specified `input_key` column in the DataFrame by converting its text to lowercase. Other columns remain unchanged.
+```python
+from dataflow.operators.general_text import LowercaseRefiner
+from dataflow.utils.storage import FileStorage
 
-| Field             | Type | Description                                                      |
-| :---------------- | :--- | :--------------------------------------------------------------- |
-| {any other field} | any  | Other fields from the input data are preserved.                  |
-| {input\_key}      | str  | The original text from the input key field, now in all lowercase. |
+class LowercaseRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/lowercase_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = LowercaseRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
 
-**Example Input:**
-(Assuming `input_key="text"`)
-```json
-{
-  "id": 1,
-  "text": "This is an EXAMPLE of Mixed-Case TEXT."
-}
+if __name__ == "__main__":
+    test = LowercaseRefinerTest()
+    test.forward()
 ```
-**Example Output:**
+
+#### 🧾 Default Output Format
+
+| Field | Type | Description |
+| :--- | :---- | :---------- |
+| text | str | Text converted to lowercase |
+
+### 📋 Sample Input
+
 ```json
-{
-  "id": 1,
-  "text": "this is an example of mixed-case text."
-}
+{"text":"Hello World! This Is A Test."}
+{"text":"SHOUTING IN ALL CAPS"}
+{"text":"MiXeD CaSe TeXt"}
+{"text":"already lowercase text"}
+{"text":"123 Numbers DON'T CHANGE 456"}
 ```
+
+### 📤 Sample Output
+
+```json
+{"text":"hello world! this is a test."}
+{"text":"shouting in all caps"}
+{"text":"mixed case text"}
+{"text":"already lowercase text"}
+{"text":"123 numbers don't change 456"}
+```
+
+### 📊 Results Analysis
+
+In this test, 4 out of 5 input samples were modified:
+
+**Sample 1 (Title Case)**:
+- Original: "Hello World! This Is A Test."
+- All uppercase letters converted to lowercase
+- Result: "hello world! this is a test."
+- **Modified**
+
+**Sample 2 (All Caps)**:
+- Original: "SHOUTING IN ALL CAPS"
+- All letters converted to lowercase
+- Result: "shouting in all caps"
+- **Modified**
+
+**Sample 3 (Mixed Case)**:
+- Original: "MiXeD CaSe TeXt"
+- All uppercase letters converted to lowercase
+- Result: "mixed case text"
+- **Modified**
+
+**Sample 4 (Already Lowercase)**:
+- Original: "already lowercase text"
+- Text is already all lowercase
+- **Unchanged** (remains as is)
+
+**Sample 5 (Numbers and Contractions)**:
+- Original: "123 Numbers DON'T CHANGE 456"
+- Letters converted to lowercase, numbers remain unchanged
+- Result: "123 numbers don't change 456"
+- **Modified**
+
+**Use Cases**:
+- Text standardization and normalization
+- Prepare for case-insensitive text matching
+- Preprocessing before deduplication
+- Text normalization for NLP tasks
+
+**Notes**:
+- This operator uses Python's `lower()` method
+- Numbers and punctuation remain unchanged
+- Recommended to use before text analysis and matching
+- May affect recognition of proper nouns

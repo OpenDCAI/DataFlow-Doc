@@ -5,11 +5,17 @@ permalink: /zh/api/operators/reasoning/eval/reasoningquestioncategorysampleevalu
 ---
 
 ## 📘 概述
-`ReasoningQuestionCategorySampleEvaluator` 算子用于对用户问题进行多级分类（主分类和子分类）。通过大语言模型对输入问题进行语义分析，输出分类编码结果。
+`ReasoningQuestionCategorySampleEvaluator` 算子用于对用户问题进行多级分类（主分类和子分类）。通过大语言模型对输入问题进行语义分析，输出分类结果。
 
 ## `__init__`函数
 ```python
-def __init__(self, llm_serving: LLMServingABC = None)
+@prompt_restrict(
+    MathQuestionCategoryPrompt
+)
+
+@OPERATOR_REGISTRY.register()
+class ReasoningQuestionCategorySampleEvaluator(OperatorABC):
+    def __init__(self, llm_serving: LLMServingABC = None):
 ```
 ### init参数说明
 | 参数名 | 类型 | 默认值 | 说明 |
@@ -18,8 +24,8 @@ def __init__(self, llm_serving: LLMServingABC = None)
 
 ### Prompt模板说明
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| -------------------------------- | ------------- | ----------------------- | ----------------------------------------------------- |
-| | | | |
+| --------------- | -------- | -------- | -------- |
+| MathQuestionCategoryPrompt | 问题多级分类 | 对用户问题进行主分类和子分类 | 输入问题，输出主分类和子分类 |
 
 ## `run`函数
 ```python
@@ -35,7 +41,40 @@ def run(self, storage: DataFlowStorage, input_key:str = "instruction", output_ke
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningQuestionCategorySampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
 
+class ReasoningQuestionCategorySampleEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.evaluator = ReasoningQuestionCategorySampleEvaluator(llm_serving=self.llm_serving)
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_key = "instruction",
+            output_key = "category",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningQuestionCategorySampleEvaluatorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

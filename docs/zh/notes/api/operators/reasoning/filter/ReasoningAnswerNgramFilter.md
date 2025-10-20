@@ -8,10 +8,15 @@ permalink: /zh/api/operators/reasoning/filter/reasoninganswerngramfilter/
 
 [ReasoningAnswerNgramFilter](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/filter/reasoning_answer_ngram_filter.py) 是一个基于 n-gram 重复率的过滤算子，用于检测并过滤掉包含过多重复模式的答案。该算子通过计算问题与答案文本中 n-gram 的重复分数，并根据设定的阈值范围保留合格的数据行。
 
-## __init__函数
+## `__init__`函数
 
 ```python
-def __init__(self, min_score: float = 0.1, max_score: float = 1.0, ngrams: int = 5)
+@OPERATOR_REGISTRY.register()
+class ReasoningAnswerNgramFilter(OperatorABC):
+    def __init__(self,
+                min_score: float = 0.1,
+                max_score: float = 1.0,
+                ngrams: int = 5):
 ```
 
 ### init参数说明
@@ -21,12 +26,6 @@ def __init__(self, min_score: float = 0.1, max_score: float = 1.0, ngrams: int =
 | **min_score**   | float | 0.1    | 最小可接受的 n-gram 重复分数。 |
 | **max_score**   | float | 1.0    | 最大可接受的 n-gram 重复分数。 |
 | **ngrams**      | int   | 5      | 用于计算重复率的 n-gram 大小。 |
-
-### Prompt模板说明
-
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| --------------- | -------- | -------- | -------- |
-|                 |          |          |          |
 
 ## run函数
 
@@ -47,7 +46,36 @@ def run(self, storage: DataFlowStorage, input_question_key: str = "instruction",
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.reasoning import ReasoningAnswerNgramFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningAnswerNgramFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerNgramFilter(
+            min_score=0.1,
+            max_score=1.0,
+            ngrams=5
+        )   
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_question_key="instruction",
+            input_answer_key="generated_cot"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerNgramFilterTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

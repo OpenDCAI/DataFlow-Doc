@@ -39,27 +39,86 @@ def run(self, storage: DataFlowStorage, input_key: str)
 | **storage** | DataFlowStorage | 必需 | 数据流存储实例，负责读取与写入数据。 |
 | **input_key** | str | 必需 | 输入列的名称，该列包含需要移除停用词的文本。 |
 
+## 📦 NLTK 数据配置
+
+该算子依赖 NLTK 的 `stopwords` 语料库。
+
+**推荐方式：使用预下载的数据（避免网络问题）**
+
+1. 从 [https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data) 下载所需数据包：
+   - `stopwords/`
+
+2. 设置环境变量指向数据路径：
+   ```bash
+   export NLTK_DATA=/path/to/nltk_data
+   ```
+
+**自动下载方式：**
+
+首次使用时，算子会自动检测并下载所需数据。如果遇到网络问题导致下载卡住，建议使用上述手动下载方式。
+
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.general_text import RemoveStopwordsRefiner
+from dataflow.utils.storage import FileStorage
 
+class RemoveStopwordsRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_stopwords_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveStopwordsRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveStopwordsRefinerTest()
+    test.forward()
+```
 
 #### 🧾 默认输出格式（Output Format）
 
-该算子会就地修改（in-place）输入 `DataFrame` 中由 `input_key` 指定的列。原始文本中的停用词将被移除，处理后的文本会覆盖该列的原有内容。
-
 | 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| {input_key} | str | 移除了停用词后的文本。 |
+| :--- | :---- | :---------- |
+| text | str | 移除停用词后的文本 |
 
-**示例输入：**
+### 📋 示例输入
+
 ```json
-{
-    "text": "This is a sample sentence showing the removal of stopwords."
-}
+{"text":"This is a simple test"}
+{"text":"The quick brown fox jumps"}
+{"text":"I am going to the store"}
 ```
-**示例输出（假设 `input_key`="text"）：**
+
+### 📤 示例输出
+
 ```json
-{
-    "text": "sample sentence showing removal stopwords."
-}
+{"text":"simple test"}
+{"text":"quick brown fox jumps"}
+{"text":"going store"}
+```
+
+### 📊 结果分析
+
+**样本1**：移除 "This" "is" "a"
+**样本2**：移除 "The"
+**样本3**：移除 "I" "am" "to" "the"
+
+**应用场景**：
+- NLP 文本预处理
+- 关键词提取
+- 文本分类前的特征提取
+
+**注意事项**：
+- 使用 NLTK 英文停用词列表
+- 仅适用于英文文本
 ```

@@ -9,10 +9,16 @@ permalink: /zh/api/operators/reasoning/eval/reasoningquestiondifficultysampleeva
 [ReasoningQuestionDifficultySampleEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/evaluate/reasoning_question_difficulty_sample_evaluator.py)
 是一个问题难度评估算子。它通过调用大语言模型（LLM）来分析问题的复杂度，并为每个问题生成一个从1到10的难度评分。
 
-## __init__函数
+## `__init__`函数
 
 ```python
-def __init__(self, llm_serving: LLMServingABC = None):
+@prompt_restrict(
+    MathQuestionDifficultyPrompt
+)
+
+@OPERATOR_REGISTRY.register()
+class ReasoningQuestionDifficultySampleEvaluator(OperatorABC):
+    def __init__(self, llm_serving: LLMServingABC = None):
 ```
 
 ### init参数说明
@@ -25,7 +31,7 @@ def __init__(self, llm_serving: LLMServingABC = None):
 
 | Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
 | --------------- | -------- | -------- | -------- |
-|                 |          |          |          |
+| MathQuestionDifficultyPrompt | 问题难度评估 | 对用户问题进行难度评估 | 输入问题，输出1到10的难度评分 |
 
 ## run函数
 
@@ -44,24 +50,60 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key:str="difficul
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.reasoning import ReasoningQuestionDifficultySampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+from dataflow.serving import APILLMServing_request
 
+class ReasoningQuestionDifficultySampleEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        # use API server as LLM serving
+        self.llm_serving = APILLMServing_request(
+                    api_url="",
+                    model_name="gpt-4o",
+                    max_workers=30
+        )
+        
+        self.evaluator = ReasoningQuestionDifficultySampleEvaluator(llm_serving=self.llm_serving)
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_key = "instruction",
+            output_key = "difficulty_score",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningQuestionDifficultySampleEvaluatorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-|      |      |      |
-|      |      |      |
+| **difficulty_score** | int | 问题的难度评分，从1到10。 |
 
 示例输入：
 
 ```json
-
+{
+    "instruction": "计算2的5次方。"
+}
 ```
 
 示例输出：
 
 ```json
-
+{
+    "difficulty_score": 3
+}
 ```

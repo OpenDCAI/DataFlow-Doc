@@ -9,17 +9,11 @@ permalink: /zh/api/operators/reasoning/generate/reasoningpretrainformatconvertge
 
 ## `__init__`函数
 ```python
-def __init__(self)
+@OPERATOR_REGISTRY.register()
+class ReasoningPretrainFormatConvertGenerator(OperatorABC):
+    def __init__(self):
 ```
-### init参数说明
-| 参数名 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-|        |      |      | 无可配置参数。 |
-
-### Prompt模板说明
-| Prompt 模板名称 | 主要用途 | 适用场景 | 特点说明 |
-| :--- | :--- | :--- | :--- |
-| | | | |
+无可配置参数。
 
 ## `run`函数
 ```python
@@ -36,7 +30,33 @@ def run(self, storage: DataFlowStorage, input_read_key_question: str = "question
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.reasoning import ReasoningPretrainFormatConvertGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningPretrainFormatConvertGeneratorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningPretrainFormatConvertGenerator()
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_read_key_question = "instruction",
+            input_read_key_answer = "output",
+            output_key = "text"
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningPretrainFormatConvertGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）

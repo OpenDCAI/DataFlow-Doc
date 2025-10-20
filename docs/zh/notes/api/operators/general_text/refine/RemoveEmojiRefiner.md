@@ -38,23 +38,98 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.general_text import RemoveEmojiRefiner
+from dataflow.utils.storage import FileStorage
+
+class RemoveEmojiRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_emoji_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveEmojiRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveEmojiRefinerTest()
+    test.forward()
+```
+
 #### 🧾 默认输出格式（Output Format）
 
-算子会修改 `storage` 中 DataFrame 的 `input_key` 对应列，并将其写回。
-
 | 字段 | 类型 | 说明 |
-| :---------- | :---- | :--------------------- |
-| [input_key] | str | 移除了表情符号后的文本。 |
+| :--- | :---- | :---------- |
+| text | str | 移除了表情符号后的文本 |
 
-示例输入 (`input_key` = "text"):
+### 📋 示例输入
+
 ```json
-{
-"text":"这是一个带有表情符号的句子👍🎉。"
-}
+{"text":"Hello world! This is a test without emoji."}
+{"text":"Great work 👍 Keep it up! 🎉"}
+{"text":"看这个表情😊很开心😄🎊"}
+{"text":"Mixed text with 🚀 rocket and 🌟 star emojis"}
+{"text":"Celebration time 🎉🎊🎈 with party emojis"}
 ```
-示例输出:
+
+### 📤 示例输出
+
 ```json
-{
-"text":"这是一个带有表情符号的句子。"
-}
+{"text":"Hello world! This is a test without emoji."}
+{"text":"Great work  Keep it up! "}
+{"text":"看这个表情很开心"}
+{"text":"Mixed text with  rocket and  star emojis"}
+{"text":"Celebration time  with party emojis"}
 ```
+
+### 📊 结果分析
+
+在本测试中，5条输入数据中有4条被修改：
+
+**样本1（无表情）**：
+- 文本："Hello world! This is a test without emoji."
+- 不包含表情符号
+- **未修改**（保持原样）
+
+**样本2（英文+表情）**：
+- 原文："Great work 👍 Keep it up! 🎉"
+- 移除了👍和🎉表情符号
+- 结果："Great work  Keep it up! "
+- **已修改**
+
+**样本3（中文+表情）**：
+- 原文："看这个表情😊很开心😄🎊"
+- 移除了所有表情符号😊😄🎊
+- 结果："看这个表情很开心"
+- **已修改**
+
+**样本4（混合表情）**：
+- 原文："Mixed text with 🚀 rocket and 🌟 star emojis"
+- 移除了🚀和🌟表情符号
+- 结果："Mixed text with  rocket and  star emojis"
+- **已修改**
+
+**样本5（庆祝表情）**：
+- 原文："Celebration time 🎉🎊🎈 with party emojis"
+- 移除了所有庆祝表情符号🎉🎊🎈
+- 结果："Celebration time  with party emojis"
+- **已修改**
+
+**应用场景**：
+- 文本数据标准化和规范化
+- 移除社交媒体文本中的表情干扰
+- 为 NLP 模型准备纯文本数据
+- 清理用户生成内容中的图形符号
+
+**注意事项**：
+- 该算子基于 Unicode 范围匹配表情符号
+- 涵盖常见的表情符号、符号、旗帜等图像符号
+- 移除表情后可能产生多余空格，建议结合 `RemoveExtraSpacesRefiner` 使用

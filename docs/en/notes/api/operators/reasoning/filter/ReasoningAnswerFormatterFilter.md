@@ -35,5 +35,33 @@ Executes the main logic of the operator. It reads a dataframe from storage, filt
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.reasoning import ReasoningAnswerFormatterFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
+
+class ReasoningAnswerFormatterFilterTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.operator = ReasoningAnswerFormatterFilter()
+        
+    def forward(self):
+        self.operator.run(
+            storage = self.storage.step(),
+            input_key = "output",
+        )
+
+if __name__ == "__main__":
+    pl = ReasoningAnswerFormatterFilterTest()
+    pl.forward()
+```
+
 #### 🧾 Output Format
 The operator filters the input dataframe, retaining only the rows where the answer in the `input_key` column passes the format validation. The schema of the output dataframe is identical to the input dataframe, but it may contain fewer rows. The filtered data is written to a new file in the storage.

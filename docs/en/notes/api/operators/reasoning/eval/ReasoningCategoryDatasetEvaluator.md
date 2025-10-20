@@ -30,32 +30,59 @@ Executes the main logic of the operator. It reads a DataFrame from storage, calc
 
 
 ## 🧠 Example Usage
+```python
+from dataflow.operators.reasoning import ReasoningCategoryDatasetEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.core import LLMServingABC
 
+class ReasoningCategoryDatasetEvaluatorTest():
+    def __init__(self, llm_serving: LLMServingABC = None):
+        
+        self.storage = FileStorage(
+            first_entry_file_name="example.json",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.evaluator = ReasoningCategoryDatasetEvaluator()
+        
+    def forward(self):
+        self.evaluator.run(
+            storage = self.storage.step(),
+            input_primary_category_key = "primary_category",
+            input_secondary_category_key = "secondary_category",
+        )
 
-#### 🧾 Default Output Format
-The `run` method returns a dictionary containing the statistical information of the categories.
-
-**Example Input Data in DataFrame:**
-```json
-[
-    {"primary_category": "Humanities", "secondary_category": "History"},
-    {"primary_category": "STEM", "secondary_category": "Mathematics"},
-    {"primary_category": "STEM", "secondary_category": "Physics"},
-    {"primary_category": "STEM", "secondary_category": "Mathematics"}
-]
+if __name__ == "__main__":
+    pl = ReasoningCategoryDatasetEvaluatorTest()
+    pl.forward()
 ```
 
-**Example Output (Return Value):**
+#### 🧾 Default Output Format
+| Field | Type | Description |
+| :-------------- | :---- | :---------- |
+| key | str | Primary category name. |
+| value | dict | Dictionary containing the total number of samples for this primary category (`primary_num`) and the number of samples for each secondary category. |
+
+Example input (dataframe rows stored in `storage`):
+```json
+{ "primary_category": "Science", "secondary_category": "Physics" }
+{ "primary_category": "Science", "secondary_category": "Chemistry" }
+{ "primary_category": "Science", "secondary_category": "Physics" }
+{ "primary_category": "Humanities", "secondary_category": "History" }
+```
+Example output:
 ```json
 {
-    "STEM": {
-        "primary_num": 3,
-        "Mathematics": 2,
-        "Physics": 1
-    },
-    "Humanities": {
-        "primary_num": 1,
-        "History": 1
-    }
+  "Science": {
+    "primary_num": 3,
+    "Physics": 2,
+    "Chemistry": 1
+  },
+  "Humanities": {
+    "primary_num": 1,
+    "History": 1
+  }
 }
 ```

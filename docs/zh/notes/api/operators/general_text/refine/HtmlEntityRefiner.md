@@ -49,31 +49,61 @@ def run(self, storage: DataFlowStorage, input_key: str):
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.general_text import HtmlEntityRefiner
+from dataflow.utils.storage import FileStorage
 
+class HtmlEntityRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/html_entity_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = HtmlEntityRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = HtmlEntityRefinerTest()
+    test.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
 
-该算子会就地修改输入的 DataFrame，将清理后的文本写回到 `input_key` 指定的列中。
-
 | 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| {input_key} | str | 经过 HTML 实体移除处理后的文本。 |
-| ... | ... | 其他输入字段保持不变。 |
+| :--- | :---- | :---------- |
+| text | str | 移除 HTML 实体后的文本 |
 
-**示例输入：**
-*(假设 `input_key` 为 `"content"`) *
+### 📋 示例输入
 
 ```json
-{
-"content":"这是一个示例文本&nbsp;，它包含了&lt;特殊&gt;实体＆amp;符号；"
-}
+{"text":"Hello&nbsp;world&lt;test&gt;"}
+{"text":"Copyright&copy;2024&mdash;All rights"}
+{"text":"Price&colon;$100"}
 ```
 
-**示例输出：**
+### 📤 示例输出
 
 ```json
-{
-"content":"这是一个示例文本 ，它包含了特殊实体符号"
-}
+{"text":"Helloworldtest"}
+{"text":"Copyright&copy;2024All rights"}
+{"text":"Price&colon;$100"}
 ```
+
+### 📊 结果分析
+
+**样本1**：移除 `&nbsp;` `&lt;` `&gt;`
+**样本2-3**：部分实体未被移除（`&copy;` `&colon;` 不在预定义列表中）
+
+**应用场景**：
+- 清理 HTML 文本
+- 移除常见 HTML 实体
+
+**注意事项**：
+- 仅移除预定义列表中的 HTML 实体

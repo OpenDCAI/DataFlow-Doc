@@ -8,7 +8,7 @@ permalink: /en/api/operators/reasoning/filter/reasoningquestionfilter/
 
 This operator checks the correctness of questions, including formatting, semantic validity, logical consistency, and whether the problem is solvable. It performs a four-stage evaluation using a large language model and retains qualified samples.
 
-## __init__ function
+## `__init__` function
 
 ```python
 def __init__(self,

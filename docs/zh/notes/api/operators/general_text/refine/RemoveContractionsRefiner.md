@@ -28,18 +28,65 @@ def run(self, storage: DataFlowStorage, input_key: str)
 
 ## 🧠 示例用法
 
-#### 🧾 默认输出格式（Output Format）
-该算子会直接修改输入 `DataFrame` 中由 `input_key` 指定的列，将包含缩写词的文本替换为扩展后的完整形式。输出的数据格式与输入格式保持一致，仅在指定列的值上有所更新。
+```python
+from dataflow.operators.general_text import RemoveContractionsRefiner
+from dataflow.utils.storage import FileStorage
 
-示例输入：
-```json
-{
-"text": "I can't believe it's not butter. He'll be there soon."
-}
+class RemoveContractionsRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/remove_contractions_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = RemoveContractionsRefiner()
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = RemoveContractionsRefinerTest()
+    test.forward()
 ```
-示例输出：
+
+#### 🧾 默认输出格式（Output Format）
+
+| 字段 | 类型 | 说明 |
+| :--- | :---- | :---------- |
+| text | str | 扩展缩写词后的文本 |
+
+### 📋 示例输入
+
 ```json
-{
-"text": "I cannot believe it is not butter. He will be there soon."
-}
+{"text":"I can't believe it's so easy"}
+{"text":"We'll meet at 3 o'clock"}
+{"text":"They're isn't any problem"}
 ```
+
+### 📤 示例输出
+
+```json
+{"text":"I cannot believe it is so easy"}
+{"text":"We will meet at 3 of the clock"}
+{"text":"They are is not any problem"}
+```
+
+### 📊 结果分析
+
+**样本1**："can't" → "cannot", "it's" → "it is"
+**样本2**："We'll" → "We will", "o'clock" → "of the clock"  
+**样本3**："They're" → "They are", "isn't" → "is not"
+
+**应用场景**：
+- 文本标准化
+- 提高文本一致性
+- NLP 预处理
+
+**注意事项**：
+- 使用 contractions 库进行扩展
+- 仅处理英文缩写

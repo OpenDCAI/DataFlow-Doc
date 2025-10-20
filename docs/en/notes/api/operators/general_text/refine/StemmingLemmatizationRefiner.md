@@ -6,23 +6,21 @@ permalink: /en/api/operators/general_text/refine/stemminglemmatizationrefiner/
 
 ## 📘 Overview
 
-The `StemmingLemmatizationRefiner` is an operator designed to process text by converting words into their basic forms through either stemming or lemmatization. It supports two methods: Porter stemming and WordNet lemmatization, which can be selected via a parameter. This helps in normalizing text for various natural language processing tasks.
+`StemmingLemmatizationRefiner` operator is designed to perform stemming or lemmatization on text, converting words to their base or root forms. This helps standardize text and reduce word variations, thereby improving performance of subsequent processing tasks. This operator supports Porter stemming algorithm and WordNet lemmatization methods.
 
-## `__init__` function
+## __init__ function
 
 ```python
 def __init__(self, method: str = "stemming"):
 ```
 
-### init Parameters
+### init parameter description
 
-| Parameter Name | Type | Default Value | Description |
+| Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **method** | str | "stemming" | The processing method to use. Can be either 'stemming' or 'lemmatization'. |
+| **method** | str | "stemming" | Specifies processing method. Options are 'stemming' (word stemming) or 'lemmatization' (word lemmatization). |
 
-### Prompt Template Descriptions
-
-## `run` function
+## run function
 
 ```python
 def run(self, storage: DataFlowStorage, input_key: str):
@@ -30,50 +28,93 @@ def run(self, storage: DataFlowStorage, input_key: str):
 
 #### Parameters
 
-| Name | Type | Default Value | Description |
+| Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | Required | DataFlowStorage instance for reading and writing data. |
-| **input_key** | str | Required | The name of the input column containing the text to be refined. |
+| **storage** | DataFlowStorage | Required | Data flow storage instance for reading and writing data. |
+| **input_key** | str | Required | Input column name specifying text field in DataFrame to process. |
+
+## 📦 Dependency Configuration
+
+This operator depends on NLTK's WordNet data.
+
+**Method 1: Use Pre-downloaded NLTK Data (Recommended)**
+
+1. Download NLTK data packages from [https://github.com/nltk/nltk_data](https://github.com/nltk/nltk_data), ensuring they include:
+   - `wordnet/`
+   - `omw-1.4/`
+
+2. Set environment variable pointing to data path:
+   ```bash
+   export NLTK_DATA=/path/to/nltk_data
+   ```
+
+**Method 2: Automatic Download**
+
+On first use, operator will automatically download required data to default location (`~/nltk_data` or `./dataflow_cache/nltk_data`)
 
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.general_text import StemmingLemmatizationRefiner
+from dataflow.utils.storage import FileStorage
 
+class StemmingLemmatizationRefinerTest():
+    def __init__(self):
+        self.storage = FileStorage(
+            first_entry_file_name="./dataflow/example/GeneralTextPipeline/stemming_lemmatization_test_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        
+        self.refiner = StemmingLemmatizationRefiner()  # Default uses stemming
+        
+    def forward(self):
+        self.refiner.run(
+            storage=self.storage.step(),
+            input_key='text'
+        )
+
+if __name__ == "__main__":
+    test = StemmingLemmatizationRefinerTest()
+    test.forward()
 ```
 
-#### 🧾 Default Output Format (Output Format)
-
-The operator modifies the column specified by `input_key` in place and writes the entire DataFrame back to storage. Other columns are preserved.
+#### 🧾 Default Output Format
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| <input_key> | str | The input text after stemming or lemmatization has been applied. |
-| ... | any | Other columns from the input data remain unchanged. |
+| :--- | :---- | :---------- |
+| text | str | Text after stemming or lemmatization |
 
-**Example Input:**
-
-```json
-{
-  "text": "The researchers' studies involved analyzing various crying patterns.",
-  "id": "doc1"
-}
-```
-
-**Example Output (with `method="stemming"`):**
+### 📋 Sample Input
 
 ```json
-{
-  "text": "the researchers' studi involv analyz variou cri pattern.",
-  "id": "doc1"
-}
+{"text":"running jumps quickly"}
+{"text":"cats dogs playing"}
+{"text":"studied studying studies"}
 ```
 
-**Example Output (with `method="lemmatization"`):**
-*Note: The default NLTK lemmatizer without Part-of-Speech tags has limitations.*
+### 📤 Sample Output (method="stemming")
 
 ```json
-{
-  "text": "the researchers' study involved analyzing various cry pattern.",
-  "id": "doc1"
-}
+{"text":"run jump quickli"}
+{"text":"cat dog play"}
+{"text":"studi studi studi"}
 ```
+
+### 📊 Results Analysis
+
+**Sample 1**: "running" → "run", "jumps" → "jump", "quickly" → "quickli"
+**Sample 2**: "cats" → "cat", "dogs" → "dog", "playing" → "play"
+**Sample 3**: All three forms "studied" "studying" "studies" become "studi"
+
+**Use Cases**:
+- Text standardization and normalization
+- Word matching in information retrieval
+- Feature extraction for text classification
+- Reduce vocabulary size
+
+**Notes**:
+- Stemming: Fast but may produce non-real words (like "quickli")
+- Lemmatization: Accurate but slower, requires WordNet data
+- Only applicable to English text
