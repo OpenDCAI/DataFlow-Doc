@@ -24,7 +24,54 @@ permalink: /zh/guide/reasoningpipeline/
 2. **答案生成与处理**：根据问题的标准答案或模型生成的答案进行处理，包括格式过滤、长度过滤和正确性验证等。
 3. **数据去重**：对生成的问答数据进行去重，确保数据集的质量。
 
-## 2. 数据流与流水线逻辑
+## 2. 快速开始
+
+### 第一步：安装dataflow环境
+```shell
+pip install open-dataflow
+```
+
+### 第二步：创建新的dataflow工作文件夹
+```shell
+mkdir run_dataflow
+cd run_dataflow
+```
+
+### 第三步：初始化Dataflow
+```shell
+dataflow init
+```
+这时你会看见
+```shell
+run_dataflow/pipelines/api_pipelines/reasoning_math_pipeline.py  
+```
+
+### 第四步：填入你的api key以及api_url
+对于Linux和Mac OS
+```shell
+export DF_API_KEY="sk-xxxxx"
+```
+
+对于Windows
+```powershell
+$env:DF_API_KEY = "sk-xxxxx"
+```
+`reasoning_general_pipeline.py`中的api_url填写方式如下：
+```python
+self.llm_serving = APILLMServing_request(
+        api_url="https://api.openai.com/v1/chat/completions",
+        model_name="gpt-4o",
+        max_workers=100
+)
+```
+
+### 第五步：一键运行
+```bash
+python pipelines/api_pipelines/reasoning_math_pipeline.py
+```
+此外，你可以根据自己的需求选择任意其他的Pipeline代码运行，其运行方式都是类似的。接下来，我们会介绍在Pipeline中使用到的算子以及如何进行参数配置。
+
+## 3. 数据流与流水线逻辑
 
 ### 1. **输入数据**
 
@@ -240,21 +287,6 @@ ngram_filter = ReasoningAnswerNgramFilter(
 * **primary\_category**：问题的主要类别
 * **secondary\_category**：问题的次要类别
 
-## 3. 运行方式
-
-该流水线通过简单的Python命令执行不同的配置，满足不同的数据需求：
-
-* **强推理指令微调数据合成**：
-
-  ```bash
-  python test/test_reasoning.py
-  ```
-
-* **大规模预训练数据合成**：
-
-  ```bash
-  python test/test_reasoning_pretrain.py
-  ```
 
 ## 4. 流水线示例
 以下给出示例流水线，演示如何使用多个算子进行推理数据处理。该示例展示了如何初始化一个推理数据处理流水线，并且顺序执行各个过滤和清理步骤。
@@ -370,7 +402,7 @@ class ReasoningPipeline():
         )
         
 if __name__ == "__main__":
-    model = ReasoningPipeline()
-    model.forward()
+    pl = ReasoningPipeline()
+    pl.forward()
 ```
 
