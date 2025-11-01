@@ -123,7 +123,7 @@ Place appropriately sized datasets (data files in PDF format) into the working d
 dataflow pdf2model init
 ```
 
-After initialization is complete, the project directory becomes:
+💡After initialization is complete, the project directory becomes:
 
 ```bash
 Project Root/
@@ -173,7 +173,7 @@ self.extract_format_qa = QAExtractor(
 dataflow pdf2model train
 ```
 
-After fine-tuning is complete, the project directory becomes:
+💡After fine-tuning is complete, the project directory becomes:
 
 ```bash
 Project Root/
