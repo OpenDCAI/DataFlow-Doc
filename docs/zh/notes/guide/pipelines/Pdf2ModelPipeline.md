@@ -14,28 +14,13 @@ permalink: /zh/guide/i2pk9pwh/
 
 流水线集成了先进的文档处理技术（MinerU、trafilatura）、智能知识清洗方法和高效微调策略，可在保持基座模型通用能力的同时，显著提升其在垂直领域的表现。根据MIRIAD实验验证，使用Multi-Hop QA格式训练的模型在需要多步推理的复杂问答场景中表现优异。
 
+**文档解析引擎**：MinerU1（推荐使用vlm-backend: pipeline，稳定性最优）及MinerU2.5部分功能（transformers后端）
+
 **支持的输入格式**：PDF、Markdown、HTML、URL网页
 
 **输出模型**：适配器（可与任意Qwen/Llama系列基座模型组合使用）
 
-### 流水线主要流程
-
-Pdf-to-Model流水线分为**初始化**和**执行**两个阶段，执行阶段包含5个核心步骤：
-
-#### 初始化阶段（dataflow pdf2model init）
-
-自动生成训练配置文件（train_config.yaml）和可定制的数据处理脚本，配置默认的LoRA微调参数、数据集路径和模型输出目录。
-
-#### 执行阶段（dataflow pdf2model train）
-
-1. **文档发现**：自动扫描指定目录，识别所有PDF文件并生成索引列表。
-2. **知识提取与清洗**：借助[MinerU](https://github.com/opendatalab/MinerU)、[trafilatura](https://github.com/adbar/trafilatura)等工具从PDF/Markdown/HTML/URL中提取文本信息，通过chonkie进行智能分段，从冗余标签、格式错误、隐私信息等角度对原始文本进行清洗和规范化。（*此步骤复用知识库清洗流水线的完整流程*）
-3. **QA数据生成**：利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的Multi-Hop QA对，并转换为[LlamaFactory](https://github.com/hiyouga/LLaMA-Factory)标准训练格式。
-4. **微调**：基于生成的QA数据，使用LoRA（低秩适配）方法对基座模型进行参数高效微调，训练模型参数，输出可直接部署的领域专用模型适配器。
-
-#### 测试阶段（dataflow chat）
-
-**模型对话测试**：自动加载最新训练的适配器和对应的基座模型，启动交互式对话界面，支持实时测试模型在领域知识问答上的表现。用户也可以通过 `--model` 参数指定特定的模型路径进行测试。
+**注意**：当前并不支持MinerU2.5 vlm-vllm-engine 因为其需要的高版本的vllm并不兼容现阶段最高版本的LLaMA-Factory(主要冲突在于transformers)
 
 
 
@@ -66,9 +51,32 @@ dataflow pdf2model train
 dataflow chat
 ```
 
+
+
 ## 3.流水线设计
 
-#### 第一步: 安装dataflow环境
+### 流水线主要流程
+
+Pdf-to-Model流水线分为**初始化**和**执行**两个阶段，执行阶段包含5个核心步骤：
+
+#### 初始化阶段（dataflow pdf2model init）
+
+自动生成训练配置文件（train_config.yaml）和可定制的数据处理脚本，配置默认的LoRA微调参数、数据集路径和模型输出目录。
+
+#### 执行阶段（dataflow pdf2model train）
+
+1. **文档发现**：自动扫描指定目录，识别所有PDF文件并生成索引列表。
+2. **知识提取与清洗**：借助[MinerU](https://github.com/opendatalab/MinerU)、[trafilatura](https://github.com/adbar/trafilatura)等工具从PDF/Markdown/HTML/URL中提取文本信息，通过chonkie进行智能分段，从冗余标签、格式错误、隐私信息等角度对原始文本进行清洗和规范化。（*此步骤复用知识库清洗流水线的完整流程*）
+3. **QA数据生成**：利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的Multi-Hop QA对，并转换为[LlamaFactory](https://github.com/hiyouga/LLaMA-Factory)标准训练格式。
+4. **微调**：基于生成的QA数据，使用LoRA（低秩适配）方法对基座模型进行参数高效微调，训练模型参数，输出可直接部署的领域专用模型适配器。
+
+#### 测试阶段（dataflow chat）
+
+**模型对话测试**：自动加载最新训练的适配器和对应的基座模型，启动交互式对话界面，支持实时测试模型在领域知识问答上的表现。用户也可以通过 `--model` 参数指定特定的模型路径进行测试。
+
+
+
+### 第一步: 安装dataflow环境
 
 ```bash
 conda create -n dataflow python=3.10
@@ -80,7 +88,7 @@ pip install -e .[pdf2model]
 
 
 
-#### 第二步: 创建新的dataflow工作文件夹
+### 第二步: 创建新的dataflow工作文件夹
 
 ```bash
 #退出项目根目录
@@ -91,13 +99,13 @@ cd run_dataflow
 
 
 
-#### 第三步: 设置数据集
+### 第三步: 设置数据集
 
 将合适大小的数据集(数据文件为pdf格式)放到工作文件夹中
 
 
 
-#### 第四步: 初始化dataflow-pdf2model
+### 第四步: 初始化dataflow-pdf2model
 
 ```bash
 #初始化 
@@ -117,7 +125,7 @@ dataflow pdf2model init
 
 
 
-#### 第五步:设置参数
+### 第五步:设置参数
 
 🌟展示常用且重要的参数:
 
@@ -149,7 +157,7 @@ self.extract_format_qa = QAExtractor(
 
 
 
-#### 第六步: 一键微调
+### 第六步: 一键微调
 
 ```bash
 #一键微调 直接启动清洗+微调的功能
@@ -178,7 +186,7 @@ dataflow pdf2model train
         └── pdf2model_cache_{timestamp}/
 ```
 
-#### 第七步: 与微调好的模型对话
+### 第七步: 与微调好的模型对话
 
 ```bash
 #用法一:--model 可以指定 对话模型的路径位置（可选）

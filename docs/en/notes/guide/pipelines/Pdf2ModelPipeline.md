@@ -10,32 +10,17 @@ This pipeline is designed to help beginners quickly get started with fine-tuning
 
 ## 1.Overview
 
-The **Pdf-to-Model Fine-tuning Pipeline** is an end-to-end solution for large language model training, providing fully automated services from raw documents to deployable domain-specific models. The pipeline transforms heterogeneous-format, high-noise PDF documents into high-quality Multi-Hop QA training data, and performs parameter-efficient fine-tuning of large models to achieve precise question-answering capabilities in specific domains.
+The **Pdf-to-Model Fine-tuning Pipeline** is an end-to-end large language model training solution designed to provide fully automated services from raw documents to deployable domain-specific models. The pipeline transforms heterogeneous-format, high-noise PDF documents into high-quality Multi-Hop QA training data and performs parameter-efficient fine-tuning of large models based on this data, enabling models to achieve precise question-answering capabilities in specific domain knowledge.
 
 The pipeline integrates advanced document processing technologies (MinerU, trafilatura), intelligent knowledge cleaning methods, and efficient fine-tuning strategies. It significantly enhances model performance in vertical domains while maintaining the general capabilities of base models. According to MIRIAD experimental validation, models trained with Multi-Hop QA format demonstrate excellent performance in complex question-answering scenarios requiring multi-step reasoning.
+
+**Document Parsing Engine**: MinerU1 (recommended to use vlm-backend: pipeline for optimal stability) and partial functionality of MinerU 2.5 (transformers backend)
 
 **Supported Input Formats**: PDF, Markdown, HTML, URL webpages
 
 **Output Model**: Adapter (compatible with any Qwen/Llama series base model)
 
-### Main Pipeline Workflow
-
-The Pdf-to-Model pipeline consists of two phases: initialization and execution, with the execution phase comprising 5 core steps:
-
-#### Initialization Phase (dataflow pdf2model init)
-
-Automatically generates training configuration file (train_config.yaml) and customizable data processing scripts, configuring default LoRA fine-tuning parameters, dataset paths, and model output directories.
-
-#### Execution Phase (dataflow pdf2model train)
-
-1. **Document Discovery**: Automatically scans specified directories to identify all PDF files and generate an index list.
-2. **Knowledge Extraction and Cleaning**: Extracts textual information from PDF/Markdown/HTML/URL using tools like MinerU and trafilatura, performs intelligent segmentation via chonkie, and cleans and normalizes raw text by addressing redundant tags, format errors, and privacy information. *(This step reuses the complete workflow of the knowledge base cleaning pipeline)*
-3. **QA Data Generation**: Utilizes a sliding window of three sentences to transform the cleaned knowledge base into a series of Multi-Hop QA pairs requiring multi-step reasoning, and converts them into LlamaFactory standard training format.
-4. **Fine-tuning**: Based on the generated QA data, uses LoRA (Low-Rank Adaptation) method to perform parameter-efficient fine-tuning of the base model, training model parameters and outputting a domain-specific model adapter ready for deployment.
-
-#### Testing Phase (dataflow chat)
-
-**Model Dialogue Testing**: Automatically loads the latest trained adapter and corresponding base model, launches an interactive dialogue interface, and supports real-time testing of model performance on domain-specific knowledge Q&A. Users can also specify a particular model path for testing using the `--model` parameter.
+**Note**: Currently does not support MinerU 2.5 vlm-vllm-engine, as it requires a higher version of vLLM that is incompatible with the current latest version of LLaMA-Factory (primary conflict lies in transformers library version).
 
 
 
@@ -73,6 +58,27 @@ dataflow chat
 
 
 ## 3. Pipeline Design
+
+### Main Pipeline Workflow
+
+The Pdf-to-Model pipeline consists of two phases: initialization and execution, with the execution phase comprising 5 core steps:
+
+#### Initialization Phase (dataflow pdf2model init)
+
+Automatically generates training configuration file (train_config.yaml) and customizable data processing scripts, configuring default LoRA fine-tuning parameters, dataset paths, and model output directories.
+
+#### Execution Phase (dataflow pdf2model train)
+
+1. **Document Discovery**: Automatically scans specified directories to identify all PDF files and generate an index list.
+2. **Knowledge Extraction and Cleaning**: Extracts textual information from PDF/Markdown/HTML/URL using tools like MinerU and trafilatura, performs intelligent segmentation via chonkie, and cleans and normalizes raw text by addressing redundant tags, format errors, and privacy information. *(This step reuses the complete workflow of the knowledge base cleaning pipeline)*
+3. **QA Data Generation**: Utilizes a sliding window of three sentences to transform the cleaned knowledge base into a series of Multi-Hop QA pairs requiring multi-step reasoning, and converts them into LlamaFactory standard training format.
+4. **Fine-tuning**: Based on the generated QA data, uses LoRA (Low-Rank Adaptation) method to perform parameter-efficient fine-tuning of the base model, training model parameters and outputting a domain-specific model adapter ready for deployment.
+
+#### Testing Phase (dataflow chat)
+
+**Model Dialogue Testing**: Automatically loads the latest trained adapter and corresponding base model, launches an interactive dialogue interface, and supports real-time testing of model performance on domain-specific knowledge Q&A. Users can also specify a particular model path for testing using the `--model` parameter.
+
+
 
 ### Step 1: Install DataFlow Environment
 
