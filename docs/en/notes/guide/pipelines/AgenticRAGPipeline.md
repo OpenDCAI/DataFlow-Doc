@@ -9,46 +9,96 @@ permalink: /en/guide/agenticrag_pipeline/
 
 ## 1. Overview
 
-The **Agentic RAG Data Synthesis Pipeline** is an end-to-end framework to:  
-- Support RL-based agentic RAG training.
-- Generate high-quality pairs of questions and answers from provided text contents.
+The **Agentic RAG Data Synthesis Pipeline** aims to automatically generate high-quality, verifiable Q&A pairs from raw textual contexts and evaluate their quality, providing robust data for subsequent Agentic RAG training (including RL rewards).
 
-This pipeline only need text contexts for generating high-quality questions and answers for further training  
+We support the following use cases:
 
----
+- RL-based Agentic RAG training
+- Automatically constructing high-quality Q&A pairs from raw text
 
-## 2. Data Flow and Pipeline Logic
+The main stages of the pipeline include:
+
+1. **Atomic Q&A generation**: extract and generate questions, answers, refined answers, and optional answers from text.
+2. **Quality evaluation**: score generated answers against golden document answers (e.g., F1) for downstream training.
+
+## 2. Quick Start
+
+### Step 1: Install dataflow
+```shell
+pip install open-dataflow
+```
+
+### Step 2: Create a new dataflow workspace
+```shell
+mkdir run_dataflow
+cd run_dataflow
+```
+
+### Step 3: Initialize Dataflow
+```shell
+dataflow init
+```
+You will see
+```shell
+run_dataflow/pipelines/api_pipelines/agentic_rag_pipeline.py  
+```
+
+### Step 4: Set your API key and api_url
+For Linux and macOS
+```shell
+export DF_API_KEY="sk-xxxxx"
+```
+
+For Windows
+```powershell
+$env:DF_API_KEY = "sk-xxxxx"
+```
+In `agentic_rag_pipeline.py`, set api_url like:
+```python
+self.llm_serving = APILLMServing_request(
+        api_url="https://api.openai.com/v1/chat/completions",
+        model_name="gpt-4o-mini",
+        max_workers=500
+)
+```
+
+### Step 5: One-click run
+```bash
+python pipelines/api_pipelines/agentic_rag_pipeline.py
+```
+You can also run any other pipeline script as needed; the process is similar. Below we introduce the operators used in the pipeline and how to configure them.
+
+## 3. Data Flow and Pipeline Logic
 
 ### 1. **Input Data**
 
-The input data for the pipeline includes the following fields:
+The pipeline input typically includes the following fields:
 
-* **text**: various text contents 
+* **contents**: raw text content
 
-These input data can be stored in designated files (such as `json` or `jsonl`) and managed and read via the `FileStorage` object. In the provided example, the default data path is loaded. In practical use, you can modify the path to load custom data and cache paths:
+These inputs can be stored in specified files (e.g., `json`, `jsonl`) and managed/read via a `FileStorage` object. The example loads a default data path; in practice, you can adjust paths to load your own data and cache locations:
 
 ```python
 self.storage = FileStorage(
-    first_entry_file_name="../dataflow/example/AgenticRAGPipeline/pipeline_small_chunk.json",
-    cache_path="./cache_local",
-    file_name_prefix="dataflow_cache_step",
+    first_entry_file_name="../example_data/AgenticRAGPipeline/eval_test_data.jsonl",
+    cache_path="./agenticRAG_eval_cache",
+    file_name_prefix="agentic_rag_eval",
     cache_type="jsonl",
 )
 ```
 
-### 2. **Atomic Task Generation**
+### 2. **Atomic Q&A Generation (AgenticRAGAtomicTaskGenerator)**
 
-#### 2.1 **Atomic Task Generator**
-
-The first step of the process is to use the **Atomic Task Generator** operator (`AgenticRAGAtomicTaskGenerator`) to generate the question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
+The first step is to use the **Atomic Task Generator** (`AgenticRAGAtomicTaskGenerator`) to generate: questions, initial answers, refined answers, optional answers, and answers with/without document context.
 
 **Functionality:**
 
-* Generate the question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
+* Generate questions and multiple forms of answers from textual context
+* Produce structured fields for evaluation and training (questions, answers, refined answers, optional answers, LLM answers, golden document answers, etc.)
 
-**Input:** Original text content
+**Input:** raw text content (`prompts` or `contents` as in the example)
 
-**Output:** Question, reference answer, refined reference answer, optional verifiable answers, and the LLM’s answer to the question when provided with the original document—all from a large dataset.
+**Output:** `question`, `answer`, `refined_answer`, `optional_answer`, `llm_answer`, `golden_doc_answer`, `identifier`, `candidate_tasks_str`, `llm_score`, `golden_doc_score`
 
 ```python
 self.llm_serving = APILLMServing_request(
@@ -67,35 +117,45 @@ result = atomic_task_generator.run(
         )
 ```
 
-### 3. **Task Quality Evaluation**
+### 3. **Q&A Quality Evaluation (AgenticRAGQAF1SampleEvaluator)**
 
-#### 3.1 **F1 Scorer**
-
-The second step of the process is to use the **F1 Scorer** operator (`AgenticRAGQAF1SampleEvaluator`) evaluate the F1 score between the refined reference answer and the LLM’s answer to the question when provided with the original document. This step ensures that each constructed question, when paired with correct document retrieval, receives an appropriate reward, thereby maintaining the training quality of reinforcement learning.
+The second step uses the **F1 Scorer** (`AgenticRAGQAF1SampleEvaluator`) to evaluate the F1 score between the refined answer and the golden document answer. This is used to build reward signals for RL training and ensure training quality.
 
 **Functionality:**
 
-* Evaluate the F1 score between the refined reference answer and the LLM’s answer to the question given the original document.
+* Evaluate overlap (F1) between `refined_answer` and `golden_doc_answer`
 
-**Input:** refined reference answer, the LLM’s answer to the question given the original document.
-**Output:** F1 scores
+**Input:** `refined_answer`, `golden_doc_answer`  
+**Output:** `F1Score`
 
 ```python
-f1_scorer = AgenticRAGQAF1SampleEvaluator()
-
-result = f1_scorer.run(
-            storage=self.storage.step(),
-            output_key="F1Score",
-            input_prediction_key="refined_answer",
-            input_ground_truth_key="golden_doc_answer"
-        )
+evaluator = AgenticRAGQAF1SampleEvaluator()
+evaluator.run(
+    storage=self.storage.step(),
+    output_key="F1Score",
+    input_prediction_key="refined_answer",
+    input_ground_truth_key="golden_doc_answer"
+)
 ```
 
----
+### 4. **Output Data**
 
-## 3. Running the Process
+The final output includes:
 
-Run the complete process:
+* **question**: atomized question generated by the model
+* **answer**: initial answer
+* **refined_answer**: cleaned and optimized final answer
+* **optional_answer**: a set of acceptable alternative answers
+* **llm_answer**: answer generated by the LLM without context (for evaluation)
+* **golden_doc_answer**: golden-standard answer extracted/generated from the original document
+* **identifier**: content identifier extracted from input text
+* **candidate_tasks_str**: JSON string of candidate tasks and conclusions
+* **llm_score/golden_doc_score**: quality scores
+* **F1Score**: F1 between `refined_answer` and `golden_doc_answer`
+
+## 4. Pipeline Example
+
+An example pipeline demonstrating AgenticRAG data processing with generation and evaluation steps:
 
 ```python
 import pandas as pd

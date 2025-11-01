@@ -86,8 +86,8 @@ export const zhNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Doc-to-QA数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/Doc2QAPipeline.md",
+                        text: "Text-to-QA数据合成流水线",
+                        link: "/zh/notes/guide/pipelines/Text2QAPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
@@ -95,12 +95,6 @@ export const zhNavbar = defineNavbarConfig([
                         text: "Agentic RAG数据合成流水线",
                         link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "RARE数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/RAREPipeline.md",
-                        icon: "game-icons:great-pyramid",
                         activeMatch: '^/guide/'
                     },
                     {

@@ -5,61 +5,219 @@ createTime: 2025/06/17 02:00:31
 permalink: /en/guide/text2sqlpipeline/  
 ---
 
+---
+title: Text-to-SQL Data Synthesis Pipeline
+icon: material-symbols-light:checkbook-outline-rounded
+createTime: 2025/06/17 02:00:31  
+permalink: /zh/guide/text2sqlpipeline/  
+---
+
 # Text-to-SQL Data Synthesis Pipeline
 
 ## 1. Overview
 
-The core objective of the **Text-to-SQL Data Synthesis Pipeline** is to refine and expand existing Text-to-SQL data, generating high-quality question-answer pairs for each sample that include training prompts and chain-of-thought (CoT) reasoning. This pipeline automates the entire process from raw data to final training data with a single command. It currently supports two data generation modes:
+The core objective of the **Text-to-SQL Data Synthesis Pipeline** is to generate high-quality Q&A data containing training prompts and chain-of-thought for each sample by cleaning and augmenting existing Text-to-SQL data. This pipeline supports one-click end-to-end processing from raw data to final training data and currently offers the following two data generation modes:
 
-### Supported Application Scenarios:
-* **Data Optimization Mode**:
-  - Filter, expand, and enhance existing datasets to produce high-quality training data.
-  - Input Requirements: Must include database ID, natural language question, and standard SQL answer.
-* **Data Synthesis Mode**:
-  - Directly generate training data from database schemas.
-  - Feature: Zero-shot initialization — no existing data samples required.
+### Supported Application Scenarios
 
-### Processing Workflow:
-1. **Data Filtering**:
-   - Execution Filtering: Remove invalid or non-executable SQL statements.
-   - Consistency Filtering: Ensure alignment between questions, SQL, and database schema.
-2. **Data Generation**:
-   - SQL Variant Generation: Create semantically equivalent variants of existing SQL queries.
-   - SQL Synthesis: Generate new SQL statements based on database schema.
-   - Question Generation: Produce corresponding natural language questions from SQL and schema.
-3. **Training Data Construction**:
-   - Prompt Generation: Integrate natural language questions, database schema, and instructional cues.
-   - Chain-of-Thought Generation: Build step-by-step reasoning processes.
-4. **Data Grading**:
-   - Syntax Difficulty Grading: Classify complexity levels based on SQL structure.
-   - Execution Difficulty Grading: Evaluate difficulty based on SQL execution success rates.
+- **Data Refinement Mode**
+  - Filters, augments, and enhances existing data to generate high-quality training data
+  - Input requirements: Must include the three essential elements: database ID, natural language question, and standard SQL answer
 
-## 2. Input Data
+- **Data Synthesis Mode**
+  - Directly generates training data from databases
+  - Characteristics: No existing data samples required, supports zero-shot startup
 
-Depending on requirements, we provide two pipelines: one for data optimization (refining existing data), and another for data synthesis (generating data directly from databases).
+### Processing Flow
 
-### 2.1 Data Optimization Pipeline
+1. **Data Filtering**
+   - Execution Filtering: Removes invalid SQL and non-executable SQL statements
+   - Consistency Filtering: Ensures consistency between the question, SQL, and database schema
 
-The input data for this pipeline includes the following fields:
+2. **Data Generation**
+   - SQL Variant Generation: Generates semantically equivalent variants based on existing SQL
+   - SQL Synthesis: Generates new SQL statements based on the database schema
+   - Question Generation: Generates corresponding natural language descriptions based on SQL and schema
 
-* **db_id**: Database file name (i.e., database ID)
-* **question**: Natural language question
-* **SQL**: Standard SQL answer
+3. **Training Data Construction**
+   - Prompt Generation: Integrates natural language questions, database schema, and instruction prompts
+   - Chain-of-Thought Generation: Constructs step-by-step reasoning processes
 
-- **Example** (`json`):
-  ```json
-  {
-    "db_id": "california_schools",
-    "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
-    "SQL": "SELECT `Free Meal Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1"
-  }
-  ```
-- **Demo Dataset**:  
-  `example_data/Text2SQLPipeline/pipeline_refine.jsonl`  
-  Contains database IDs, natural language questions, and standard SQL answers, suitable for quick testing and demonstration.
+4. **Data Grading**
+   - Syntax Difficulty Grading: Assigns levels based on the complexity of the SQL statement
+   - Execution Difficulty Grading: Evaluates difficulty based on SQL execution pass rate
 
-Input data can be stored in specified files (e.g., `json`, `jsonl`) and managed/loaded via a `FileStorage` object. The example loads default paths; in practice, you may customize paths to load your own data and cache locations:
+## 2. Quick Start
 
+### Step 1: Install Dataflow Environment
+
+```shell
+pip install open-dataflow
+```
+
+### Step 2: Create Working Directory
+
+```shell
+mkdir run_dataflow
+cd run_dataflow
+```
+
+### Step 3: Initialize Dataflow
+
+```shell
+dataflow init
+```
+
+After initialization, two pipeline files will be generated:
+
+- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_gen.py`
+- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_refine.py`
+
+### Step 4: Configure API Keys and Endpoints
+
+**Linux and macOS:**
+
+```shell
+export DF_API_KEY="sk-xxxxx"
+```
+
+**Windows:**
+
+```powershell
+$env:DF_API_KEY = "sk-xxxxx"
+```
+
+Configure the API endpoints in `text2sql_pipeline_gen.py` and `text2sql_pipeline_refine.py`:
+
+```python
+self.llm_serving = APILLMServing_request(
+    api_url="https://api.openai.com/v1/chat/completions",
+    model_name="gpt-4o",
+    max_workers=100
+)
+
+cot_generation_api_llm_serving = APILLMServing_request(
+    api_url="https://api.openai.com/v1/chat/completions",
+    model_name="gpt-4o", # Optionally use a more powerful model for generating chain-of-thought
+    max_workers=100
+)
+
+embedding_serving = APILLMServing_request(
+    api_url="https://api.openai.com/v1/embeddings",
+    model_name="text-embedding-ada-002",
+    max_workers=100
+)
+```
+
+Service Purpose Description:
+
+- `llm_serving`: Handles general tasks
+- `cot_generation_api_llm_serving`: Generates complex reasoning chains (Chain-of-Thought)
+- `embedding_serving`: Generates text embedding vectors
+
+### Step 5: Configure Database
+
+#### Using Example Databases
+
+The pipeline supports automatic download of example databases. When the `db_root_path` parameter is an empty string, the system will automatically download example database files from Hugging Face.
+
+First, configure `HF_TOKEN` (can be obtained from the Hugging Face website):
+
+**Linux and macOS:**
+
+```shell
+export HF_TOKEN="hf_xxxxx"
+```
+
+**Windows:**
+
+```powershell
+$env:HF_TOKEN = "hf_xxxxx"
+```
+
+After configuration, keep the `db_root_path` parameter as an empty string.
+
+#### Using Custom Databases
+
+To use custom databases, set the `db_root_path` parameter to the database folder path. Currently supports SQLite and MySQL databases.
+
+##### SQLite Database Configuration
+
+SQLite is a file-based database system. When using it, you need to specify the path where the database files are stored.
+
+- **Database Root Directory**: The directory containing all database files
+  - This directory should contain multiple database files in `.sqlite` or `.db` format
+  - The filename of each database file is the `db_id`, in the format `db_id.sqlite` or `db_id.db`
+  - The database manager supports directory structures with arbitrary nesting levels
+
+**Directory Structure Example:**
+```
+databases/
+  ├── california_schools.sqlite
+  └── hospitals.sqlite
+```
+
+**Configuration Example:**
+```python
+# Automatically download example database
+db_root_path = ""
+model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
+
+# Or manually specify a local database path
+db_root_path = "/path/to/your/database"
+model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
+
+# Database Manager Configuration
+database_manager = DatabaseManager(
+    db_type="sqlite",
+    config={
+        "root_path": self.db_root_path
+    }
+)
+```
+
+> **Note**: `db_type` must be set to `"sqlite"`, and `root_path` is the path to the database folder.
+
+##### MySQL Database Configuration
+
+MySQL databases exist as servers and require connection information configuration.
+
+**Configuration Example:**
+```python
+database_manager = DatabaseManager(
+    db_type="mysql",
+    config={
+        "host": "localhost",
+        "user": "root",
+        "password": "password"
+    }
+)
+```
+
+> **Note**: Ensure the MySQL service is running and you have access permissions to the respective databases.
+
+### Step 6: Configure SQL Source Files
+
+Choose different pipelines based on your needs:
+
+#### 6.1 Data Refinement Pipeline
+
+Input data must contain the following fields:
+
+- **db_id**: Database file name (Database ID)
+- **question**: Natural language question
+- **SQL**: Standard SQL answer
+
+**Data Format Example (JSON):**
+```json
+{
+  "db_id": "california_schools",
+  "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+  "SQL": "SELECT `Free Meal Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`Free Meal Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1"
+}
+```
+
+**Storage Configuration:**
 ```python
 self.storage = FileStorage(
     first_entry_file_name="../example_data/Text2SQLPipeline/pipeline_refine.jsonl",
@@ -69,9 +227,9 @@ self.storage = FileStorage(
 )
 ```
 
-### 2.2 Data Synthesis Pipeline
+#### 6.2 Data Synthesis Pipeline
 
-This pipeline does not require existing data—it generates training data directly from databases. Therefore, only database configuration is needed. After configuring the database, pass it to `DatabaseManager`. In this case, set `first_entry_file_name` to `""` since no initial dataset is provided.
+This mode does not require existing data and synthesizes data directly from the database. After configuring the database, set `first_entry_file_name` to an empty string:
 
 ```python
 self.storage = FileStorage(
@@ -82,140 +240,35 @@ self.storage = FileStorage(
 )
 ```
 
-## 3. Configuration Guide
+### Step 7: Run the Pipeline
 
-Before executing the pipeline, review the following configuration instructions to properly set parameters.
-
-### 3.1 Database Configuration
-
-**Automatic Database Download**: The pipeline supports automatic downloading of sample databases. When `db_root_path` is an empty string, the system will automatically download sample databases from Hugging Face.
-
-For parsing and execution, database information must be configured. Currently, SQLite and MySQL databases are supported.
-
-#### 3.1.1 SQLite Database
-
-SQLite is a file-based database system, requiring specification of the file storage path.
-
-- **Database Root Directory**: Directory containing all database files  
-  - **Note**: This directory should contain multiple `.sqlite` or `.db` files. The database manager automatically scans and loads all such files.
-  
-  - **Critical Note**: Each database file’s name serves as the `db_id`, and must follow the format `db_id.sqlite` or `db_id.db`, matching the `db_id` field in input data.
-
-  - **Supported Directory Structures**:  
-    The database manager supports arbitrarily nested folder structures. Examples:
-    ```
-    databases/
-      ├── california_schools.sqlite
-      └── hospitals.sqlite
-    ```
-
-    ```
-    databases/
-      ├── forder1/
-      │   └── california_schools.sqlite
-      └── forder2/
-          └── hospitals.sqlite
-    ```
-
-    ```
-    databases/
-      ├── california_schools.sqlite
-      └── forder1/
-          └── hospitals.sqlite
-    ```
-
-  - **Sample Databases**:  
-    We provide sample databases for testing, which the pipeline auto-downloads:  
-    [https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example](https://huggingface.co/datasets/Open-Dataflow/dataflow-Text2SQL-database-example)
-
-    **Auto-download Configuration**:
-    ```python
-    # Auto-download sample database (recommended)
-    db_root_path = ""
-    model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
-    
-    # Or manually specify local database path
-    db_root_path = "/path/to/your/database"
-    model = Text2SQLGeneration_APIPipeline(db_root_path=db_root_path)
-    ```
-
-    Database Manager Configuration:
-    ```python
-    database_manager = DatabaseManager(
-        db_type="sqlite",
-        config={
-            "root_path": self.db_root_path
-        }
-    )
-    ```
-
-    > Note: `db_type` must be set to `"sqlite"`, and `root_path` must point to the directory containing database files.
-
-#### 3.1.2 MySQL Database
-
-MySQL operates as a server-based system, requiring connection credentials. Ensure your MySQL service is running and credentials are correctly configured. In DataFlow, we use the `pymysql` library to connect to MySQL servers.
-
-- **Configuration Steps**:
-  1. Prepare MySQL server details.
-  2. Configure them in `database_manager`:
-    ```python
-    database_manager = DatabaseManager(
-        db_type="mysql",
-        config={
-            "host": "localhost",
-            "user": "root",
-            "password": "password"
-        }
-    )
-    ```
-   > Note: `db_type` must be `"mysql"`. In `config`, provide `host`, `user`, and `password` matching your MySQL server. Ensure target databases exist on the server and you have appropriate access permissions.
-
-### 3.2 Model Configuration
-
-#### 3.2.1 API LLM Service Configuration
-
-In DataFlow, we use the `APILLMServing_request` class to manage API-based LLM services.
-
-```python
-llm_serving = APILLMServing_request(
-    api_url="http://api.openai.com/v1/chat/completions",
-    model_name="gpt-4o",
-    max_workers=100
-)
-
-# Recommended: Use a more powerful model for CoT generation
-cot_generation_api_llm_serving = APILLMServing_request(
-    api_url="http://api.openai.com/v1/chat/completions",
-    model_name="gpt-4o",  # Can be replaced with a stronger model
-    max_workers=100
-)
-
-embedding_serving = APILLMServing_request(
-    api_url="http://api.openai.com/v1/embeddings",
-    model_name="text-embedding-ada-002",
-    max_workers=100
-)
+```bash
+python pipelines/api_pipelines/text2sql_pipeline_gen.py
 ```
 
-Where:
-- `llm_serving`: Handles general tasks.
-- `cot_generation_api_llm_serving`: Generates complex chain-of-thought reasoning.
-- `embedding_serving`: Generates text embedding vectors.
+or
 
-## 4. Data Flow & Pipeline Logic
+```bash
+python pipelines/api_pipelines/text2sql_pipeline_refine.py
+```
 
-### 4.1 Data Filters
+You can choose to run any Pipeline based on your needs; the running method is similar. Subsequent sections will introduce the operators used in the Pipeline and how to configure their parameters.
 
-#### 4.1.1 **SQL Execution Filter (SQLExecutionFilter)**
+## 3. Dataflow and Pipeline Logic
 
-The **SQL Execution Filter** validates SQL executability by actually running queries, filtering out malformed or failing statements.
+### 3.1 Data Filters
 
-**Functionality**:
-- Verifies SQL executable status
-- Removes syntactically incorrect or execution-failed SQL
+#### 3.1.1 **SQL Execution Filter (SQLExecutionFilter)**
 
-**Input**: SQL statement and database ID  
-**Output**: Valid, executable SQL statements
+The **SQL Execution Filter** (`SQLExecutionFilter`) verifies the correctness of SQL statements by actually executing them, filtering out SQL statements that cannot be executed normally.
+
+**Functionality:**
+
+* Verifies the executability of SQL statements
+* Filters out SQL statements with syntax errors or execution failures
+
+**Input**: SQL statement and database ID
+**Output**: Executable SQL statements
 
 ```python
 sql_execution_filter = SQLExecutionFilter(
@@ -223,16 +276,17 @@ sql_execution_filter = SQLExecutionFilter(
 )
 ```
 
-#### 4.1.2 **SQL Consistency Filter (SQLConsistencyFilter)**
+#### 3.1.2 **SQL Consistency Filter (SQLConsistencyFilter)**
 
-The **SQL Consistency Filter** ensures alignment between SQL, natural language questions, and database schema.
+The **SQL Consistency Filter** (`SQLConsistencyFilter`) checks the consistency between the SQL statement, the question, and the database schema, ensuring that the generated SQL correctly answers the corresponding question.
 
-**Functionality**:
-- Validates consistency among SQL, question, and schema
-- Filters mismatched SQL queries
+**Functionality:**
 
-**Input**: SQL statement, database ID, and question  
-**Output**: Consistent SQL statements
+* Verifies consistency between the SQL statement, the question, and the database schema
+* Filters out SQL statements that do not match the question or database schema
+
+**Input**: SQL statement, database ID, and question
+**Output**: SQL statements consistent with the question
 
 ```python
 sql_consistency_filter = SQLConsistencyFilter(
@@ -242,18 +296,19 @@ sql_consistency_filter = SQLConsistencyFilter(
 )
 ```
 
-### 4.2 Data Generators
+### 3.2 Data Generators
 
-#### 4.2.1 **SQL Generator (SQLGenerator)**
+#### 3.2.1 **SQL Generator (SQLGenerator)**
 
-The **SQL Generator** produces SQL queries from database schema, providing raw SQL for downstream processing.
+The **SQL Generator** (`SQLGenerator`) is responsible for generating SQL query statements based on the database schema, providing raw SQL data for subsequent data processing flows.
 
-**Functionality**:
-- Automatically generates SQL queries from schema
-- Supports batch generation of specified quantities
+**Functionality:**
 
-**Input**: Database schema  
-**Output**: Generated SQL statements and associated database IDs
+* Automatically generates SQL query statements based on the database schema
+* Supports batch generation of a specified number of SQL statements
+
+**Input**: Database schema information
+**Output**: Generated SQL statements and corresponding database IDs
 
 ```python
 sql_generator = SQLGenerator(
@@ -264,16 +319,17 @@ sql_generator = SQLGenerator(
 )
 ```
 
-#### 4.2.2 **SQL Variation Generator (SQLVariationGenerator)**
+#### 3.2.2 **SQL Variant Generator (SQLVariationGenerator)**
 
-The **SQL Variation Generator** creates semantically equivalent variants of existing SQL queries to increase dataset diversity.
+The **SQL Variant Generator** (`SQLVariationGenerator`) generates multiple functionally equivalent variants based on existing SQL statements, enriching the diversity of the dataset.
 
-**Functionality**:
-- Generates functionally equivalent SQL variants
-- Enhances diversity and complexity of SQL expressions
+**Functionality:**
 
-**Input**: Original SQL and database ID  
-**Output**: Set of SQL variants
+* Generates functionally equivalent SQL variants
+* Increases the diversity and complexity of SQL statements
+
+**Input**: Original SQL statement and database ID
+**Output**: Collection of SQL variants
 
 ```python
 sql_variation_generator = SQLVariationGenerator(
@@ -284,16 +340,17 @@ sql_variation_generator = SQLVariationGenerator(
 )
 ```
 
-#### 4.2.3 **Question Generator (Text2SQLQuestionGenerator)**
+#### 3.2.3 **Question Generator (Text2SQLQuestionGenerator)**
 
-The **Question Generator** converts given SQL queries into natural language questions, forming Text-to-SQL QA pairs.
+The **Question Generator** (`Text2SQLQuestionGenerator`) generates corresponding natural language questions based on given SQL statements, constructing Text-to-SQL question-answer pairs.
 
-**Functionality**:
-- Generates natural language questions from SQL
-- Supports multiple candidate questions per SQL
+**Functionality:**
 
-**Input**: SQL and database ID  
-**Output**: Natural language questions
+* Generates natural language questions based on SQL statements
+* Supports generating multiple candidate questions
+
+**Input**: SQL statement and database ID
+**Output**: Natural language question
 
 ```python
 text2sql_question_generator = Text2SQLQuestionGenerator(
@@ -305,15 +362,16 @@ text2sql_question_generator = Text2SQLQuestionGenerator(
 )
 ```
 
-#### 4.2.4 **Prompt Generator (Text2SQLPromptGenerator)**
+#### 3.2.4 **Prompt Generator (Text2SQLPromptGenerator)**
 
-The **Prompt Generator** constructs structured training prompts by integrating questions and database schema.
+The **Prompt Generator** (`Text2SQLPromptGenerator`) generates prompt templates for model training based on the question and database schema.
 
-**Functionality**:
-- Builds structured prompt templates
-- Combines question and schema context
+**Functionality:**
 
-**Input**: Question and database ID  
+* Generates structured prompt templates
+* Integrates question and database schema information
+
+**Input**: Question and database ID
 **Output**: Formatted prompt template
 
 ```python
@@ -323,16 +381,17 @@ text2sql_prompt_generator = Text2SQLPromptGenerator(
 )
 ```
 
-#### 4.2.5 **Chain-of-Thought Generator (Text2SQLCoTGenerator)**
+#### 3.2.5 **Chain-of-Thought Generator (Text2SQLCoTGenerator)**
 
-The **Chain-of-Thought Generator** produces detailed reasoning steps explaining how a question transforms into SQL, aiding model comprehension.
+The **Chain-of-Thought Generator** (`Text2SQLCoTGenerator`) generates detailed reasoning processes for SQL queries, helping the model understand the conversion logic from question to SQL.
 
-**Functionality**:
-- Generates step-by-step reasoning for SQL queries
-- Includes retry mechanisms to ensure quality
+**Functionality:**
 
-**Input**: SQL, question, and database ID  
-**Output**: Chain-of-thought reasoning
+* Generates reasoning processes for SQL queries
+* Supports retry mechanism to ensure generation quality
+
+**Input**: SQL statement, question, and database ID
+**Output**: Chain-of-thought reasoning process
 
 ```python
 sql_cot_generator = Text2SQLCoTGenerator(
@@ -344,17 +403,18 @@ sql_cot_generator = Text2SQLCoTGenerator(
 )
 ```
 
-### 4.3 Data Evaluators
+### 3.3 Data Evaluators
 
-#### 4.3.1 **Component Difficulty Classifier (SQLComponentClassifier)**
+#### 3.3.1 **Component Difficulty Evaluator (SQLComponentClassifier)**
 
-The **Component Difficulty Classifier** analyzes SQL component complexity and assigns difficulty levels.
+The **Component Difficulty Evaluator** (`SQLComponentClassifier`) analyzes the component complexity of SQL statements and labels the difficulty level for data samples.
 
-**Functionality**:
-- Analyzes structural complexity of SQL
-- Labels samples with difficulty tiers
+**Functionality:**
 
-**Input**: SQL statement  
+* Analyzes the component complexity of SQL statements
+* Labels difficulty levels for samples
+
+**Input**: SQL statement
 **Output**: SQL component difficulty level
 
 ```python
@@ -364,15 +424,16 @@ sql_component_classifier = SQLComponentClassifier(
 )
 ```
 
-#### 4.3.2 **Execution Difficulty Classifier (SQLExecutionClassifier)**
+#### 3.3.2 **Execution Difficulty Evaluator (SQLExecutionClassifier)**
 
-The **Execution Difficulty Classifier** evaluates SQL execution difficulty using statistical analysis across multiple generations.
+The **Execution Difficulty Evaluator** (`SQLExecutionClassifier`) evaluates the execution difficulty of SQL queries, making comprehensive judgments based on multiple generation results.
 
-**Functionality**:
-- Assesses execution difficulty based on success rates
-- Uses multiple attempts for robust evaluation
+**Functionality:**
 
-**Input**: SQL, database ID, and prompt  
+* Evaluates the execution difficulty of SQL queries
+* Performs difficulty assessment based on multiple generations
+
+**Input**: SQL statement, database ID, and prompt
 **Output**: SQL execution difficulty level
 
 ```python
@@ -385,44 +446,44 @@ sql_execution_classifier = SQLExecutionClassifier(
 )
 ```
 
-### 4.4 Prompt Template System
+### 3.4 Prompt Template System
 
-Each component uses dedicated prompt templates to ensure consistent, high-quality outputs:
+Each component in the pipeline uses specialized prompt template classes to ensure generation quality and consistency:
 
-- `SelectSQLGeneratorPrompt()` – SQL generation prompt
-- `SQLVariationGeneratorPrompt()` – SQL variation generation prompt  
-- `Text2SQLQuestionGeneratorPrompt()` – Question generation prompt
-- `Text2SQLPromptGeneratorPrompt()` – Training prompt generation
-- `Text2SQLCotGeneratorPrompt()` – CoT reasoning prompt
-- `SQLConsistencyFilterPrompt()` – Consistency filtering prompt
+- `SelectSQLGeneratorPrompt()` - SQL generation prompts
+- `SQLVariationGeneratorPrompt()` - SQL variant generation prompts
+- `Text2SQLQuestionGeneratorPrompt()` - Question generation prompts
+- `Text2SQLPromptGeneratorPrompt()` - Training prompt generation
+- `Text2SQLCotGeneratorPrompt()` - CoT reasoning generation prompts
+- `SQLConsistencyFilterPrompt()` - Consistency filtering prompts
 
-## 5. Output Data
+## 4. **Output Data**
 
-- **Format**: `jsonl` (each pipeline step generates its own file)  
-- **Fields**:
+- **Format**: `jsonl` (Each step generates a file)
+- **Field Description**:
   - `db_id`: Database ID
   - `question`: Natural language question
   - `SQL`: Standard SQL answer
-  - `prompt`: Training prompt combining question, schema, and instructions
-  - `cot_reasoning`: Chain-of-thought reasoning with step-by-step logic and final answer
-  - `sql_component_difficulty`: SQL component complexity grade
-  - `sql_execution_difficulty`: SQL execution difficulty grade
+  - `prompt`: Prompt for training, includes natural language question, database schema, and prompt information
+  - `cot_reasoning`: Chain-of-thought reasoning data, includes reasoning process and final answer, used for model training
+  - `sql_component_difficulty`: SQL component complexity assessment
+  - `sql_execution_difficulty`: SQL execution complexity assessment
 - **Example**:
   ```json
   {
       "db_id":"california_schools",
-      "SQL":"SELECT AVG(s.AvgScrRead) AS average_reading_score\nFROM satscores s\nINNER JOIN frpm f ON s.cds = f.CDSCode\nINNER JOIN schools sc ON f.CDSCode = sc.CDSCode\nWHERE s.cname = 'Alameda'\n  AND f.\"Charter School (Y/N)\" = 1\n  AND f.\"Charter Funding Type\" = 'Directly funded'\n  AND sc.County = 'Alameda';",
+      "SQL":"SELECT AVG(s.AvgScrRead) AS average_reading_score\nFROM satscores s\nINNER JOIN frpm f ON s.cds = f.CDSCode\nINNER JOIN schools sc ON f.CDSCode = sc.CDSCode\nWHERE s.cname = 'Alameda'\n  AND f.\"Charter School (Y\/N)\" = 1\n  AND f.\"Charter Funding Type\" = 'Directly funded'\n  AND sc.County = 'Alameda';",
       "question":"What is the average reading score for directly funded charter schools in Alameda County?",
       "prompt":"Task Overview: /* Given the following database schema: ... /* Answer the following: What is the average reading score for directly funded charter schools in Alameda County? * Let's think step by step",
-      "cot_reasoning":"To translate the natural language question into an executable SQLite query, we will follow these steps. ... we can construct the full SQLite query based on these steps:\n\n```sql\nSELECT AVG(s.AvgScrRead) AS average_reading_score\nFROM satscores s\nINNER JOIN frpm f ON s.cds = f.CDSCode\nINNER JOIN schools sc ON f.CDSCode = sc.CDSCode\nWHERE s.cname = 'Alameda'\n  AND f.\"Charter School (Y/N)\" = 1\n  AND f.\"Charter Funding Type\" = 'Directly funded'\n  AND sc.County = 'Alameda';\n```\n\nThis query follows the logic outlined above and ensures alignment with the reference solution.",
+      "cot_reasoning":"To translate the natural language question into an executable SQLite query, we will follow these steps. ... we can construct the full SQLite query based on these steps:\n\n```sql\nSELECT AVG(s.AvgScrRead) AS average_reading_score\nFROM satscores s\nINNER JOIN frpm f ON s.cds = f.CDSCode\nINNER JOIN schools sc ON f.CDSCode = sc.CDSCode\nWHERE s.cname = 'Alameda'\n  AND f.\"Charter School (Y\/N)\" = 1\n  AND f.\"Charter Funding Type\" = 'Directly funded'\n  AND sc.County = 'Alameda';\n```\n\nThis query follows the logic outlined above and ensures alignment with the reference solution.",
       "sql_component_difficulty":"medium",
       "sql_execution_difficulty":"medium"
   }
   ```
 
-## 6. Execution Methods
+## 5. Execution Method
 
-Two pipelines are designed for different data needs, executed via simple Python commands:
+Two pipelines have been designed here, allowing different configurations to be executed via simple Python commands to meet various data requirements:
 
 * **Data Synthesis Pipeline**:
 
@@ -436,7 +497,7 @@ Two pipelines are designed for different data needs, executed via simple Python 
   python /path/to/text2sql_refine_pipeline.py
   ```
 
-## 7. Pipeline Example
+## 6. Pipeline Example
 
 Below is an example demonstrating how to chain multiple operators for reasoning data processing. This example shows initializing and sequentially executing filtering and cleaning steps.
 

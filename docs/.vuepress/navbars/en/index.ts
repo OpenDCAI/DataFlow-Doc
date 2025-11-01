@@ -83,8 +83,8 @@ export const enNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Doc-to-QA Pipeline",
-                        link: "/en/notes/guide/pipelines/Doc2QAPipeline.md",
+                        text: "Text-to-QA Pipeline",
+                        link: "/en/notes/guide/pipelines/Text2QAPipeline.md",
                         icon: "solar:palette-round-linear",
                         activeMatch: '^/guide/'
                     },
@@ -92,12 +92,6 @@ export const enNavbar = defineNavbarConfig([
                         text: "Agentic RAG Pipeline",
                         link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "RARE Pipeline",
-                        link: "/en/notes/guide/pipelines/RAREPipeline.md",
-                        icon: "game-icons:great-pyramid",
                         activeMatch: '^/guide/'
                     },
                     {
