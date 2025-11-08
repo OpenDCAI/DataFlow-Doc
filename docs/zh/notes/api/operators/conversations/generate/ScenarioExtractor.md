@@ -1,16 +1,12 @@
 ---
-title: ScenarioExtractor
+title: ScenarioExtractGenerator
 createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/conversations/generate/scenarioextractor/
 ---
 
-好的，这是根据您提供的代码和模板生成的 `ScenarioExtractor` 算子的教程 Markdown 代码。
-
-***
-
 ## 📘 概述
 
-`ScenarioExtractor` 是一个场景提取算子，用于从对话内容中提取场景信息。它利用大语言模型（LLM）服务对对话进行分析，并生成相应的场景描述。
+`ScenarioExtractGenerator` 是一个场景提取算子，用于从对话内容中提取场景信息。它利用大语言模型（LLM）服务对对话进行分析，并生成相应的场景描述。
 
 ## __init__函数
 
@@ -56,3 +52,20 @@ def run(self, storage: DataFlowStorage, input_chat_key: str, output_key: str = "
 | :--- | :--- | :--- |
 | {input_chat_key} | str | 输入的对话内容文本。 |
 | {output_key} | str | 模型提取的场景描述。 |
+
+示例输入：
+
+```json
+{
+  "chat": "USER: Can you book a flight for me from New York to London?\n\n\nASSISTANT: I'm sorry, but I don't have the capability to book flights. My current function allows me to get the exchange rate between two currencies. If you need help with that, feel free to ask! <|endoftext|>\n\n\n"
+}
+```
+
+示例输出：
+
+```json
+{
+  "chat": "USER: Can you book a flight for me from New York to London?\n\n\nASSISTANT: I'm sorry, but I don't have the capability to book flights. My current function allows me to get the exchange rate between two currencies. If you need help with that, feel free to ask! <|endoftext|>\n\n\n",
+  "scenario": "Attempting to book a flight."
+}
+```

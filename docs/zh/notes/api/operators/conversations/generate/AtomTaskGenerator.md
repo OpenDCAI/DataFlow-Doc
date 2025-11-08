@@ -34,7 +34,40 @@ def run(self, storage: DataFlowStorage, input_scenario_key: str, output_key: str
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.conversations import AtomTaskGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class AtomTaskGeneratorExample:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = AtomTaskGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_scenario_key="scenario",
+            output_key="atom_task"
+        )
+
+if __name__ == "__main__":
+    pl = AtomTaskGeneratorExample()
+    pl.forward()
 ```
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
@@ -44,7 +77,14 @@ def run(self, storage: DataFlowStorage, input_scenario_key: str, output_key: str
 
 示例输入：
 ```json
+{
+  "scenario": "Attempting to book a flight."
+}
 ```
 示例输出：
 ```json
+{
+  "scenario": "Attempting to book a flight.",
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less."
+}
 ```

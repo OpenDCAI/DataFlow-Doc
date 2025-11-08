@@ -50,11 +50,10 @@ def run(self, storage: DataFlowStorage, input_chat_key: str, output_key: str = "
 | **scenario** | str | The extracted scenario from the conversation. |
 
 **Example Input:**
-(Assuming `input_chat_key` is "dialogue")
 
 ```json
 {
-  "dialogue": "User: I'd like to book a flight from New York to Los Angeles for next Tuesday. Bot: Sure, I can help with that. What is your preferred departure time?"
+  "chat": "USER: Can you book a flight for me from New York to London?\n\n\nASSISTANT: I'm sorry, but I don't have the capability to book flights. My current function allows me to get the exchange rate between two currencies. If you need help with that, feel free to ask! <|endoftext|>\n\n\n"
 }
 ```
 
@@ -62,7 +61,7 @@ def run(self, storage: DataFlowStorage, input_chat_key: str, output_key: str = "
 
 ```json
 {
-  "dialogue": "User: I'd like to book a flight from New York to Los Angeles for next Tuesday. Bot: Sure, I can help with that. What is your preferred departure time?",
-  "scenario": "Flight Booking"
+  "chat": "USER: Can you book a flight for me from New York to London?\n\n\nASSISTANT: I'm sorry, but I don't have the capability to book flights. My current function allows me to get the exchange rate between two currencies. If you need help with that, feel free to ask! <|endoftext|>\n\n\n",
+  "scenario": "Attempting to book a flight."
 }
 ```

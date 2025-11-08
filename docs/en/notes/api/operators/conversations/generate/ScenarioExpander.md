@@ -33,7 +33,40 @@ def run(self, storage: DataFlowStorage, input_scenario_key: str, output_key: str
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.conversations import ScenarioExpandGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class ScenarioExpandGeneratorExample:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = ScenarioExpandGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_scenario_key="original_scenario",
+            output_key="modified_scenario"
+        )
+
+if __name__ == "__main__":
+    pl = ScenarioExpandGeneratorExample()
+    pl.forward()
 ```
 
 #### 🧾 Default Output Format

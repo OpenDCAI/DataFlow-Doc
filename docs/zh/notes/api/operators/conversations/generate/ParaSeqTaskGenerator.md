@@ -45,7 +45,42 @@ def run(self, storage: DataFlowStorage, input_task_key: str, output_parallel_tas
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.conversations import ParaSeqTaskGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class ParaSeqTaskGeneratorTest:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = ParaSeqTaskGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_task_key="atom_task",
+            output_parallel_task_key="parallel_task",
+            output_subsequent_task_key="subsequent_task",
+            output_composition_task_key="composition_task"
+        )
+
+if __name__ == "__main__":
+    pl = ParaSeqTaskGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -57,14 +92,21 @@ def run(self, storage: DataFlowStorage, input_task_key: str, output_parallel_tas
 | subsequent_task | str | 模型生成的后继任务。 |
 | composition_task | str | 模型生成的组合任务。 |
 
-**示例输入：**
+示例输入：
 
 ```json
-
+{
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less."
+}
 ```
 
-**示例输出：**
+示例输出：
 
 ```json
-
+{
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less.",
+  "parallel_task": "Find accommodation options in London from November 15th to November 22nd within a budget of $100 per night.",
+  "subsequent_task": "Calculate the total cost of flights and accommodation for the trip and check if it is within the overall trip budget.",
+  "composition_task": "Determine if you can travel from New York to London and back with the flight and accommodation options while staying within the total budget for the trip."
+}
 ```

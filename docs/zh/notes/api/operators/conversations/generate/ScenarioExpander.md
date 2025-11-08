@@ -1,12 +1,12 @@
 ---
-title: ScenarioExpander
+title: ScenarioExpandGenerator
 createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/conversations/generate/scenarioexpander/
 ---
 
 ## 📘 概述
 
-`ScenarioExpander` 是一个场景扩展算子，它利用大语言模型（LLM）服务，基于输入的原始场景来生成新的或替代的场景。该算子通过重写或改写原有内容，创造出不同版本的场景。
+`ScenarioExpandGenerator` 是一个场景扩展算子，它利用大语言模型（LLM）服务，基于输入的原始场景来生成新的或替代的场景。该算子通过重写或改写原有内容，创造出不同版本的场景。
 
 ## `__init__`函数
 
@@ -41,9 +41,41 @@ def run(self, storage: DataFlowStorage, input_scenario_key: str, output_key: str
 | **output_key** | str | "modified_scenario" | 输出列名，对应生成的新场景字段。 |
 
 ## 🧠 示例用法
-
 ```python
+from dataflow.operators.conversations import ScenarioExpandGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class ScenarioExpandGeneratorTest:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = ScenarioExpandGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_scenario_key="original_scenario",
+            output_key="modified_scenario"
+        )
+
+if __name__ == "__main__":
+    pl = ScenarioExpandGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -56,13 +88,13 @@ def run(self, storage: DataFlowStorage, input_scenario_key: str, output_key: str
 示例输入：
 ```json
 {
-"original_scenario":"一个用户在网上银行App上尝试转账，但因为网络问题失败了。"
+"original_scenario":"A user is trying to log into their bank account but has forgotten their password."
 }
 ```
 示例输出：
 ```json
 {
-"original_scenario":"一个用户在网上银行App上尝试转账，但因为网络问题失败了。",
-"modified_scenario":"一个用户在银行ATM机上尝试取款，但因为机器故障无法取出钞票。"
+"original_scenario":"A user is trying to log into their bank account but has forgotten their password.",
+"modified_scenario":"A traveling salesperson needs to access their corporate expense report system from a hotel with unreliable Wi-Fi, and their two-factor authentication token has just expired."
 }
 ```

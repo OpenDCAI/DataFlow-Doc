@@ -44,7 +44,41 @@ def run(self, storage: DataFlowStorage, input_composition_task_key: str, input_s
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.conversations import FunctionGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class FunctionGeneratorTest:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = FunctionGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_composition_task_key="composition_task",
+            input_sub_tasks_keys=["atom_task", "parallel_task", "subsequent_task"],
+            output_key="functions"
+        )
+
+if __name__ == "__main__":
+    pl = FunctionGeneratorTest()
+    pl.forward()
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -59,8 +93,9 @@ def run(self, storage: DataFlowStorage, input_composition_task_key: str, input_s
 
 ```json
 {
-  "composition_task": "首先，计算两个数的和，然后将结果乘以第三个数。",
-  "sub_tasks": ["计算两个数的和", "将结果乘以一个数"]
+  "composition_task": "Find the airline offering the cheapest fare within a budget of $500 for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd.",
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less.",
+  "subsequent_task": "What is the airline offering the cheapest fare within the budget for this round-trip flight?"
 }
 ```
 
@@ -68,8 +103,9 @@ def run(self, storage: DataFlowStorage, input_composition_task_key: str, input_s
 
 ```json
 {
-  "composition_task": "首先，计算两个数的和，然后将结果乘以第三个数。",
-  "sub_tasks": ["计算两个数的和", "将结果乘以一个数"],
-  "functions": "[def add(a, b):\n    return a + b, \ndef multiply(a, b):\n    return a * b]"
+  "composition_task": "Find the airline offering the cheapest fare within a budget of $500 for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd.",
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less.",
+  "subsequent_task": "What is the airline offering the cheapest fare within the budget for this round-trip flight?",
+  "functions": "```json\n[\n    {\n        \"sub_task\": \"Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less.\",\n        \"func_list\": [\n            {\n                \"name\": \"searchFlights\",\n                \"description\": \"Retrieves available flight options for a given route and dates.\",\n                \"parameters\": {\n                    \"departure_city\": {\n                        \"type\": \"string\",\n                        \"description\": \"The city from which the flight will depart.\"\n                    },\n                    \"arrival_city\": {\n                        \"type\": \"string\",\n                        \"description\": \"The city to which the flight will arrive.\"\n                    },\n                    \"departure_date\": {\n                        \"type\": \"string\",\n                        \"description\": \"The date of the departure flight, in YYYY-MM-DD format.\"\n                    },\n                    \"return_date\": {\n                        \"type\": \"string\",\n                        \"description\": \"The date of the return flight, in YYYY-MM-DD format.\"\n                    },\n                    \"max_budget\": {\n                        \"type\": \"number\",\n                        \"description\": \"The maximum budget for the flight, in USD.\"\n                    }\n                },\n                \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"return_date\", \"max_budget\"],\n                \"responses\": {\n                    \"flights\": {\n                        \"type\": \"array\",\n                        \"description\": \"A list of flights within the specified budget, each containing flight details.\"\n                    }\n                }\n            }\n        ]\n    },\n    {\n        \"sub_task\": \"What is the airline offering the cheapest fare within the budget for this round-trip flight?\",\n        \"func_list\": []\n    }\n]\n```"
 }
 ```

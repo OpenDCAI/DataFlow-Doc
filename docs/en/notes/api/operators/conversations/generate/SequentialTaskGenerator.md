@@ -34,6 +34,43 @@ def run(self, storage: DataFlowStorage, input_task_key: str, output_subsequent_t
 | **output_composition_task_key** | str | `"composition_task"` | The column name for the generated composition tasks in the output DataFrame. |
 
 ## 🧠 Example Usage
+```python
+from dataflow.operators.conversations import SequentialTaskGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
+
+class SequentialTaskGeneratorExample:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="input.jsonl",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = SequentialTaskGenerator(
+            llm_serving=self.llm_serving
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step(),
+            input_task_key="atom_task",
+            output_subsequent_task_key="subsequent_task",
+            output_composition_task_key="composition_task"
+        )
+
+if __name__ == "__main__":
+    pl = SequentialTaskGeneratorExample()
+    pl.forward()
+```
 
 #### 🧾 Default Output Format
 
@@ -44,11 +81,10 @@ def run(self, storage: DataFlowStorage, input_task_key: str, output_subsequent_t
 | composition\_task | str | The generated composition of the atomic and subsequent tasks. |
 
 **Example Input:**
-(Assuming `input_task_key` is `"atomic_task"`)
 
 ```json
 {
-  "atomic_task": "Write a summary of the plot of 'Hamlet'."
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less."
 }
 ```
 
@@ -56,8 +92,8 @@ def run(self, storage: DataFlowStorage, input_task_key: str, output_subsequent_t
 
 ```json
 {
-  "atomic_task": "Write a summary of the plot of 'Hamlet'.",
-  "subsequent_task": "Analyze the main character's motivations in 'Hamlet'.",
-  "composition_task": "Write a summary of the plot of 'Hamlet' and then analyze the main character's motivations."
+  "atom_task": "Search for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd, with a budget of $500 or less.",
+  "subsequent_task": "What is the airline offering the cheapest fare within the budget for this round-trip flight?",
+  "composition_task": "Find the airline offering the cheapest fare within a budget of $500 for a round-trip flight from New York to London, departing on November 15th and returning on November 22nd."
 }
 ```

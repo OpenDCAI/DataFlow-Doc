@@ -49,7 +49,41 @@ def run(self, storage: DataFlowStorage):
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.conversations import ConsistentChatGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.serving import APILLMServing_request
+from dataflow.core import LLMServingABC
 
+class ConsistentChatGeneratorExample:
+    def __init__(self, llm_serving: LLMServingABC = None):
+        self.storage = FileStorage(
+            first_entry_file_name="",
+            cache_path="./cache_local",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+
+        self.llm_serving = APILLMServing_request(
+            api_url="",
+            model_name="gpt-4o",
+            max_workers=30
+        )
+
+        self.generator = ConsistentChatGenerator(
+            llm_serving=self.llm_serving,
+            num_dialogs_per_intent=20,
+            num_turns_per_dialog=6,
+            temperature=0.9
+        )
+
+    def forward(self):
+        self.generator.run(
+            storage=self.storage.step()
+        )
+
+if __name__ == "__main__":
+    pl = ConsistentChatGeneratorExample()
+    pl.forward()
 ```
 
 #### 🧾 Default Output Format
