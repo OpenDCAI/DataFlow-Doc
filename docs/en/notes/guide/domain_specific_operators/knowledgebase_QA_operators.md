@@ -21,10 +21,10 @@ The Knowledge Base Cleaning Operator can perform extraction, organization, and c
 
 | Name                  | Applicable Type | Description                                                  | Official Repository/Paper                              |
 | --------------------- | :-------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| KnowledgeExtractor🚀✨ | Knowledge Extraction | This operator extracts various heterogeneous text knowledge into markdown format for subsequent processing. | -                                                      |
-| CorpusTextSplitter✨   | Corpus Segmentation | This operator provides multiple methods to split full texts into appropriately sized segments for subsequent operations like indexing. | -                                                      |
-| KnowledgeCleaner🚀✨    | Knowledge Cleaning | This operator uses LLM to clean organized raw text, including but not limited to normalization and privacy removal. | -                                                      |
-| MultiHopQAGenerator🚀✨ | Knowledge Paraphrasing | This operator uses a three-sentence sliding window to paraphrase cleaned knowledge bases into a series of multi-step reasoning QAs, which better facilitates accurate RAG reasoning. | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
+| FileOrURLToMarkdownConverterBatch🚀✨ | Knowledge Extraction | This operator extracts various heterogeneous text knowledge into markdown format for subsequent processing. | -                                                      |
+| KBCChunkGenerator✨   | Corpus Segmentation | This operator provides multiple methods to split full texts into appropriately sized segments for subsequent operations like indexing. | -                                                      |
+| KBCTextCleaner🚀✨    | Knowledge Cleaning | This operator uses LLM to clean organized raw text, including but not limited to normalization and privacy removal. | -                                                      |
+| Text2MultiHopQAGenerator🚀✨ | Knowledge Paraphrasing | This operator uses a three-sentence sliding window to paraphrase cleaned knowledge bases into a series of multi-step reasoning QAs, which better facilitates accurate RAG reasoning. | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
 
 
 
@@ -80,15 +80,15 @@ For each operator, the following sections will detail its invocation methods and
 
 **Functional Description**:
 
-The Knowledge Extractor operator is a versatile document processing tool that supports extracting structured content from multiple file formats and converting it to standard Markdown format. This operator integrates multiple professional parsing engines to achieve high-precision document content conversion.
+The FileOrURLToMarkdownConverterBatch operator is a versatile document processing tool that supports extracting structured content from multiple file formats and converting it to standard Markdown format. This operator integrates multiple professional parsing engines to achieve high-precision document content conversion. Code: [FileOrURLToMarkdownConverterBatch](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/file_or_url_to_markdown_converter_batch.py)
+
 
 **Input Parameters**:
 
 - `__init__()`
   - `intermediate_dir`: Intermediate file output directory (default: "intermediate")
   - `lang`: Document language (default: "ch" for Chinese)
-  - `raw_file`: Local file path (mutually exclusive with url)
-  - `url`: Web URL address (mutually exclusive with raw_file)
+  - `mineru_backend`：mineru backend（default：vlm_vllm_engine）
   
 - `run()`
   - `storage`: Data flow storage interface object (required)
@@ -118,22 +118,23 @@ The Knowledge Extractor operator is a versatile document processing tool that su
 **Usage Example**:
 
 ```python
-file_to_markdown_converter = FileOrURLToMarkdownConverter(
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
     lang="en",
-    mineru_backend="vlm-sglang-engine",
-    raw_file = raw_file,
+    mineru_backend="vlm-vllm-engine",
 )
-extracted=file_to_markdown_converter.run(
-    storage=self.storage,
+self.knowledge_cleaning_step1.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
 )
 ```
 
 
-### 2. CorpusTextSplitter
+### 2. KBCChunkGenerator
 
 **Functional Description**:
- CorpusTextSplitter is an efficient and flexible text chunking tool specifically designed for processing large-scale text corpora. This operator supports multiple chunking strategies to intelligently segment text for various NLP tasks, with special optimization for RAG (Retrieval-Augmented Generation) applications.
+ KBCChunkGenerator is an efficient and flexible text chunking tool specifically designed for processing large-scale text corpora. This operator supports multiple chunking strategies to intelligently segment text for various NLP tasks, with special optimization for RAG (Retrieval-Augmented Generation) applications. Code:[KBCChunkGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/kbc_chunk_generator.py)
 
 **Input Parameters**:
 
@@ -169,7 +170,7 @@ extracted=file_to_markdown_converter.run(
 **Usage Example**:
 
 ```python
-text_splitter = CorpusTextSplitter(
+text_splitter = KBCChunkGenerator(
     split_method="token",
     chunk_size=512,
     tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
@@ -182,10 +183,10 @@ text_splitter.run(
 ```
 
 
-### 3. KnowledgeCleaner
+### 3. KBCTextCleaner
 
 **Functional Description**:
-KnowledgeCleaner is a professional knowledge cleaning operator specifically designed for standardizing raw content in RAG (Retrieval-Augmented Generation) systems. By leveraging large language model interfaces, it intelligently cleans and formats unstructured knowledge to enhance the accuracy and readability of knowledge bases.
+KBCTextCleaner is a professional knowledge cleaning operator specifically designed for standardizing raw content in RAG (Retrieval-Augmented Generation) systems. By leveraging large language model interfaces, it intelligently cleans and formats unstructured knowledge to enhance the accuracy and readability of knowledge bases. Code:[KBCTextCleaner](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/kbc_text_cleaner.py)
 
 **Input Parameters**:
 
@@ -217,20 +218,20 @@ KnowledgeCleaner is a professional knowledge cleaning operator specifically desi
 **Usage Example**:
 
 ```python
-knowledge_cleaner = KnowledgeCleaner(
+knowledge_cleaner = KBCTextCleaner(
     llm_serving=api_llm_serving,
     lang="en"
 )
-extracted_path = knowledge_cleaner.run(
+knowledge_cleaner.run(
   storage=self.storage.step(),
   input_key= "raw_content",
   output_key="cleaned",
 )
 ```
 
-###    4. MultiHopQAGenerator
+###    4. TextMultiHopQAGenerator
 
-**Function Description**: MultiHopQAGenerator is a professional multi-hop QA pair generation operator, specifically designed to automatically generate question-answer pairs requiring multi-step reasoning from text data. Through its large language model interface, this operator performs intelligent text analysis and complex question construction, making it suitable for building high-quality multi-hop QA datasets.
+**Function Description**: TextMultiHopQAGenerator is a professional multi-hop QA pair generation operator, specifically designed to automatically generate question-answer pairs requiring multi-step reasoning from text data. Through its large language model interface, this operator performs intelligent text analysis and complex question construction, making it suitable for building high-quality multi-hop QA datasets. Code:[Text2MultiHopQAGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/core_text/generate/text2multihopqa_generator.py)
 
 **Input Parameters**:
 
@@ -239,12 +240,14 @@ extracted_path = knowledge_cleaner.run(
 - `llm_serving`: Large language model service interface (required)
 - `seed`: Random seed (default 0)
 - `lang`: Processing language (default "en" for English)
+- `num_q`: max QA count for each chunk(default 5)
+
 
    `run()`
 
 - `storage`: Data flow storage interface object
-- `input_key`: Input field name (default "")
-- `output_key`: Output field name (default "")
+- `input_key`: Input field name (default "cleaned")
+- `output_key`: Output field name (default "MultiHopQA")
 
 **Core Features**:
 
@@ -268,13 +271,14 @@ extracted_path = knowledge_cleaner.run(
   **Usage Example**:
 
     ```python
-  multi_hop_qa_generator = MultiHopQAGenerator(
-      llm_serving=local_llm_serving,
-      lang="en"
+  self.knowledge_cleaning_step4 = Text2MultiHopQAGenerator(
+      llm_serving=self.llm_serving,
+      lang="en",
+      num_q = 5
   )
-  multi_hop_qa_generator.run(
+  self.knowledge_cleaning_step4.run(
       storage=self.storage.step(),
-      input_key="cleaned",
-      output_key="MultiHop_QA"
+      # input_key=,
+      # output_key=,
   )
   ```

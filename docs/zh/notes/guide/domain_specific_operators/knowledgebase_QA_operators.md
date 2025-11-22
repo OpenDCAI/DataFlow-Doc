@@ -8,7 +8,7 @@ permalink: /zh/guide/Knowledgebase_QA_operators/
 
 ## 概述
 
-知识库清洗算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(FileOrURLToMarkdownConverter**)，**语料分块算子(CorpusTextSpliiter)**和**知识清洗算子(KnowledgeCleaner)**, **Multi-Hop QA Generation Operator**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
+知识库清洗算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(FileOrURLToMarkdownConverterBatch**)，**语料分块算子(KBCChunkGenerator)**和**知识清洗算子(KBCTextCleaner)**, **文本到多轮QA生成器(Text2MultiHopQAGenerator)**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
 
 本文中算子标记继承自[强推理算子](https://opendcai.github.io/DataFlow-Doc/zh/guide/Reasoning_operators/)
 
@@ -21,10 +21,10 @@ permalink: /zh/guide/Knowledgebase_QA_operators/
 
 | 名称                  | 适用类型 | 简介                                                         | 官方仓库或论文                                         |
 | --------------------- | :------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| KnowledgeExtractor🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。 | -                                                      |
-| CorpusTextSplitter✨   | 语料分段 | 该算子提供多种方式，用于将文本全文切分成合适大小的片段，方便后续索引等操作。 | -                                                      |
-| KnowledgeCleaner🚀✨    | 知识清洗 | 该算子利用LLM对整理好的原始文本进行清洗，包括但不限于规范化，去隐私等操作。 | -                                                      |
-| MultiHopQAGenerator🚀✨ | 知识转述 | 该算子利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的QA，更有利于RAG准确推理。 | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
+| FileOrURLToMarkdownConverterBatch🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。 | -                                                      |
+| KBCChunkGenerator✨   | 语料分段 | 该算子提供多种方式，用于将文本全文切分成合适大小的片段，方便后续索引等操作。 | -                                                      |
+| KBCTextCleaner🚀✨    | 知识清洗 | 该算子利用LLM对整理好的原始文本进行清洗，包括但不限于规范化，去隐私等操作。 | -                                                      |
+| Text2MultiHopQAGenerator🚀✨ | 知识转述 | 该算子利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的QA，更有利于RAG准确推理。 | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
 
 ## 算子接口调用说明
 
@@ -72,19 +72,18 @@ self.storage = FileStorage(
 
 ## 详细算子说明
 
-### 1. FileOrURLToMarkdownConverter
+### 1. FileOrURLToMarkdownConverterBatch
 
 **功能描述**：
 
-   知识提取算子（KnowledgeExtractor）是一个多功能文档处理工具，支持从多种文件格式中提取结构化内容并转换为标准Markdown格式。该算子整合了多个专业解析引擎，实现高精度的文档内容转换。
+   知识提取算子（FileOrURLToMarkdownConverterBatch）是一个多功能文档处理工具，支持从多种文件格式中提取结构化内容并转换为标准Markdown格式。该算子整合了多个专业解析引擎，实现高精度的文档内容转换。代码: [FileOrURLToMarkdownConverterBatch](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/file_or_url_to_markdown_converter_batch.py)
 
    **输入参数**：
 
    - `__init__()`
      - `intermediate_dir`：中间文件输出目录（默认："intermediate"）
      - `lang`：文档语言（默认："ch"中文）
-     - `raw_file`：本地文件路径（与url二选一）
-     - `url`：网页URL地址（与raw_file二选一）
+     - `mineru_backend`：mineru后端（默认：vlm_vllm_engine）
 
    - `run()`
      - `storage`：数据流存储接口对象（必须）
@@ -116,22 +115,23 @@ self.storage = FileStorage(
 **使用示例：**
 
 ```python
-file_to_markdown_converter = FileOrURLToMarkdownConverter(
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
     lang="en",
-    mineru_backend="vlm-sglang-engine",
-    raw_file = raw_file,
+    mineru_backend="vlm-vllm-engine",
 )
-extracted=file_to_markdown_converter.run(
-    storage=self.storage,
+self.knowledge_cleaning_step1.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
 )
 ```
 
 
 
-### 2. CorpusTextSplitter
+### 2. KBCChunkGenerator
 
-**功能描述**：CorpusTextSplitter 是一个高效灵活的文本分块工具，专为处理大规模文本语料设计。该算子支持多种分块策略，可智能分割文本以适应不同NLP任务的需求，特别优化了RAG（检索增强生成）应用场景。
+**功能描述**：KBCChunkGenerator 是一个高效灵活的文本分块工具，专为处理大规模文本语料设计。该算子支持多种分块策略，可智能分割文本以适应不同NLP任务的需求，特别优化了RAG（检索增强生成）应用场景。代码:[KBCChunkGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/kbc_chunk_generator.py)
 
 **输入参数**：
 
@@ -182,7 +182,7 @@ extracted=file_to_markdown_converter.run(
 **使用示例：**
 
 ```python
-text_splitter = CorpusTextSplitter(
+text_splitter = KBCChunkGenerator(
     split_method="token",
     chunk_size=512,
     tokenizer_name="Qwen/Qwen2.5-7B-Instruct",
@@ -196,9 +196,9 @@ text_splitter.run(
 
 
 
-### 3. KnowledgeCleaner
+### 3. KBCTextCleaner
 
-   **功能描述**：KnowledgeCleaner 是一个专业的知识清洗算子，专门用于对RAG（检索增强生成）系统中的原始知识内容进行标准化处理。该算子通过大语言模型接口，实现对非结构化知识的智能清洗和格式化，提升知识库的准确性和可读性。
+   **功能描述**：KBCTextCleaner 是一个专业的知识清洗算子，专门用于对RAG（检索增强生成）系统中的原始知识内容进行标准化处理。该算子通过大语言模型接口，实现对非结构化知识的智能清洗和格式化，提升知识库的准确性和可读性。代码:[KBCTextCleaner](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/kbc_text_cleaner.py)
 
    **输入参数**：
 
@@ -244,36 +244,36 @@ text_splitter.run(
    **使用示例：**
 
 ```python
-KnowledgeCleaner = KnowledgeCleaner(
+text_cleaner = KBCTextCleaner(
     llm_serving=api_llm_serving,
     lang="en"
 )
-extracted_path = KnowledgeCleaner.run(
+text_cleaner.run(
   storage=self.storage.step(),
   input_key= "raw_content",
   output_key="cleaned",
 )
 ```
 
-###    4. MultiHopQAGenerator
+###    4. TextMultiHopQAGenerator
 
-**功能描述**：MultiHopQAGenerator 是一个专业的多跳问答对生成算子，专门用于从文本数据中自动生成需要多步推理的问题-答案对。该算子通过大语言模型接口，实现对文本的智能分析和复杂问题构建，适用于构建高质量的多跳问答数据集。
+**功能描述**：MultiHopQAGenerator 是一个专业的多跳问答对生成算子，专门用于从文本数据中自动生成需要多步推理的问题-答案对。该算子通过大语言模型接口，实现对文本的智能分析和复杂问题构建，适用于构建高质量的多跳问答数据集。代码:[Text2MultiHopQAGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/core_text/generate/text2multihopqa_generator.py)
 
 **输入参数**：
 
    `__init__()`
 
 - `llm_serving`: 大语言模型服务接口（必须）
-
+- `num_q`: 每个文段对应QA最大值（默认5）
 - `seed`: 随机种子（默认0）
 - `lang`: 处理语言（默认"en"英文）
 
-   `run()`
+`run()`
 
 - `storage`: 数据流存储接口对象
 
-- `input_key`: 输入字段名（默认""）
-- `output_key`: 输出字段名（默认""）
+- `input_key`: 输入字段名（默认"cleaned"）
+- `output_key`: 输出字段名（默认"MultiHopQA"）
 
 **核心功能**：
 
@@ -304,14 +304,15 @@ extracted_path = KnowledgeCleaner.run(
 - **使用示例**
 
   ```python
-  multi_hop_qa_generator = MultiHopQAGenerator(
-      llm_serving=local_llm_serving,
-      lang="en"
+  self.knowledge_cleaning_step4 = Text2MultiHopQAGenerator(
+      llm_serving=self.llm_serving,
+      lang="en",
+      num_q = 5
   )
-  multi_hop_qa_generator.run(
+  self.knowledge_cleaning_step4.run(
       storage=self.storage.step(),
-      input_key="cleaned",
-      output_key="MultiHop_QA"
+      # input_key=,
+      # output_key=,
   )
   ```
 

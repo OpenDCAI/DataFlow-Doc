@@ -91,9 +91,7 @@ After initialization, the project directory becomes:
 
 ```
 Project Root/
-├── sft_data_pipeline.py      # Pipeline execution file
 ├── text_2_qa_pipeline.py     # Text2QA generation pipeline
-├── merge_filter_qa_pairs.py  # QA format conversion script
 └── .cache/                   # Cache directory
     └── train_config.yaml     # Default configuration file for llamafactory training
 ```
@@ -114,9 +112,7 @@ After fine-tuning completion, the project directory becomes:
 
 ```
 Project Root/
-├── sft_data_pipeline.py      # Pipeline execution file
-├── text_2_qa_pipeline.py     # Text2QA generation pipeline
-├── merge_filter_qa_pairs.py  # QA format conversion script
+├── text_2_qa_pipeline.py     # Text2QA generation
 └── .cache/                   # Cache directory
     ├── train_config.yaml     # Default configuration file for llamafactory training
     ├── pt_input.jsonl        # Merged input data
@@ -139,10 +135,10 @@ Project Root/
 
 ```bash
 # Method 1: Specify model path with --model flag (optional)
-# Default path: .cache/saves/pdf2model_cache_{timestamp}
+# Default path: .cache/saves/text2model_cache_{timestamp}
 dataflow chat --model ./custom_model_path
 
 # Method 2: Navigate to model directory and run dataflow chat
-cd .cache/saves/pdf2model_cache_{timestamp}
+cd .cache/saves/text2model_cache_{timestamp}
 dataflow chat
 ```

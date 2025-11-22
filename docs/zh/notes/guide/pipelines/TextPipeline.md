@@ -323,17 +323,6 @@ self.deita_quality_filter_step3 = DeitaQualityFilter(
         )
 ```
 
-4. **Instruction 标签数过滤 (InstagFilter)**  
-   - 按照 instruction 标签数过滤数据。[模型地址](https://github.com/OFA-Sys/InsTag)
-```python
-self.instag_filter_step4 = InstagFilter(
-            min_score=2,
-            max_score=10000,
-            model_cache_dir=self.model_cache_dir,
-            max_new_tokens=1024
-        )
-```
-
 ### 4.4 SFT数据合成流水线
 
 在**流水线1**和**流水线3**的基础上添加如下算子：

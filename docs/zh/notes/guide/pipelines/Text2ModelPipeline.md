@@ -3,7 +3,7 @@ title: Text2ModelPipeline
 createTime: 2025/08/31 03:42:26
 permalink: /zh/guide/ndyvouo2/
 ---
-# DataFlow-pdf2model&LlaMA-Factory
+# DataFlow-text2model&LlaMA-Factory
 
 ## 快速开始
 
@@ -76,20 +76,20 @@ cd run_dataflow
 
 
 
-## 第四步: 初始化dataflow-pdf2model
+## 第四步: 初始化dataflow-text2model
 
 ```
 #初始化 
 #--cache 可以指定.cache目录的位置（可选）
 #默认值为当前文件夹目录
-dataflow pdf2model init
+dataflow text2model init
 ```
 
 初始化完成后，项目目录变成：
 
 ```shell
 项目根目录/
-├── sft_data_pipeline.py  # pipeline执行文件
+├── text_to_qa_pipeline.py  # pipeline执行文件
 └── .cache/            # 缓存目录
     └── train_config.yaml  # llamafactory训练的默认配置文件
 ```
@@ -110,7 +110,7 @@ dataflow text2model train
 
 ```
 项目根目录/
-├── sft_data_pipeline.py  # pipeline执行文件
+├── text_to_qa_pipeline.py  # pipeline执行文件
 └── .cache/            # 缓存目录
     ├── train_config.yaml  # llamafactory训练的默认配置文件
     ├── data/
@@ -134,7 +134,7 @@ dataflow text2model train
 
 ```
 #用法一:--model 可以指定 对话模型的路径位置（可选）
-#默认值为.cache/saves/pdf2model_cache_{timestamp}
+#默认值为.cache/saves/text2model_cache_{timestamp}
 #用法二:到模型文件夹下 运行dataflow chat
 dataflow chat --model ./custom_model_path
 ```

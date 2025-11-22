@@ -16,7 +16,6 @@ export const enNavbar = defineNavbarConfig([
         // link: '/en/guide/',
         icon: 'icon-park-outline:guide-board',
         items: [
-
             {
                 text: 'Basic Info',
                 items: [
@@ -84,21 +83,15 @@ export const enNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: "Agentic RAG Pipeline-Alpha",
+                        text: "Text-to-QA Pipeline",
+                        link: "/en/notes/guide/pipelines/Text2QAPipeline.md",
+                        icon: "solar:palette-round-linear",
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "Agentic RAG Pipeline",
                         link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
                         icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Agentic RAG Pipeline-Beta",
-                        link: "/en/notes/guide/pipelines/AgenticRAGPipeline2.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "RARE Pipeline",
-                        link: "/en/notes/guide/pipelines/RAREPipeline.md",
-                        icon: "game-icons:great-pyramid",
                         activeMatch: '^/guide/'
                     },
                     {
@@ -112,64 +105,70 @@ export const enNavbar = defineNavbarConfig([
                         link: "/en/notes/guide/pipelines/FuncCallPipeline.md",
                         icon: "solar:flash-drive-outline",
                         activeMatch: '^/guide/'
+                    },
+                    {
+                        text: "PDF-to-Model Model Simulation Pipeline",
+                        link: "/en/notes/guide/pipelines/Pdf2ModelPipeline.md",
+                        icon: "solar:cpu-bolt-linear", 
+                        activeMatch: '^/guide/'
                     }
                 ]
             }
         ]
     },
-    // {
-    //     text: 'API Reference',
-    //     link: '/en/notes/api/1.home.md',
-    //     icon: 'material-symbols:article-outline'
-    // },
     {
-        text: 'Multi-Modal Guide (Under Construction)',
-        // link: '/en/notes/mm_guide/basicinfo/intro.md',
-        icon: 'material-symbols:article-outline',
-        items: [
-
-            {
-                text: 'Basic Info',
-                items: [
-                    {
-                        text: 'Introduction',
-                        link: '/en/notes/mm_guide/basicinfo/intro.md',
-                        icon: 'mdi:tooltip-text-outline',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Framework Design',
-                        link: '/en/notes/mm_guide/basicinfo/framework.md',
-                        icon: 'material-symbols:auto-transmission-sharp',
-                        activeMatch: '^/guide/'
-                    },
-                ]
-            },
-            {
-                text: 'Start with Dataflow',
-                items: [
-                    {
-                        text: 'Installation',
-                        link: '/en/notes/mm_guide/quickstart/install.md',
-                        icon: 'material-symbols-light:download-rounded',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Quick Start',
-                        link: '/en/notes/mm_guide/quickstart/quickstart.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Image Generation',
-                        link: '/en/notes/mm_guide/quickstart/image_generation.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                ]
-            }
-        ]
+        text: 'API Reference',
+        link: '/en/notes/api/1.home.md',
+        icon: 'material-symbols:article-outline'
     },
+    // {
+    //     text: 'Multi-Modal Guide (Under Construction)',
+    //     // link: '/en/notes/mm_guide/basicinfo/intro.md',
+    //     icon: 'material-symbols:article-outline',
+    // //     items: [
+
+    //         {
+    //             text: 'Basic Info',
+    //             items: [
+    //                 {
+    //                     text: 'Introduction',
+    //                     link: '/en/notes/mm_guide/basicinfo/intro.md',
+    //                     icon: 'mdi:tooltip-text-outline',
+    //                     activeMatch: '^/guide/'
+    //                 },
+    //                 {
+    //                     text: 'Framework Design',
+    //                     link: '/en/notes/mm_guide/basicinfo/framework.md',
+    //                     icon: 'material-symbols:auto-transmission-sharp',
+    //                     activeMatch: '^/guide/'
+    //                 },
+    //             ]
+    //         },
+    //         {
+    //             text: 'Start with Dataflow',
+    //             items: [
+    //                 {
+    //                     text: 'Installation',
+    //                     link: '/en/notes/mm_guide/quickstart/install.md',
+    //                     icon: 'material-symbols-light:download-rounded',
+    //                     activeMatch: '^/guide/'
+    //                 },
+    //                 {
+    //                     text: 'Quick Start',
+    //                     link: '/en/notes/mm_guide/quickstart/quickstart.md',
+    //                     icon: 'solar:flag-2-broken',
+    //                     activeMatch: '^/guide/'
+    //                 },
+    //                 {
+    //                     text: 'Image Generation',
+    //                     link: '/en/notes/mm_guide/quickstart/image_generation.md',
+    //                     icon: 'solar:flag-2-broken',
+    //                     activeMatch: '^/guide/'
+    //                 },
+    //             ]
+    //         }
+    //     ]
+    // },
     {
         text: 'Developer Guide',
         icon: "material-symbols:build-outline-sharp",

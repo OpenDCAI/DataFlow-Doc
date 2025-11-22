@@ -297,17 +297,6 @@ self.deita_quality_filter_step3 = DeitaQualityFilter(
             model_cache_dir=self.model_cache_dir
         )
 ```
-4. **InstagFilter**  
-   -  Filter by number of instruction tags  [Model](https://github.com/OFA-Sys/InsTag)
-```python
-self.instag_filter_step4 = InstagFilter(
-            min_score=2,
-            max_score=10000,
-            model_cache_dir=self.model_cache_dir,
-            max_new_tokens=1024
-        )
-```
-
 
 ### 4.4 SFT Data Synthesis Pipeline
 
