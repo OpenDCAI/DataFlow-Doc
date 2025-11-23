@@ -1,53 +1,74 @@
 ---
-title: Agent数据治理
+title: Agent-数据治理
 icon: material-symbols:robot-2-outline
 createTime: 2025/06/17 15:56:00
 permalink: /zh/guide/agent/agent_for_data/
 ---
 
-### 1. **任务规划阶段（Planning Agent）**
+# DataFlow-Agent 项目介绍
 
-- **任务分解（Decompose Tasks）**：
-  - 根据用户的输入（如自然语言需求、数据特性、目标等），解析任务目标。
-  - 对复杂任务进行细粒度分解，形成清晰的子任务列表。
-- **定义任务链（Define Task Chain）**：
-  - 将子任务按依赖关系组织成任务链（Pipeline）。
-  - 如果用户需求明确，可以直接生成符合需求的标准任务链；否则，通过任务推理生成。
+## 1. 项目简介
 
-### 2. **工具注册阶段（Tool Register）**
+**DataFlow-Agent** 是一个围绕「数据流 / 工作流」构建的智能 Agent 框架，目标是：
 
-- **注册工具（Register Predefined Tools）**： 
-  - 预定义工具库：包括数据抽样、清洗、评估、生成等算子。
-  - 动态工具生成：通过包扫描和算子描述提取（如 `get_desc`），自动注册新的工具。
-  - 工具描述向量化：结合功能描述、输入输出类型、示例数据等信息，生成工具的语义表示，用于后续检索和推荐。
+- 把复杂的自然语言任务拆分为一系列可组合的 **Node / Tool / Workflow**；
+- 通过统一的 `BaseAgent` 抽象与多种执行模式（Simple / ReAct / Graph / VLM），让 Agent 能够在不同场景下稳定地执行任务；
+- 支撑上层的 Gradio 前端、流水线编排、图式工作流等多种使用方式。
 
-### 3. **任务调度阶段（Task Dispatcher）**
+整体架构围绕以下几个核心层次展开：
 
-- **分配任务（Assign Tasks to Agent）**： 
-  - 根据任务链，按顺序或并行分发任务给对应的 Agent。
-  - 提供任务链的上下文跟踪（如 `sessionKEY` 用于多轮对话追踪）。
+- **Agent 层 (`dataflow_agent.agentroles`)**：具体的智能角色，例如 `Classifier`、`PipelineBuilder`、`Writer`、**`Recommender`** 等，每个角色都是 `BaseAgent` 的子类。
+- **执行核心层 (`dataflow_agent.agentroles.cores`)**：统一的 Agent 配置与执行策略（`configs.py` + `strategies.py`），为 Agent 提供 Simple / ReAct / Graph / VLM 多种执行模式。
+- **LLM & Parser 层 (`dataflow_agent.llm_callers`, `dataflow_agent.parsers`)**：屏蔽具体模型与返回格式差异，支持文本与多模态（视觉语言）调用，并通过统一的解析器解析 LLM 输出。
+- **Tool & Workflow 层 (`dataflow_agent.toolkits`, `dataflow_agent.workflow`)**：定义各类工具和流水线工作流，将复杂任务拆解成可复用组件。
+- **State & Prompt 层 (`dataflow_agent.state`, `dataflow_agent.promptstemplates`)**：统一请求/中间状态表示，通过模板化 prompt 生成系统提示与任务提示，并管理对话历史。
 
-### 4. **任务执行阶段（Execution Agent）**
+## 2.架构设计原则
 
-- **生成工具（Generate Tools）**：
-  - 动态编写任务所需代码（如 Python 脚本），并对代码进行调试。
-  - 执行过程中，自动获取任务参数（如用户输入或上一个任务的输出）并填充到代码中。
-  - 当缺少参数或上下文时，Execution Agent 会调用用户提示补全。
-- **处理任务（Process Tasks）**：
-  - 执行任务链中的节点操作，包括预定义工具调用或动态生成工具的执行。
-  - 将执行结果实时传递给后续任务节点，或返回给用户查看。
+### 1. 模块化设计
+- **职责分离**: 每个组件专注于单一职责，如Agent负责任务执行，State负责状态管理
+- **插件化架构**: 支持Agent、Workflow、Tool的插件式注册和动态加载
+- **接口抽象**: 通过抽象基类定义标准接口，确保组件间的松耦合
 
-### 5. **结果评估阶段（Evaluation Agent）**
+### 2. 状态驱动
+- **统一状态管理**: 所有流程基于状态对象进行数据传递和状态维护
+- **类型安全**: 使用dataclass和类型注解确保状态数据的类型安全
+- **任务专用状态**: 针对不同任务类型提供专用的状态类扩展
 
-- **调试与验证（Debug and Validate）**： 
-  - 对任务执行结果进行语法、逻辑和数据完整性校验。
-  - 针对代码型任务，检查代码运行结果是否符合预期（如返回符合 JSON 格式的结果）。
+### 3. 策略模式
+- **执行策略抽象**: 支持多种执行模式（Simple、ReAct、Graph、VLM）
+- **策略工厂**: 动态创建和切换执行策略
+- **配置驱动**: 通过配置对象控制策略行为
 
-### 6. **分析与总结阶段（Analysis Agent）**
+### 4. 可扩展性
+- **装饰器注册**: 使用装饰器简化组件注册流程
+- **自动发现**: 通过`__init_subclass__`实现组件的自动注册
+- **模板系统**: 提供代码生成模板，简化新组件开发
+## 3. Agent系统 (`agentroles/`)
 
-- **总结与报告生成（Summarize and Generate Report）**： 
+#### BaseAgent 核心架构
+```python
+class BaseAgent(ABC):
+    # 自动注册机制
+    def __init_subclass__(cls, **kwargs):
+        # 自动注册到AgentRegistry
+        pass
+    
+    # 策略模式支持
+    def __init__(self, execution_config: Optional[Any] = None):
+        if execution_config:
+            self._execution_strategy = StrategyFactory.create(
+                execution_config.mode.value, self, execution_config
+            )
+```
 
-  - 分析任务执行过程和结果，生成可读性强的报告。
-  - 生成多轮对话的上下文总结，支持用户快速查看任务链的整体执行情况。
+#### 执行模式支持
+1. **Simple模式**: 单次LLM调用，简单直接
+2. **ReAct模式**: 带验证的循环执行，确保输出质量
+3. **Graph模式**: 子图+工具调用，支持复杂交互
+4. **VLM模式**: 视觉语言模型专用处理
 
-  
+#### Agent-as-Tool 功能
+- **工具包装**: 将Agent包装成可调用工具
+- **参数映射**: 自动处理工具参数到Agent参数的映射
+- **结果提取**: 从状态中提取工具执行结果

@@ -113,8 +113,7 @@ export const Guide: ThemeNote = defineNoteConfig({
             prefix: 'agent',
             items: [
                 "agent_for_data",
-                "DataFlow-AgentPipelineOrchestration",
-                "agent_for_dataflow_new"
+                "DataFlow-AgentPipelineOrchestration"
             ]
         },
     ],
