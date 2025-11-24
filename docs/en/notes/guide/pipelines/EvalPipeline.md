@@ -30,8 +30,6 @@ dataflow eval init
 dataflow eval api / dataflow eval local
 ```
 
-
-
 ## Step 1: Install Evaluation Environment
 
 Download evaluation environment
@@ -41,16 +39,12 @@ pip install -e .[eval]
 cd ..
 ```
 
-
-
 ## Step 2: Create and Enter DataFlow Working Directory
 
 ```bash
 mkdir workspace
 cd workspace
 ```
-
-
 
 ## Step 3: Prepare Evaluation Data and Initialize Configuration Files
 
@@ -65,8 +59,6 @@ Project Root/
 ├── eval_api.py      # Configuration file for API model evaluator
 └── eval_local.py    # Configuration file for local model evaluator
 ```
-
-
 
 ## Step 4: Prepare Evaluation Data
 
@@ -100,10 +92,8 @@ EVALUATOR_RUN_CONFIG = {
 }
 ```
 
-
-
 ## Step 5: Configure Parameters
-
+### Model Parameter Configure
 If you want to use a local model as the evaluator, please modify the parameters in the `eval_local.py` file.
 
 If you want to use an API model as the evaluator, please modify the parameters in the `eval_api.py` file.
@@ -122,24 +112,46 @@ TARGET_MODELS = [
     
     # 3. Custom configuration
     # Add more models...
-    # {
-    #     "name": "llama_8b",
-    #     "path": "meta-llama/Llama-3-8B-Instruct",
-    #     "tensor_parallel_size": 2,
-    #     "max_tokens": 2048,
-    #     "gpu_memory_utilization": 0.9,
-    
-    #     # You can customize prompts for each model. If not specified, defaults to the template in build_prompt function.
-    #     # Default prompt for evaluated models
-    #     # IMPORTANT: This is the prompt for models being evaluated, NOT for the judge model!!!
-    #     "answer_prompt": """please answer the questions：
-    #      question：{question}
-    #      answer："""
-    # }
+
+{
+    "name": "qwen_7b",  # Model name
+    "path": "./Qwen2.5-7B-Instruct",  # Model path
+    # Large language models can use different parameters
+    "vllm_tensor_parallel_size": 4,  # Number of GPUs
+    "vllm_temperature": 0.1,  # Randomness
+    "vllm_top_p": 0.9,  # Top-p sampling
+    "vllm_max_tokens": 2048,  # Maximum number of tokens
+    "vllm_repetition_penalty": 1.0,  # Repetition penalty
+    "vllm_seed": None,  # Random seed
+    "vllm_gpu_memory_utilization": 0.9,  # Maximum GPU memory utilization
+    # Custom prompt can be defined for each model
+    "answer_prompt": """please answer the following question:"""
+}
+
+
 ]
 ```
 
-
+### Bench Parameter Configuration
+Supports batch configuration of benchmarks
+```python
+BENCH_CONFIG = [
+    {
+        "name": "bench_name",  # Benchmark name
+        "input_file": "path_to_your_qa/qa.json",  # Data file
+        "question_key": "input",  # Question field name
+        "reference_answer_key": "output",  # Reference answer field name
+        "output_dir": "path//bench_name",  # Output directory
+    },
+    {
+        "name": "other_bench_name",
+        "input_file": "path_to_your_qa/other_qa.json",
+        "question_key": "input",
+        "reference_answer_key": "output",
+        "output_dir": "path/other_bench_name",
+    }
+]
+```
 
 ## Step 6: Run Evaluation
 
