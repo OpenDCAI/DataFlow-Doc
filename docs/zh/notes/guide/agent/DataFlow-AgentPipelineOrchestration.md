@@ -9,6 +9,24 @@ permalink: /zh/guide/DataFlow-AgentPipelineOrchestration/
 
 本指南将帮助您快速上手 DataFlow Agent 平台的5个核心功能模块。
 
+
+## 安装
+
+```bash
+git clone https://github.com/OpenDCAI/DataFlow-Agent.git
+cd DataFlow-Agent
+pip install -r requirements.txt
+pip install -e .
+```
+
+## 启动Web界面
+
+```bash
+python gradio_app/app.py
+```
+
+访问 `http://127.0.0.1:7860` 开始使用
+
 ## 目录
 
 1. [管线推荐](#1-管线推荐)
@@ -89,11 +107,17 @@ permalink: /zh/guide/DataFlow-AgentPipelineOrchestration/
 
 ### 使用步骤
 
-1. 在"目标描述"框中输入您的需求
-2. 配置 API 信息（URL、Key、模型）
-3. （可选）配置嵌入模型和调试选项
-4. 点击"生成 Pipeline"按钮
-5. 查看生成的代码和执行结果
+![pipeline_rec](/pipeline_rec.png)
+
+1. `step1:`选择管线推荐子页面
+2. `step2:`在"目标描述"框中输入您的需求
+3. `step3:`输入需要处理jsonl文件
+4. `step4:`配置 API 信息（URL、Key、模型）
+5. `step5:`（可选）配置嵌入模型和调试选项
+6. `step6:`选择是否需要自动更新向量索引（如果出现算子不在注册机里，则需要勾选）
+7. `step7:`选择是否使用debug模式（debug模式会自动运行管线，直到自大迭代轮次）
+8. `step8:`右侧 查看生成的代码和执行结果
+
 
 ---
 
@@ -197,13 +221,13 @@ class YourOperator(Operator):
 
 ### 使用步骤
 
-1. 在"目标描述"中详细说明算子功能
-2. 选择合适的算子类别
-3. 配置 API 信息
-4. （可选）启用调试模式以自动修复错误
-5. 点击"生成算子"按钮
-6. 查看生成的代码和测试结果
-7. 如需修改，可调整参数后重新生成
+![op_write](/op_write.png)
+
+1. `step1:` 在"目标描述"中详细说明算子功能
+2. `step2:` 选择合适的算子类别，配置 API 信息
+3. `step3:` （可选）启用调试模式以自动修复错误
+4. `step4:` 设置debug轮次
+5. `step5:` 设置输出jsonl文件路径 
 
 ---
 
@@ -267,7 +291,7 @@ class YourOperator(Operator):
 - 算子会被添加到 Pipeline 序列中
 
 **步骤 4: 调整顺序**
-- 在 Pipeline 可视化区域，拖拽算子卡片调整顺序
+- 在 Pipeline 可视化区域，可以检查算子前后key是否对其
 - 系统会自动重新编号
 
 **步骤 5: 自动链接**
@@ -306,20 +330,49 @@ class YourOperator(Operator):
 
 #### 3. 生成的代码
 ```python
-# 完整的 Pipeline 执行代码
-from dataflow import Dataset
-from dataflow.operators import *
+class RecommendPipeline(PipelineABC):
+    def __init__(self):
+        super().__init__()
+        # -------- FileStorage --------
+        self.storage = FileStorage(
+            first_entry_file_name="/tmp/test_sample_10.jsonl",
+            cache_path="dataflow_cache",
+            file_name_prefix="dataflow_cache_step",
+            cache_type="jsonl",
+        )
+        # -------- LLM Serving (Remote) --------
+        self.llm_serving = APILLMServing_request(
+            api_url="http://123.129.219.111:3000/v1/chat/completions",
+            key_name_of_api_key="DF_API_KEY",
+            model_name="gpt-4o",
+            max_workers=100,
+        )
+        # -------- Operators --------
+        self.condor_generator = CondorGenerator(llm_serving=self.llm_serving, llm_serving=self.llm_serving, num_samples=15, use_task_diversity=True)
+        self.prompted_generator = PromptedGenerator(llm_serving=self.llm_serving, llm_serving=self.llm_serving, system_prompt='分析样本数据，识别与可再生能源相关的关键主题和趋势。', json_schema=None)
+        self.task2_vec_dataset_evaluator = Task2VecDatasetEvaluator(llm_serving=self.llm_serving, device='cuda', sample_nums=10, sample_size=1, method='montecarlo', model_cache_dir='./dataflow_cache')
 
-# 加载数据
-dataset = Dataset.load("input.jsonl")
+    def forward(self):
+        self.condor_generator.run(
+            storage=self.storage.step(),
+            input_key='raw_content',
+            output_key='generated_content_1'
+        )
+        self.prompted_generator.run(
+            storage=self.storage.step(),
+            input_key='generated_content_1',
+            output_key='generated_content_2'
+        )
+        self.task2_vec_dataset_evaluator.run(
+            storage=self.storage.step(),
+            input_key='generated_content_2'
+        )
 
-# 执行 Pipeline
-dataset = TextCleanerOperator(...).run(dataset, ...)
-dataset = DeduplicatorOperator(...).run(dataset, ...)
-...
+if __name__ == "__main__":
+    pipeline = RecommendPipeline()
+    pipeline.compile()
+    pipeline.forward()
 
-# 保存结果
-dataset.save("output.jsonl")
 ```
 
 #### 4. 处理结果数据 (前 100 条)
@@ -336,15 +389,18 @@ dataset.save("output.jsonl")
 
 ### 使用步骤
 
-1. 配置 API 信息和输入文件路径
-2. 选择算子分类和具体算子
-3. 编辑 `__init__()` 和 `run()` 参数（JSON 格式）
-4. 点击"➕ 添加算子到 Pipeline"
-5. 重复步骤 2-4 添加更多算子
-6. 拖拽调整算子顺序（可选）
-7. 检查自动链接状态，确保参数正确
-8. 点击"🚀 运行 Pipeline"
-9. 查看生成的代码和执行结果
+![op_assemble](/op_assemble.png)
+
+1. `step1:` 配置 API 信息和输入文件路径
+2. `step2:` 配置APIKey
+3. `step3:` 配置模型
+4. `step4:` 选择待处理文件路径
+5. `step5:` 选择要组合的算子类别
+6. `step6:` 选择要组合的算子
+7. `step7:` 如果算子提供了prompttemplate需要选择
+8. `step8:` 编辑算子输入和输出key！！
+9. `step9:` 运行
+10. `step10:` 可以查看组装的代码，和处理结果数据，以及输出文件路径
 
 ### 高级技巧
 
@@ -383,7 +439,6 @@ PromptAgent 前端，用于生成和优化算子的 Prompt 模板，支持多轮
 - **算子名称 (op-name)** (必需)
   - Prompt 类的名称
   - 示例：`SentimentAnalysisPrompt`
-  - 示例：`MarketingCopywriterPrompt`
 
 - **输出格式** (可选)
   - 指定 Prompt 输出的格式
@@ -451,8 +506,6 @@ PromptAgent 前端，用于生成和优化算子的 Prompt 模板，支持多轮
 
 #### 6. Prompt 代码预览
 ```python
-from dataflow_agent.promptstemplates import PromptTemplate
-
 class SentimentAnalysisPrompt(PromptTemplate):
     """情感分析 Prompt 模板"""
     
@@ -463,22 +516,6 @@ class SentimentAnalysisPrompt(PromptTemplate):
     
     def format(self, text: str, **kwargs) -> str:
         return self.user_prompt_template.format(text=text)
-```
-
-#### 7. 测试代码预览
-```python
-import json
-from your_prompt import SentimentAnalysisPrompt
-
-# 加载测试数据
-with open("test_data.jsonl") as f:
-    test_data = [json.loads(line) for line in f]
-
-# 测试 Prompt
-prompt = SentimentAnalysisPrompt()
-for item in test_data:
-    result = prompt.format(**item)
-    print(result)
 ```
 
 ### 多轮改写功能
@@ -509,6 +546,14 @@ for item in test_data:
    - 点击"清空会话"按钮重新开始
 
 ### 使用步骤
+
+![prompt_agent](/prompt_agent.png)
+
+1. `step1:` 选择你要复用的带有prompttemplate的算子名称
+2. `step2:` 输入你想修改的提示词内容
+3. `step3:` 点击“生成提示词模板”
+4. `step4:` 右侧预览生成的“输出文件路径，测试数据，提示词模板代码，测试代码”
+
 
 #### 初次生成
 1. 配置 API 信息（URL、Key、模型）
@@ -717,16 +762,18 @@ downloaded_data/
 
 ### 使用步骤
 
+![web_agent](/web_agent.png)
+
 #### 基础使用
-1. 在"目标描述"中详细说明要收集的数据类型
-2. 选择数据类别（PT 或 SFT）
-3. 配置数据集数量和大小限制
-4. 配置 LLM API 信息
-5. （可选）配置 Kaggle、Tavily 等服务的密钥
-6. 点击"开始网页采集与转换"按钮
-7. 实时查看执行日志
-8. 等待完成后查看结果摘要
-9. 在下载目录中查看采集的数据
+1. `step1:` 在"目标描述"中详细说明要收集的数据类型
+2. `step2:` 选择数据类别（PT 或 SFT）
+3. `step3:` 配置数据集数量和大小限制
+4. `step4:` 配置 LLM API 信息
+5. `step5:` （可选）配置 Kaggle、Tavily 等服务的密钥
+6. `step6:` 点击"开始网页采集与转换"按钮
+7. `step7:` 实时查看执行日志
+8. `step8:` 等待完成后查看结果摘要
+9. `step9:` 在下载目录中查看采集的数据
 
 #### 高级使用
 1. 展开"⚙️ 高级配置"区域
