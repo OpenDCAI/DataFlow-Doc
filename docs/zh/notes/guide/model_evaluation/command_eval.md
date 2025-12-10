@@ -1,13 +1,12 @@
 ---
-title: 模型QA能力评估流水线
+title: EvalPipeline
+createTime: 2025/10/20 11:30:42
 icon: hugeicons:chart-evaluation
-createTime: 2025/10/20 10:41:22
-permalink: /zh/guide/2k5wjgls/
+permalink: /zh/guide/cqro9oa8/
 ---
+# 模型能力评估流水线
 
-# 模型QA能力评估流水线
-
-仅支持QA对形式的评估
+⚠️仅支持QA对形式的评估
 
 ## 快速开始
 
@@ -41,16 +40,12 @@ pip install -e .[eval]
 cd ..
 ```
 
-
-
 ## 第二步：创建并进入dataflow工作文件夹
 
 ```bash
 mkdir workspace
 cd workspace
 ```
-
-
 
 ## 第三步：准备评估数据初始化配置文件
 
@@ -60,7 +55,7 @@ cd workspace
 dataflow eval init
 ```
 
-初始化完成后，项目目录变成：
+💡初始化完成后，项目目录变成：
 
 ```bash
 项目根目录/
@@ -68,15 +63,13 @@ dataflow eval init
 └──  eval_local.py # 评估器为本地模型的配置文件
 ```
 
-
-
 ## 第四步：准备评估数据
 
 ### 方式一:
 
 请准备好json格式文件，数据格式与展示类似
 
-```python
+```json
 [
     {
         "input": "What properties indicate that material PI-1 has excellent processing characteristics during manufacturing processes?",
@@ -85,19 +78,17 @@ dataflow eval init
 ]
 ```
 
-这里示例数据中
+💡这里示例数据中
 
 `input`是问题（也可以是问题+选择的选项合并为一个input）
 
 `output`是标准答案
 
-
-
 ### 方式二:
 
 也可以不处理数据（需要有明确的问题和标准答案这两个字段），通过eval_api.py以及eval_local.py来进行配置映射字段名字
 
-```python
+```bash
 EVALUATOR_RUN_CONFIG = {
     "input_test_answer_key": "model_generated_answer",  # 模型生成的答案字段名
     "input_gt_answer_key": "output",  # 标准答案字段名（原始数据的字段）
@@ -105,16 +96,14 @@ EVALUATOR_RUN_CONFIG = {
 }
 ```
 
-
-
 ## 第五步：配置参数
+### 模型参数配置
 
 假设想用本地模型作为评估器，请修改`eval_local.py`文件中的参数
 
 假设想用api模型作为评估器，请修改`eval_api.py`文件中的参数
 
 ```python
-Target Models Configuration (same as API mode)
 
 TARGET_MODELS = [
 	# 展示所有用法
@@ -125,28 +114,45 @@ TARGET_MODELS = [
     # "Qwen/Qwen2.5-7B-Instruct"
     # 3.单独配置
     # 添加更多模型...
-    # {
-    #     "name": "llama_8b",
-    #     "path": "meta-llama/Llama-3-8B-Instruct",
-    #     "tensor_parallel_size": 2
-    #     "max_tokens": 2048,
-    #     "gpu_memory_utilization": 0.9,
-    # 可以为每个模型自定义提示词 不写就为默认模板 即				build_prompt函数中的prompt
-    # 默认被评估模型提示词 
-    # 再次提示:该prompt为被评估模型的提示词，请勿与评估模型提示词混淆！！！
-    # You can customize prompts for each model. If not specified, defaults to the template in build_prompt function.
-    # Default prompt for evaluated models
-    # IMPORTANT: This is the prompt for models being evaluated, NOT for the judge model!!!
-    # "answer_prompt": """please answer the questions：
-    #  question：{question}
-    #  answer："""
-    #     ""
-    # }
-    #
+{
+    "name": "qwen_7b",  # 模型名称
+    "path": "./Qwen2.5-7B-Instruct",  # 模型路径
+    # 大模型可以用不同的参数
+    "vllm_tensor_parallel_size": 4,  # 显卡数量
+    "vllm_temperature": 0.1,  # 随机性，值越大输出越随机
+    "vllm_top_p": 0.9,  # 核采样概率阈值，控制候选词的累积概率范围
+    "vllm_max_tokens": 2048,  # 最大生成token数
+    "vllm_repetition_penalty": 1.0,  # 重复惩罚系数，大于1时抑制重复内容
+    "vllm_seed": None,  # 随机种子，设置后可复现结果
+    "vllm_gpu_memory_utilization": 0.9,  # 最大显存利用率
+    # 可以为每个模型自定义提示词
+    "answer_prompt": """please answer the following question:"""  # 回答提示词模板
+}
     
 ]
 ```
 
+### Bench参数配置
+支持批量Bench评估
+```python
+BENCH_CONFIG = [
+    {
+        "name": "bench_name",  # bench名称
+        "input_file": "path_to_your_qa/qa.json",  # 数据文件
+        "question_key": "input",  # 问题字段名
+        "reference_answer_key": "output",  # 答案字段名
+        "output_dir": "path//bench_name",  # 输出目录
+    },
+    {
+        "name": "other_bench_name",
+        "input_file": "path_to_your_qa/other_qa.json",
+        "question_key": "input",
+        "reference_answer_key": "output",
+        "output_dir":"path/other_bench_name",
+    }
+]
+
+```
 
 
 ## 第六步：进行评估
