@@ -4,8 +4,6 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/code/filter/codelengthsamplefilter/
 ---
 
-好的，这是根据您提供的代码和模板生成的 `CodeLengthSampleFilter` 算子的教程 Markdown。
-
 ***
 
 ## 📘 概述 CodeLengthSampleFilter
