@@ -4,7 +4,8 @@ icon: material-symbols:auto-transmission-sharp
 createTime: 2025/06/13 14:59:56
 permalink: /zh/guide/basicinfo/framework/
 ---
-![Dataflow-Framework](/dataflow_framework.jpg)
+<!-- ![Dataflow-Framework](/dataflow_framework.jpg) -->
+![](/df_overview_final.jpg)
 # 框架设计
 Dataflow的框架主要数据处理逻辑分为算子层(`operator`)和流水线(`pipeline`)层。此外，还有数据管理`storage`和大模型后端`LLMServing`等组件共同支持。
 
@@ -249,7 +250,7 @@ if __name__ == "__main__":
 
 目前DataFlow提供了多种预设`Pipeline`流水线用于完成预定功能。当你熟悉DataFlow框架后，也可以自由搭配现有算子，或设计你自己的新算子来构建适合你数据处理的`pipeline`。
 
-### 进阶：预编译流水线
+### 预编译流水线
 上述流水线的“规约”实际相当宽松，`__init__`函数和`forward`函数实际上只是两个简单的函数，并没有通过继承任何特殊的基类以对这两个函数做任何额外的检查。
 
 宽松的设计可以便于用户后续实现自己的功能，并且融入自己的业务代码。但是当使用Dataflow-Agent或构建复杂pipeline时，是有必要预先检查各个算子的填入的key进行预先检查的。否则，在执行大量数据和算子时，程序在中间算子才触发一个KeyError的异常退出进程的情况实在令人沮丧。
@@ -333,6 +334,70 @@ if __name__ == "__main__":
    - 每一个节点代表一个算子，或 数据集输入和输出的节点。
    - 括号内的`(step=n)`即为各个节点的run函数调用的顺序，特别的，算子颜色会根据step从小到大，从紫色到蓝色渐变，以便直观观察。
    - 将鼠标停放在算子上，可以看到具体的算子的详细信息。
+
+### 断点恢复流水线(Resume)
+实际调试和开发流水线的过程中可能经常会遇到中间某个算子有bug导致中断的情况。这时就可以借助`resume`功能跳过前面的算子，从你期望恢复的算子处继续推理整个流水线。
+
+这个功能依赖`compile()`函数实现，参考如下实现方式：
+```python
+# https://github.com/OpenDCAI/DataFlow/blob/main/test/test_autoop_graph.py
+
+from dataflow.pipeline import PipelineABC   # [!code highlight]
+from dataflow.operators.core_text import PromptedGenerator
+from dataflow.serving import APILLMServing_request, LocalModelLLMServing_vllm, LocalHostLLMAPIServing_vllm
+from dataflow.utils.storage import FileStorage
+
+class AutoOPPipeline(PipelineABC):  # [!code highlight]
+    def __init__(self):
+        super().__init__()          # [!code highlight]
+        self.storage = FileStorage(
+            first_entry_file_name="../dataflow/example/GeneralTextPipeline/pt_input.jsonl",
+            cache_path="./cache",
+            file_name_prefix="dataflow_cache_auto_run",
+            cache_type="jsonl",
+        )
+        self.llm_serving = LocalModelLLMServing_vllm(
+            hf_model_name_or_path="/mnt/public/model/huggingface/Qwen3-0.6B"
+        )
+        self.op1 = PromptedGenerator(
+            llm_serving=self.llm_serving,
+            system_prompt="Translate following content into Chinese:",
+        )
+        self.op2 = PromptedGenerator(
+            llm_serving=self.llm_serving,
+            system_prompt="Translate following content into Korean:",
+        )
+        self.op3 = PromptedGenerator(
+            llm_serving=self.llm_serving,
+            system_prompt="Translate following content into Japanese:"
+        )
+        
+    def forward(self):
+        self.op1.run(
+            self.storage.step(),
+            input_key='raw_content',
+            # output_key='content_CN'
+            output_key="raw_content"
+        )
+        self.op2.run(
+            self.storage.step(),
+            input_key='raw_content',
+            # input_key="raw_content",
+            output_key='content_JA'
+        )
+        self.op3.run(
+            self.storage.step(),
+            input_key='raw_content',
+            output_key='content_KR'
+        )
+        
+if __name__ == "__main__":
+    pipeline = AutoOPPipeline()
+    pipeline.compile()  # [!code highlight]
+    pipeline.forward(resume_step=2) # 从index为2的算子开始运行，即op3 # [!code highlight]
+```
+在`compile()`后，向`forward()`函数传入`resume_step`形参，即可从对应的step开始恢复流水线推理，默认从0开始。
+这要求之前至少运行到前一个算子，有相应的前一步的`*_step_*.json`输出作为输入才可以。
 
 ## DataFlow 提示词和提示词模板（Prompt & Prompt Template）
 
