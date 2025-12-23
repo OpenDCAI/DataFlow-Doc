@@ -44,23 +44,29 @@ export const zhNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: '快速开始',
-                        link: '/zh/notes/guide/quickstart/quickstart.md',
+                        text: '快速开始-第一个Pipeline',
+                        link: '/zh/notes/guide/quickstart/first_pipeline.md',
                         icon: 'solar:flag-2-broken',
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: '案例：万用算子',
-                        link: '/zh/notes/guide/quickstart/translation.md',
-                        icon: 'basil:lightning-alt-outline',
+                        text: '快速开始-dataflow init',
+                        link: '/zh/notes/guide/quickstart/dataflow_init.md',
+                        icon: 'solar:flag-2-broken',
                         activeMatch: '^/guide/'
                     },
-                    {
-                        text: '案例：批量PDF提取',
-                        link: '/zh/notes/guide/quickstart/knowledge_cleaning.md',
-                        icon: 'basil:lightning-alt-outline',
-                        activeMatch: '^/guide/'
-                    }
+                    // {
+                    //     text: '案例：万用算子',
+                    //     link: '/zh/notes/guide/quickstart/translation.md',
+                    //     icon: 'basil:lightning-alt-outline',
+                    //     activeMatch: '^/guide/'
+                    // },
+                    // {
+                    //     text: '案例：批量PDF提取',
+                    //     link: '/zh/notes/guide/quickstart/knowledge_cleaning.md',
+                    //     icon: 'basil:lightning-alt-outline',
+                    //     activeMatch: '^/guide/'
+                    // }
                 ]
             },
 

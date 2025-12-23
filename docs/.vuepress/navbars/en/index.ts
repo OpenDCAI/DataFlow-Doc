@@ -43,8 +43,14 @@ export const enNavbar = defineNavbarConfig([
                         activeMatch: '^/guide/'
                     },
                     {
-                        text: 'Quick Start',
-                        link: '/en/notes/guide/quickstart/quickstart.md',
+                        text: 'Quick Start-First Pipeline',
+                        link: '/en/notes/guide/quickstart/first_pipeline.md',
+                        icon: 'solar:flag-2-broken',
+                        activeMatch: '^/guide/'
+                    },
+                    {
+                        text: 'Quick Start-dataflow init',
+                        link: '/en/notes/guide/quickstart/dataflow_init.md',
                         icon: 'solar:flag-2-broken',
                         activeMatch: '^/guide/'
                     },
@@ -53,13 +59,13 @@ export const enNavbar = defineNavbarConfig([
                         link: '/en/notes/guide/quickstart/translation.md',
                         icon: 'basil:lightning-alt-outline',
                         activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Case: Batch PDF Extracting',
-                        link: '/en/notes/guide/quickstart/knowledge_cleaning.md',
-                        icon: 'basil:lightning-alt-outline',
-                        activeMatch: '^/guide/'
                     }
+                    // {
+                    //     text: 'Case: Batch PDF Extracting',
+                    //     link: '/en/notes/guide/quickstart/knowledge_cleaning.md',
+                    //     icon: 'basil:lightning-alt-outline',
+                    //     activeMatch: '^/guide/'
+                    // }
                 ]
             },
             {
