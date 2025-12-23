@@ -15,112 +15,113 @@ export const enNavbar = defineNavbarConfig([
         text: 'Guide',
         // link: '/en/guide/',
         icon: 'icon-park-outline:guide-board',
-        items: [
-            {
-                text: 'Basic Info',
-                items: [
-                    {
-                        text: 'Introduction',
-                        link: '/en/notes/guide/basicinfo/intro.md',
-                        icon: 'mdi:tooltip-text-outline',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Framework Design',
-                        link: '/en/notes/guide/basicinfo/framework.md',
-                        icon: 'material-symbols:auto-transmission-sharp',
-                        activeMatch: '^/guide/'
-                    },
-                ]
-            },
-            {
-                text: 'Start with Dataflow',
-                items: [
-                    {
-                        text: 'Installation',
-                        link: '/en/notes/guide/quickstart/install.md',
-                        icon: 'material-symbols-light:download-rounded',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Quick Start-First Pipeline',
-                        link: '/en/notes/guide/quickstart/first_pipeline.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Quick Start-dataflow init',
-                        link: '/en/notes/guide/quickstart/dataflow_init.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: 'Case: PromptedGenerator',
-                        link: '/en/notes/guide/quickstart/translation.md',
-                        icon: 'basil:lightning-alt-outline',
-                        activeMatch: '^/guide/'
-                    }
-                    // {
-                    //     text: 'Case: Batch PDF Extracting',
-                    //     link: '/en/notes/guide/quickstart/knowledge_cleaning.md',
-                    //     icon: 'basil:lightning-alt-outline',
-                    //     activeMatch: '^/guide/'
-                    // }
-                ]
-            },
-            {
-                text: "Pipelines",
-                items: [{
-                        text: "Text Pipeline",
-                        link: '/en/notes/guide/pipelines/TextPipeline.md',
-                        icon: 'mdi:file-text',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Reasoning Pipeline",
-                        link: "/en/notes/guide/pipelines/ReasoningPipeline.md",
-                        icon: "mdi:brain",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Text-to-SQL Pipeline",
-                        link: "/en/notes/guide/pipelines/Text2SqlPipeline.md",
-                        icon: "material-symbols-light:checkbook-outline-rounded",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Text-to-QA Pipeline",
-                        link: "/en/notes/guide/pipelines/Text2QAPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Agentic RAG Pipeline",
-                        link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Knowledge Base Cleaning Pipeline",
-                        link: "/en/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Function Calling Data Synthesis Pipeline",
-                        link: "/en/notes/guide/pipelines/FuncCallPipeline.md",
-                        icon: "solar:flash-drive-outline",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "PDF-to-Model Model Simulation Pipeline",
-                        link: "/en/notes/guide/pipelines/Pdf2ModelPipeline.md",
-                        icon: "solar:cpu-bolt-linear", 
-                        activeMatch: '^/guide/'
-                    }
-                ]
-            }
-        ]
+        link: '/en/notes/guide/basicinfo/intro.md',
+        // items: [
+        //     {
+        //         text: 'Basic Info',
+        //         items: [
+        //             {
+        //                 text: 'Introduction',
+        //                 link: '/en/notes/guide/basicinfo/intro.md',
+        //                 icon: 'mdi:tooltip-text-outline',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: 'Framework Design',
+        //                 link: '/en/notes/guide/basicinfo/framework.md',
+        //                 icon: 'material-symbols:auto-transmission-sharp',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //         ]
+        //     },
+        //     {
+        //         text: 'Start with Dataflow',
+        //         items: [
+        //             {
+        //                 text: 'Installation',
+        //                 link: '/en/notes/guide/quickstart/install.md',
+        //                 icon: 'material-symbols-light:download-rounded',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: 'Quick Start-First Pipeline',
+        //                 link: '/en/notes/guide/quickstart/first_pipeline.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: 'Quick Start-dataflow init',
+        //                 link: '/en/notes/guide/quickstart/dataflow_init.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: 'Case: PromptedGenerator',
+        //                 link: '/en/notes/guide/quickstart/translation.md',
+        //                 icon: 'basil:lightning-alt-outline',
+        //                 activeMatch: '^/guide/'
+        //             }
+        //             // {
+        //             //     text: 'Case: Batch PDF Extracting',
+        //             //     link: '/en/notes/guide/quickstart/knowledge_cleaning.md',
+        //             //     icon: 'basil:lightning-alt-outline',
+        //             //     activeMatch: '^/guide/'
+        //             // }
+        //         ]
+        //     },
+        //     {
+        //         text: "Pipelines",
+        //         items: [{
+        //                 text: "Text Pipeline",
+        //                 link: '/en/notes/guide/pipelines/TextPipeline.md',
+        //                 icon: 'mdi:file-text',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Reasoning Pipeline",
+        //                 link: "/en/notes/guide/pipelines/ReasoningPipeline.md",
+        //                 icon: "mdi:brain",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Text-to-SQL Pipeline",
+        //                 link: "/en/notes/guide/pipelines/Text2SqlPipeline.md",
+        //                 icon: "material-symbols-light:checkbook-outline-rounded",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Text-to-QA Pipeline",
+        //                 link: "/en/notes/guide/pipelines/Text2QAPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Agentic RAG Pipeline",
+        //                 link: "/en/notes/guide/pipelines/AgenticRAGPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Knowledge Base Cleaning Pipeline",
+        //                 link: "/en/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Function Calling Data Synthesis Pipeline",
+        //                 link: "/en/notes/guide/pipelines/FuncCallPipeline.md",
+        //                 icon: "solar:flash-drive-outline",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "PDF-to-Model Model Simulation Pipeline",
+        //                 link: "/en/notes/guide/pipelines/Pdf2ModelPipeline.md",
+        //                 icon: "solar:cpu-bolt-linear", 
+        //                 activeMatch: '^/guide/'
+        //             }
+        //         ]
+        //     }
+        // ]
     },
     {
         text: 'API Reference',

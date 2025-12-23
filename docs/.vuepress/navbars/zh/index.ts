@@ -15,116 +15,118 @@ export const zhNavbar = defineNavbarConfig([
         text: '指南',
         // link: '/zh/guide/',
         icon: 'icon-park-outline:guide-board',
-        items: [
+        link: '/zh/notes/guide/basicinfo/intro.md',
+        // items: [
             
-            {
-                text: '基本信息',
-                items: [
-                            {
-                                text: '简介',
-                                link: '/zh/notes/guide/basicinfo/intro.md',
-                                icon: 'mdi:tooltip-text-outline',
-                                activeMatch: '^/guide/'
-                            },
-                            {
-                                text: '框架设计',
-                                link: '/zh/notes/guide/basicinfo/framework.md',
-                                icon: 'material-symbols:auto-transmission-sharp',
-                                activeMatch: '^/guide/'
-                            },
-                ]
-            },
-            {
-                text: '快速开始',
-                items: [
-                    {
-                        text: '安装',
-                        link: '/zh/notes/guide/quickstart/install.md',
-                        icon: 'material-symbols-light:download-rounded',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: '快速开始-第一个Pipeline',
-                        link: '/zh/notes/guide/quickstart/first_pipeline.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: '快速开始-dataflow init',
-                        link: '/zh/notes/guide/quickstart/dataflow_init.md',
-                        icon: 'solar:flag-2-broken',
-                        activeMatch: '^/guide/'
-                    },
-                    // {
-                    //     text: '案例：万用算子',
-                    //     link: '/zh/notes/guide/quickstart/translation.md',
-                    //     icon: 'basil:lightning-alt-outline',
-                    //     activeMatch: '^/guide/'
-                    // },
-                    // {
-                    //     text: '案例：批量PDF提取',
-                    //     link: '/zh/notes/guide/quickstart/knowledge_cleaning.md',
-                    //     icon: 'basil:lightning-alt-outline',
-                    //     activeMatch: '^/guide/'
-                    // }
-                ]
-            },
+        //     {
+        //         text: '基本信息',
+        //         items: [
+        //                     {
+        //                         text: '简介',
+        //                         link: '/zh/notes/guide/basicinfo/intro.md',
+        //                         icon: 'mdi:tooltip-text-outline',
+        //                         activeMatch: '^/guide/'
+        //                     },
+        //                     {
+        //                         text: '框架设计',
+        //                         link: '/zh/notes/guide/basicinfo/framework.md',
+        //                         icon: 'material-symbols:auto-transmission-sharp',
+        //                         activeMatch: '^/guide/'
+        //                     },
+        //         ]
+        //     },
+        //     {
+        //         text: '快速开始',
+        //         items: [
+        //             {
+        //                 text: '安装',
+        //                 link: '/zh/notes/guide/quickstart/install.md',
+        //                 icon: 'material-symbols-light:download-rounded',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: '快速开始-第一个Pipeline',
+        //                 link: '/zh/notes/guide/quickstart/first_pipeline.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: '快速开始-dataflow init',
+        //                 link: '/zh/notes/guide/quickstart/dataflow_init.md',
+        //                 icon: 'solar:flag-2-broken',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             // {
+        //             //     text: '案例：万用算子',
+        //             //     link: '/zh/notes/guide/quickstart/translation.md',
+        //             //     icon: 'basil:lightning-alt-outline',
+        //             //     activeMatch: '^/guide/'
+        //             // },
+        //             // {
+        //             //     text: '案例：批量PDF提取',
+        //             //     link: '/zh/notes/guide/quickstart/knowledge_cleaning.md',
+        //             //     icon: 'basil:lightning-alt-outline',
+        //             //     activeMatch: '^/guide/'
+        //             // }
+        //         ]
+        //     },
 
-            {
-                text: "流水线",
-                items: [
-                    {
-                        text: "纯文本流水线",
-                        link: '/zh/notes/guide/pipelines/TextPipeline.md',
-                        icon: 'mdi:file-text',
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text:"强推理数据合成流水线",
-                        link:"/zh/notes/guide/pipelines/ReasoningPipeline.md",
-                        icon: "mdi:brain",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Text-to-SQL数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/Text2SqlPipeline.md",
-                        icon: "material-symbols-light:checkbook-outline-rounded",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Text-to-QA数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/Text2QAPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Agentic RAG数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "知识库清洗流水线",
-                        link: "/zh/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
-                        icon: "solar:palette-round-linear",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "函数调用数据合成流水线",
-                        link: "/zh/notes/guide/pipelines/FuncCallPipeline.md",
-                        icon: "solar:flash-drive-outline",
-                        activeMatch: '^/guide/'
-                    },
-                    {
-                        text: "Pdf-to-Model模型微调流水线",
-                        link: "/zh/notes/guide/pipelines/Pdf2ModelPipeline.md",
-                        icon: "solar:cpu-bolt-linear", 
-                        activeMatch: '^/guide/'
-                    }
-                ]
-            }
+        //     {
+        //         text: "流水线",
+        //         items: [
+        //             {
+        //                 text: "纯文本流水线",
+        //                 link: '/zh/notes/guide/pipelines/TextPipeline.md',
+        //                 icon: 'mdi:file-text',
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text:"强推理数据合成流水线",
+        //                 link:"/zh/notes/guide/pipelines/ReasoningPipeline.md",
+        //                 icon: "mdi:brain",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Text-to-SQL数据合成流水线",
+        //                 link: "/zh/notes/guide/pipelines/Text2SqlPipeline.md",
+        //                 icon: "material-symbols-light:checkbook-outline-rounded",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Text-to-QA数据合成流水线",
+        //                 link: "/zh/notes/guide/pipelines/Text2QAPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Agentic RAG数据合成流水线",
+        //                 link: "/zh/notes/guide/pipelines/AgenticRAGPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "知识库清洗流水线",
+        //                 link: "/zh/notes/guide/pipelines/KnowledgeBaseCleaningPipeline.md",
+        //                 icon: "solar:palette-round-linear",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "函数调用数据合成流水线",
+        //                 link: "/zh/notes/guide/pipelines/FuncCallPipeline.md",
+        //                 icon: "solar:flash-drive-outline",
+        //                 activeMatch: '^/guide/'
+        //             },
+        //             {
+        //                 text: "Pdf-to-Model模型微调流水线",
+        //                 link: "/zh/notes/guide/pipelines/Pdf2ModelPipeline.md",
+        //                 icon: "solar:cpu-bolt-linear", 
+        //                 activeMatch: '^/guide/'
+        //             }
+        //         ]
+        //     }
 
-        ]
+        // ]
+
     },
     // {
     //     text: 'API 文档',
