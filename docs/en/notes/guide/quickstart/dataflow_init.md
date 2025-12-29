@@ -4,12 +4,11 @@ createTime: 2025/06/30 19:19:16
 permalink: /en/guide/dataflow_init/
 icon: solar:flag-2-broken
 ---
-
 # Quick Start
 
 ## Code-Generation-Based Workflow
 
-DataFlow follows a **code generation + customization + script execution** workflow, similar to  
+DataFlow follows a **code generation + customization + script execution** workflow, similar to
 [`create-react-app`](https://github.com/facebook/create-react-app) / [`vue-cli`](https://cli.vuejs.org/).
 
 By invoking a CLI command, DataFlow automatically generates default runtime scripts and entry Python files. After user customization (e.g., changing datasets, switching LLM APIs, or reordering operators), you simply run the Python script to execute the desired functionality.
@@ -24,7 +23,7 @@ In an **empty directory**, run:
 
 ```bash
 dataflow init
-````
+```
 
 This will generate the following directories in your working path:
 
@@ -68,7 +67,7 @@ If you later have access to a GPU, you can simply replace the `LLMServing` with 
 
 ---
 
-## 3. Run Your First Pipeline
+## 3. Run Your First Prebuilt Pipeline
 
 Enter any pipeline directory, for example:
 

@@ -62,7 +62,7 @@ $ tree -L 1
 
 ---
 
-## 3. 运行你的第一个 Pipeline
+## 3. 运行你的第一个预制菜Pipeline
 
 进入任意 Pipeline 目录，例如：
 
