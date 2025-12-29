@@ -23,6 +23,7 @@ export const Guide: ThemeNote = defineNoteConfig({
             items: [
                 'install',
                 'first_pipeline',
+                'second_pipeline',
                 'dataflow_init',
 
 

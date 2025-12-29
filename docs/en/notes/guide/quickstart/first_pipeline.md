@@ -4,12 +4,13 @@ title: Quick Start – Your First Pipeline
 createTime: 2025/06/30 19:19:16
 permalink: /en/guide/first_pipeline/
 icon: solar:flag-2-broken
--------------------------
+---
 # Quick Start
 
 ## Code for the First Pipeline
 
-Below is the simplest DataFlow pipeline. It allows you to use the same prompt to drive a large language model to transform your batch inputs. You can copy it and run it directly:
+Here is a minimal DataFlow pipeline that allows you to use the same prompt to drive a large language model to transform your batch inputs. You can copy it and run it directly, or refer to the similar [Google Colab example](https://colab.research.google.com/drive/1haosl2QS4N4HM7u7HvSsz_MnLabxexXl?usp=sharing) we provide to run it.
+
 
 ```python
 # mypipeline.py

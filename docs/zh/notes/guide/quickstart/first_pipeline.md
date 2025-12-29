@@ -6,7 +6,7 @@ icon: solar:flag-2-broken
 ---
 # 快速上手
 ## 第一个Pipeline的代码
-以下是一个DataFlow最简的pipeline，它可以让你用同一个prompt来驱动大模型来转化你的批量输入，你可以拷贝下来它来运行:
+以下是一个DataFlow最简的pipeline，它可以让你用同一个prompt来驱动大模型来转化你的批量输入，你可以拷贝下来它来运行，也可以参考我们提供的相似的[Google Colab样例](https://colab.research.google.com/drive/1haosl2QS4N4HM7u7HvSsz_MnLabxexXl?usp=sharing)来运行:
 ```python
 # mypipeline.py
 from dataflow.pipeline import PipelineABC
