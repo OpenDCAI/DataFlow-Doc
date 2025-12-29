@@ -428,23 +428,25 @@ if __name__ == "__main__":
 After `compile()`, passing the `resume_step` parameter to the `forward()` function allows resuming pipeline inference from the corresponding step, defaulting to 0.
 This requires that the pipeline has been run at least up to the previous operator, with corresponding previous `*_step_*.json` outputs available as input.
 
-## DataFlow Prompts and Prompt Templates
+
+## DataFlow Prompts and Prompt Templates (Prompt & Prompt Template)
 
 ### Definition and Functionality
+In large-model data governance, prompts are an important component. To better reuse operators, we provide **prompts** and **prompt templates** to support operator functionality. Their definitions are as follows:
 
-In large-model data governance, prompts are an important component. To better reuse operators, we provide prompts and prompt templates to support operator functionality. Their definitions are as follows:
+1. **Prompt**: A prompt that is hard-coded inside an operator and generally does not require obvious replacement.
+2. **Prompt Template**: A template that may require additional input information to compose a complete prompt; or a design where an operator achieves different functionalities by switching between different prompt templates to meet flexible and diverse requirements.
+3. In general, prompts and prompt templates have a **many-to-one** mapping relationship with operators. Multiple prompts may simultaneously or mutually exclusively support the functionality of a single operator.
 
-1. **Prompts**: Prompts hard-coded within an operator, generally without obvious replacement needs.
-2. **Prompt templates**: Templates that may require additional information to be passed in to form a complete prompt; or designs where an operator achieves different functions by replacing different prompt templates to meet flexible and variable requirements.
-3. Overall, prompts and prompt templates have a **many-to-one** mapping relationship with operators. Multiple prompts may simultaneously or mutually exclusively support the functionality of a single operator.
+In particular, even if an operator internally contains only one very concise prompt that is hard-coded, DataFlow still expects this prompt to be **created as a separate class** and **registered**. This facilitates global inspection of the relationships between prompts and operators, and allows them to be provided to agents or users as a global reference for writing new prompts and assembling them into the corresponding operators.
 
-In particular, even if there is only one concise prompt inside an operator and it is hard-coded, Dataflow still hopes that this Prompt can be **created as a separate class** and **registered**.
+---
 
 ### Code Implementation
+First, all prompts and prompt templates in DataFlow are placed under the path `./dataflow/prompts`, organized into Python files named after their corresponding pipelines.
 
-First, all prompts and prompt templates in Dataflow are placed under the `./dataflow/prompts` path and named according to the corresponding pipeline name as Python files.
-
-All prompts must reference the implementation of [dataflow.core.prompt.PromptABC](https://github.com/OpenDCAI/DataFlow/blob/691d98e077e9e0a0eb81a8ba0a631c7f542fa7fa/dataflow/core/prompt.py#L5-L15). Among them, `PromptABC` is an abstract class for developers to inherit, while `DIYPromptABC` is a base class for users to conveniently fill in new prompt templates. This distinction is made to facilitate operators or Agents in identifying the source of prompt templates.
+Whether it is a prompt or a prompt template, it must inherit from  
+[dataflow.core.prompt.PromptABC](https://github.com/OpenDCAI/DataFlow/blob/691d98e077e9e0a0eb81a8ba0a631c7f542fa7fa/dataflow/core/prompt.py#L5-L15).
 
 ```python
 class PromptABC():
@@ -460,9 +462,14 @@ class DIYPromptABC(PromptABC):
         raise NotImplementedError
 ```
 
-The overall convention is relatively simple. All prompts and prompt templates only need to implement the `build_prompt` function. Operators construct the required prompts by calling the `build_prompt` function. The parameter lists of `__init__` and `build_prompt` can be designed and extended as needed.
+The difference between the two is as follows:
 
-When defining actual prompt templates, they need to be registered via `PROMPT_REGISTRY` under `dataflow.utils.registry`:
+1. `PromptABC` is the base class inherited by all prompt templates provided by **official developers** in the DataFlow main repository. It is used to strictly constrain the **one-to-many** relationship between operators and prompt templates, i.e., enforcing that an operator can only accept certain templates.
+2. If users need to define new templates themselves, modifying the official repository definitions would be very inconvenient. Therefore, `DIYPromptABC` is provided as a base class for **repository users** who want to define similar, new prompt templates. Classes inheriting from `DIYPromptABC` can, by default, accept any template with a `prompt_template` parameter, without being affected by DataFlow’s system type checking. Of course, users still need to refer to the parameter passing style and usage of existing official prompt templates to implement their own.
+
+Overall, the convention is relatively simple: all prompts and prompt templates only need to implement the `build_prompt` function. Operators construct the required prompt by calling `build_prompt`. The parameter lists of `__init__` and `build_prompt` can be freely designed and extended as needed.
+
+When defining an actual prompt template, it must be registered via `PROMPT_REGISTRY` under `dataflow.utils.registry`:
 
 ```python
 from dataflow.utils.registry import PROMPT_REGISTRY # [!code highlight]
@@ -478,12 +485,12 @@ class DemoPrompt(PromptABC):
 
     def build_prompt(self, question: str) -> str:
         """
-        Generate system prompt information for a given math problem
+        Generate system prompt information for a given math question
         """
         prompt =  r'''You are helpful agent'''
 ```
 
-Further, when prompts are applied to corresponding operators, the operator class declaration function needs to be decorated with the `prompt_restrict` decorator under `dataflow.core.prompt`. This step establishes a mapping from operators to Prompts in Dataflow.
+Further, when a prompt is applied to its corresponding operator, the operator class declaration must be decorated with the `prompt_restrict` decorator from `dataflow.core.prompt`. This step establishes the mapping between operators and prompts in DataFlow.
 
 ```python
 from dataflow.utils.registry import OPERATOR_REGISTRY
@@ -518,17 +525,17 @@ class ReasoningQuestionFilter(OperatorABC):
         self.prompt_template = prompt_template
         self.system_prompt = system_prompt
         self.llm_serving = llm_serving
-        self.empty_responses_count = 0  # Add empty response counter
+        self.empty_responses_count = 0  # add empty response counter
         ...
 ```
 
-This step has the following details, referring to the highlighted parts above:
+This step involves the following details, referring to the highlighted parts above:
 
-1. The function decorated with `prompt_restrict` needs to include all prompt classes held by that operator.
-2. If the operator wishes to **expose replaceable prompt templates** to users so they can input prompts with different functionalities, then the operator parameter list must include a field named `prompt_template`, and Python type annotations should indicate the available options for this parameter.
-3. If the operator’s internal prompt is hard-coded, `@prompt_restrict` is still required, but the parameter list does not need to be considered.
+1. The `prompt_restrict` decorator must be given all prompt classes that this operator can hold.
+2. If the operator intends to **expose replaceable prompt templates** for users to supply different functional prompts, then the operator’s parameter list must include a field named `prompt_template`, and Python type annotations should be used to indicate the available options.
+3. If the operator’s internal prompt is hard-coded, it still needs to use `@prompt_restrict`, but the parameter list does not need to be modified.
 
-In particular, after completing the `prompt_restrict` type annotation, the operator will additionally have a member `ALLOWED_PROMPTS`. You can obtain the selectable prompts or prompt templates for that operator as follows. Dataflow operators establish a “one-to-many” mapping from operators to prompts in this way.
+Notably, after completing the `prompt_restrict` type annotation, the operator will have an additional member `ALLOWED_PROMPTS`. You can obtain the selectable prompts or prompt templates for the operator in the following way. This is also how DataFlow establishes the **one-to-many** mapping relationship from operators to prompts. Moreover, the `prompt_template` parameter must be filled with either official classes listed here or user-defined prompts that inherit from `DIYPromptABC`. DataFlow will perform runtime checks when the operator executes.
 
 ```python
 from dataflow.operators.reasoning import ReasoningQuestionFilter
@@ -536,12 +543,13 @@ op1 = ReasoningQuestionFilter()
 print(op1.ALLOWED_PROMPTS)
 ```
 
-The output obtained is:
+The output will be:
 
 ```python
  2025-09-24 16:25:07,928 | registry.py         - registry            - __getattr__         -   273 - DataFlow   |     INFO | Processno 1986103 - Threadno 140565043730240 : Lazyloader ['dataflow/operators/reasoning/'] trying to import ReasoningQuestionFilter 
 (<class 'dataflow.prompts.reasoning.math.MathQuestionFilterPrompt'>, <class 'dataflow.prompts.reasoning.general.GeneralQuestionFilterPrompt'>, <class 'dataflow.prompts.reasoning.diy.DiyQuestionFilterPrompt'>)
 ```
+
 
 ## DataFlow Data Statistics
 

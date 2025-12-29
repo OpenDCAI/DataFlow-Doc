@@ -407,13 +407,13 @@ if __name__ == "__main__":
 2. **提示词模板**：可能需要传入一些额外信息组成完整提示词的模板；亦或是一个算子为了实现不同功能，通过替换不同提示词模板来满足灵活多变需求的设计。
 3. 总的来说，提示词和提示词模板对于算子来说，是**多对一**的映射关系。多个提示词可能会同时或者互斥地支持一个算子的功能。
 
-特别的，即便算子内部只有一个很精简的提示词，且被写死，Dataflow也希望该Prompt能被**单独创建一个类**，并被**注册**。
+特别的，即便算子内部只有一个很精简的提示词，且被写死，Dataflow也希望该Prompt能被**单独创建一个类**，并被**注册**。这样方便全局查阅提示词和算子的关系，并提供给Agent或者用户作为全局参考，用于写新的提示词组装到对应的算子中。
 
 
 ### 代码实现
 首先，Dataflow所有的提示词和提示词模板放置在`./dataflow/prompts`路径下，按照对应的流水线名称命名python文件。
 
-所有的提示词必须参考[dataflow.core.prompt.PromptABC](https://github.com/OpenDCAI/DataFlow/blob/691d98e077e9e0a0eb81a8ba0a631c7f542fa7fa/dataflow/core/prompt.py#L5-L15)的实现。其中`PromptABC`是供开发者继承的抽象类，而`DIYPromptABC`是方便用户自行填充新的提示词模板的基类。加以区分是为了方便算子或Agent识别提示词模板的来源。
+无论是提示词还是提示词模板，都需要继承[dataflow.core.prompt.PromptABC](https://github.com/OpenDCAI/DataFlow/blob/691d98e077e9e0a0eb81a8ba0a631c7f542fa7fa/dataflow/core/prompt.py#L5-L15)的实现。
 ```python
 class PromptABC():
     def __init__(self):
@@ -427,6 +427,10 @@ class DIYPromptABC(PromptABC):
     def build_prompt(self):
         raise NotImplementedError
 ```
+上述二者的区别是：
+1. `PromptABC`是由DataFlow主仓库中**官方开发者**提供的所有提示词模板继承的类，会用来严格约束算子和提示词模板的“一对多”的关系，即强制检查一个算子只能输入某些模板。
+2. 当然，如果用户需要自定义一些新的模板时还需要修改官方仓库里的定义，会非常的麻烦，所以`DIYPromptABC`是供**仓库的用户**想自己定义一个相似的，新的提示词模板的基类。继承`DIYPromptABC`的类，默认可以传入任何带`prompt_template`形参的模板，不会受到DataFlow系统类型检查的影响。当然，需要用户参考现有的官方提示词模板的传参方式和用法来实现自己的。
+
 
 整体规约相对简单，所有的提示词和提示词模板只要实现`build_prompt`函数即可，算子通过调用build_prompt函数来构成需要的提示词。其中`__init__`和`build_prompt`函数的形参列表可以根据需要自行设计拓展。
 
@@ -492,7 +496,7 @@ class ReasoningQuestionFilter(OperatorABC):
 2. 如果该算子希望对外**暴露可更换的提示词模板**供用户填入不同功能的提示词，则算子形参列表中必须有一个字段为`prompt_template`并且通过Python类型注解提示用户该位置可填入的选项。
 3. 如果该算子内部的提示词是写死的，也需要填`@prompt_restrict`，但是不用管形参列表。
 
-特别的，当完成`prompt_restrict`类型注解后，该算子会额外拥有一个成员`ALLOWED_PROMPTS`，你可以通过如下方式获得该算子可选的提示词或提示词模板，Dataflow的算子也就是通过这样的方式建立了从算子到提示词的“一对多”映射关系。
+特别的，当完成`prompt_restrict`类型注解后，该算子会额外拥有一个成员`ALLOWED_PROMPTS`，你可以通过如下方式获得该算子可选的提示词或提示词模板，Dataflow的算子也就是通过这样的方式建立了从算子到提示词的“一对多”映射关系。并且`prompt_template`形参中必须填入这里存在的官方的类，以及用户自定义且继承了`DIYPromptABC`的新的prompt，DataFlow系统会在算子运行时进行检查。
 ```python
 from dataflow.operators.reasoning import ReasoningQuestionFilter
 op1 = ReasoningQuestionFilter()
