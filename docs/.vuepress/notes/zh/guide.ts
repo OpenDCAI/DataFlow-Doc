@@ -55,6 +55,16 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'speech_transcription',
             ],
         },
+        {
+            text: '内测功能',
+            collapsed: false,
+            icon: 'carbon:idea',
+            prefix: 'new_feature',
+            items: [
+                "resume",
+                "batch"
+            ],
+        },
 
         {
             text:"流水线教程",

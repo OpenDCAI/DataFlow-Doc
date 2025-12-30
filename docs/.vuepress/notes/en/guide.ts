@@ -48,7 +48,17 @@ export const Guide: ThemeNote = defineNoteConfig({
             ],
 
         },
-        
+        {
+            text: 'Preview Features',
+            collapsed: false,
+            icon: 'carbon:idea',
+            prefix: 'new_feature',
+            items: [
+                "resume",
+                "batch"
+            ],
+        },
+
         // {
         //     text: 'Dataflow Agent',
         //     collapsed: false,
