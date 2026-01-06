@@ -1,5 +1,6 @@
 ---
-title: CodePipeline
+title: 代码数据合成流水线
+icon: mdi:code-braces
 createTime: 2025/11/23 17:03:49
 permalink: /zh/guide/i987k1eh/
 ---
