@@ -39,14 +39,11 @@ def run(self, storage: DataFlowStorage, input_key: str = "raw_content")
 
 | 名称 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| **storage** | DataFlowStorage | 必需 | 数据流存储实例，负责读取与写入数据。 |
+| **storage** | DataFlowStorage | None | 数据流存储实例，负责读取与写入数据。 |
 | **input_key** | str | "raw_content" | 输入列名，对应原始文档内容的字段。 |
 
 ## 🧠 示例用法
 
-```python
-
-```
 
 #### 🧾 默认输出格式（Output Format）
 
