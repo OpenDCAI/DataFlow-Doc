@@ -218,12 +218,12 @@ python pipelines/api_pipelines/code_gen_dataset_pipeline.py
 
 - 默认输入文件：`../example_data/CodePipeline/raw_code.jsonl`
 - 典型字段：
-  - **`messages`**：原始对话、模板信息或粗粒度任务说明，用于生成更高质量的指令。
+  - **`input`**：原始指令或粗粒度任务说明，用于生成更高质量的指令。
 
 #### 3.4.2 主要算子与数据流
 
 1. **指令增强：`CodeEnhancementInstructionGenerator`**
-   - **输入**：`messages`
+   - **输入**：`input`
    - **输出键**：`generated_instruction`
    - **功能**：基于粗粒度输入（如聊天记录、简短提示），生成结构化、清晰、可直接用于 CodeGen 任务的高质量指令。
 

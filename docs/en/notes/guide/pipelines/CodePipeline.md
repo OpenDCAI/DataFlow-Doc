@@ -223,12 +223,12 @@ This pipeline (in `pipelines/api_pipelines/code_gen_dataset_pipeline.py`) is gea
 
 - Default input file: `../example_data/CodePipeline/raw_code.jsonl`
 - Typical fields:
-  - **`messages`**: Raw dialogue turns, templates, or coarse‑grained task descriptions used as seeds for instruction enhancement.
+  - **`input`**: Raw instruction, templates, or coarse‑grained task descriptions used as seeds for instruction enhancement.
 
 #### 4.2 Main operators and data flow
 
 1. **Instruction enhancement: `CodeEnhancementInstructionGenerator`**
-   - **Input**: `messages`
+   - **Input**: `input`
    - **Output key**: `generated_instruction`
    - **Function**: Converts rough inputs (e.g., chat history, short prompts) into clear, structured, and high‑quality instructions suitable for code generation.
 
