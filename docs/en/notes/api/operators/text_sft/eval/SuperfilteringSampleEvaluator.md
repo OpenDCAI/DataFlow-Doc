@@ -32,11 +32,49 @@ run(self, storage: DataFlowStorage, input_instruction_key: str = 'instruction', 
 | **output_key** | str | 'SuperfilteringScore' | The column name where the calculated Superfiltering score will be stored. |
 
 ## 🧠 Example Usage
+```python
+from dataflow.operators.text_sft.eval import SuperfilteringSampleEvaluator
+from dataflow.utils.storage import FileStorage
 
-#### 🧾 Output Format
+# Prepare storage with instruction-output pairs
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize and run the evaluator
+evaluator = SuperfilteringSampleEvaluator(
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_input_key=None,
+    input_output_key="output",
+    output_key="SuperfilteringScore",
+)
+```
+
+## 🧾 Output Format
 The operator adds a new column (specified by `output_key`) to the input dataframe.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | ... | ... | Original columns from the input dataframe are preserved. |
 | **SuperfilteringScore** | float | The calculated perplexity ratio. Higher values indicate greater instruction following difficulty. |
+
+**Example Input:**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>"
+}
+```
+
+**Example Output:**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>",
+  "SuperfilteringScore": 0.8576479985
+}
+```

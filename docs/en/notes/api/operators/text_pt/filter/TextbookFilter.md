@@ -42,7 +42,23 @@ Executes the main logic of the operator. It reads an input DataFrame from storag
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_pt.filter import TextbookFilter
+from dataflow.utils.storage import FileStorage
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the filter
+textbook_filter = TextbookFilter(
+    min_score=0.99,
+    max_score=1,
+    model_cache_dir='./dataflow_cache'
+)
+textbook_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='TextbookScore'
+)
 ```
 
 #### 🧾 Default Output Format
@@ -56,16 +72,13 @@ The operator filters the input data and adds a new column containing the educati
 **Example Input:**
 ```json
 {
-    "text": "The mitochondria is the powerhouse of the cell."
-}
-{
-    "text": "ummm i think maybe its like a cell thingy"
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
 }
 ```
-**Example Output (assuming `min_score=0.9` and the first entry scores 0.95 and the second scores 0.2):**
+**Example Output (assuming the score passes the filter):**
 ```json
 {
-    "text": "The mitochondria is the powerhouse of the cell.",
-    "TextbookScore": 0.95
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+    "TextbookScore": 2.9629482031
 }
 ```

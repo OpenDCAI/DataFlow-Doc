@@ -41,7 +41,23 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Textboo
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.filter import TextbookFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行过滤器
+textbook_filter = TextbookFilter(
+    min_score=0.99,
+    max_score=1,
+    model_cache_dir='./dataflow_cache'
+)
+textbook_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='TextbookScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -54,18 +70,16 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Textboo
 | TextbookScore | float | 模型生成的教育价值分数。 |
 
 **示例输入：**
-
 ```json
 {
-    "text": "The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse is equal to the sum of the squares of the other two sides."
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
 }
 ```
 
 **示例输出（假设该样本通过过滤）：**
-
 ```json
 {
-    "text": "The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse is equal to the sum of the squares of the other two sides.",
-    "TextbookScore": 0.995
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+    "TextbookScore": 2.9629482031
 }
 ```

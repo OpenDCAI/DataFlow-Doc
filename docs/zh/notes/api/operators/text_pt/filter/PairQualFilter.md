@@ -48,7 +48,24 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='PairQua
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.filter import PairQualFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行过滤器
+pairqual_filter = PairQualFilter(
+    min_score=0,
+    max_score=10000,
+    model_cache_dir='./dataflow_cache',
+    lang='en'
+)
+pairqual_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PairQualScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -59,3 +76,18 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='PairQua
 | :------------------------ | :---- | :--------------------------------- |
 | ... (原始字段)            | -     | 保留所有原始输入字段。             |
 | **PairQualScore** (默认)  | float | PairQualScorer计算出的质量得分。   |
+
+**示例输入:**
+```json
+{
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
+}
+```
+
+**示例输出:**
+```json
+{
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+    "PairQualScore": 3.2509903908
+}
+```

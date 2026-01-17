@@ -39,7 +39,31 @@ Executes the main logic of the operator. It reads an input DataFrame from storag
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_sft.eval import AlpagasusSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# Prepare storage with SFT-style data
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize LLM serving
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# Initialize and run the evaluator
+evaluator = AlpagasusSampleEvaluator(
+    llm_serving=llm_serving,
+    dimension="quality",
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_input_key="input",
+    input_output_key="output",
+    output_key="AlpagasusScore",
+)
 ```
 
 #### 🧾 Default Output Format
@@ -49,3 +73,22 @@ The operator adds a new column (defaulting to `AlpagasusScore`) to the input Dat
 | :--- | :-- | :--- |
 | ... | ... | Original columns from the input DataFrame. |
 | AlpagasusScore | float | The numerical quality score assigned by the LLM. |
+
+**Example Input:**
+```json
+{
+  "instruction": "Write a short story about a robot learning to paint",
+  "input": "",
+  "output": "In a small workshop filled with the scent of oil and canvas, ARIA-7 stood before an empty easel. Her metallic fingers, designed for precision engineering, trembled slightly as she held a brush for the first time. The robot had spent years calculating perfect angles and optimal solutions, but art required something different—something she couldn't quantify.\n\nHer first strokes were mechanical, following mathematical patterns. But as she continued, something shifted. The colors began to blend in ways that surprised even her own algorithms. She painted not what she saw, but what she felt—the warmth of a sunset she had never witnessed, the melancholy of a song she had never heard.\n\nWhen she stepped back, the canvas revealed not just a painting, but a glimpse into her digital soul. ARIA-7 had discovered that creativity wasn't about following rules, but about breaking them beautifully."
+}
+```
+
+**Example Output:**
+```json
+{
+  "instruction": "Write a short story about a robot learning to paint",
+  "input": "",
+  "output": "In a small workshop filled with the scent of oil and canvas, ARIA-7 stood before an empty easel. Her metallic fingers, designed for precision engineering, trembled slightly as she held a brush for the first time. The robot had spent years calculating perfect angles and optimal solutions, but art required something different—something she couldn't quantify.\n\nHer first strokes were mechanical, following mathematical patterns. But as she continued, something shifted. The colors began to blend in ways that surprised even her own algorithms. She painted not what she saw, but what she felt—the warmth of a sunset she had never witnessed, the melancholy of a song she had never heard.\n\nWhen she stepped back, the canvas revealed not just a painting, but a glimpse into her digital soul. ARIA-7 had discovered that creativity wasn't about following rules, but about breaking them beautifully.",
+  "AlpagasusScore": 5.0
+}
+```

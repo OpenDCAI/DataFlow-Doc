@@ -46,7 +46,24 @@ def run(self, storage, input_instruction_key='instruction', input_output_key='ou
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_sft.eval import DeitaQualitySampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行评估器
+evaluator = DeitaQualitySampleEvaluator(
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaQualityScore",
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -57,21 +74,19 @@ def run(self, storage, input_instruction_key='instruction', input_output_key='ou
 | output | str | 输入的输出文本。 |
 | DeitaQualityScore | float | 模型生成的质量评分（1-6分）。 |
 
-示例输入：
-
+**示例输入：**
 ```json
 {
-  "instruction": "中国的首都是哪里？",
-  "output": "中国的首都是北京。"
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>"
 }
 ```
 
-示例输出：
-
+**示例输出：**
 ```json
 {
-  "instruction": "中国的首都是哪里？",
-  "output": "中国的首都是北京。",
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>",
   "DeitaQualityScore": 5.87
 }
 ```

@@ -30,7 +30,24 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 Example Usage
 ```python
-# The user does not have enough information to write this part.
+from dataflow.operators.text_sft.eval import DeitaComplexitySampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# Prepare storage with instruction-output pairs
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize and run the evaluator
+evaluator = DeitaComplexitySampleEvaluator(
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaComplexityScore",
+)
 ```
 
 ## 🧾 Output Format
@@ -40,18 +57,22 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | **(input_fields)** | - | The original fields from the input data are preserved. |
 | **DeitaComplexityScore** | float | The calculated complexity score for the instruction (typically from 1 to 6). |
 
-#### Example Input:
+**Example Input:**
+```json
+Example Input:
 ```json
 {
-    "instruction": "Explain the theory of relativity in simple terms.",
-    "output": "The theory of relativity, proposed by Albert Einstein, has two main parts: special relativity and general relativity. Special relativity deals with..."
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access."
 }
+
 ```
-#### Example Output:
+
+Example Output:
 ```json
 {
-    "instruction": "Explain the theory of relativity in simple terms.",
-    "output": "The theory of relativity, proposed by Albert Einstein, has two main parts: special relativity and general relativity. Special relativity deals with...",
-    "DeitaComplexityScore": 4.85
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access.",
+  "DeitaComplexityScore":2.9713823783
 }
 ```

@@ -43,6 +43,22 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='FineWeb
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_pt.eval import FineWebEduSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行算子
+fineweb_evaluator = FineWebEduSampleEvaluator()
+fineweb_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='FinewebEduScore'
+)
+```
+
 #### 🧾 默认输出格式（Output Format）
 
 | 字段              | 类型  | 说明                           |
@@ -51,18 +67,15 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='FineWeb
 | FineWebEduScore   | float | 模型生成的教育价值分数（0-1之间）。 |
 
 示例输入：
-
 ```json
 {
-"text":"This document explains the theory of relativity, detailing its core principles and mathematical foundations."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
-
 示例输出：
-
 ```json
 {
-"text":"This document explains the theory of relativity, detailing its core principles and mathematical foundations.",
-"FineWebEduScore": 0.9865
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "FinewebEduScore": 1.5264956951
 }
 ```

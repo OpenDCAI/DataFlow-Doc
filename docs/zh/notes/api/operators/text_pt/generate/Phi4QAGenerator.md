@@ -39,6 +39,26 @@ def run(self, storage: DataFlowStorage, input_key: str = "raw_content", output_k
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.generate import Phi4QAGenerator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
+
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>"
+)
+
+# 初始化并运行算子
+qa_generator = Phi4QAGenerator(llm_serving=llm_serving)
+qa_generator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='generated_content'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）

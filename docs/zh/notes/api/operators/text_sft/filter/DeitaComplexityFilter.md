@@ -37,6 +37,28 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_sft.filter import DeitaComplexityFilter
+from dataflow.utils.storage import FileStorage
+
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行过滤器
+complexity_filter = DeitaComplexityFilter(
+    min_score=2.0,
+    max_score=5.0,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+)
+complexity_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaComplexityScore",
+)
+```
+
 #### 🧾 默认输出格式（Output Format）
 该算子会为输入的每一行数据新增一个得分列（列名由 `output_key` 参数指定），然后根据得分范围进行过滤。
 | 字段 | 类型 | 说明 |
@@ -45,18 +67,19 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | output | str | 输入的输出文本。 |
 | DeitaComplexityScore | float | 模型生成的指令复杂性得分。 |
 
-示例输入：
+**示例输入：**
 ```json
 {
-"instruction":"请解释一下什么是黑洞，并说明它的主要特性。",
-"output":"黑洞是时空的一个区域，其引力场非常强大，以至于任何物质和辐射（包括光）都无法逃逸。它的主要特性包括：1. 事件视界：黑洞的边界，一旦越过就无法返回。2. 奇点：黑洞中心，密度和引力无限大的点。3. 无毛定理：一个稳定的黑洞仅由其质量、角动量和电荷三个物理量来确定。"
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access."
 }
 ```
-示例输出（假设该条目得分在 `[min_score, max_score]` 区间内）：
+
+**示例输出（如果通过过滤器）：**
 ```json
 {
-"instruction":"请解释一下什么是黑洞，并说明它的主要特性。",
-"output":"黑洞是时空的一个区域，其引力场非常强大，以至于任何物质和辐射（包括光）都无法逃逸。它的主要特性包括：1. 事件视界：黑洞的边界，一旦越过就无法返回。2. 奇点：黑洞中心，密度和引力无限大的点。3. 无毛定理：一个稳定的黑洞仅由其质量、角动量和电荷三个物理量来确定。",
-"DeitaComplexityScore": 4.5
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access.",
+  "DeitaComplexityScore":2.9713823783
 }
 ```

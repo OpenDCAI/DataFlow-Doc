@@ -38,6 +38,28 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.text_sft.filter import RMFilter
+from dataflow.utils.storage import FileStorage
+
+# Prepare storage with instruction-output pairs
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize and run the filter
+rm_filter = RMFilter(
+    min_score=0.2,
+    max_score=0.8,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+)
+rm_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="RMScore",
+)
+```
+
 #### 🧾 Default Output Format
 The operator adds a new column (defaulting to `RMScore`) to the existing data. Only rows where the score is between `min_score` and `max_score` are kept.
 
@@ -50,16 +72,16 @@ The operator adds a new column (defaulting to `RMScore`) to the existing data. O
 **Example Input:**
 ```json
 {
-    "instruction": "Explain the theory of relativity in simple terms.",
-    "output": "The theory of relativity, developed by Albert Einstein, is a cornerstone of modern physics. It has two main components: special relativity and general relativity. Special relativity deals with the relationship between space and time for objects moving at constant speeds. One of its most famous consequences is the equation E=mc^2, which shows that mass and energy are interchangeable. General relativity is a theory of gravitation, proposing that massive objects cause a distortion in space-time, which is felt as gravity."
+  "instruction": "How can we use Python to calculate the GCD (greatest common divisor) of five numbers and express each number in terms of the GCD?",
+  "output": "Yes, that's correct! The function you've provided takes in five numbers as arguments and returns the GCD of those numbers along with each number expressed in terms of the GCD. This is a useful tool for simplifying fractions or finding the common factor between multiple numbers. Great job!"
 }
 ```
 
-**Example Output (assuming the generated score is 0.75, which is within the default [0.2, 0.8] range):**
+**Example Output (if it passes the filter):**
 ```json
 {
-    "instruction": "Explain the theory of relativity in simple terms.",
-    "output": "The theory of relativity, developed by Albert Einstein, is a cornerstone of modern physics. It has two main components: special relativity and general relativity. Special relativity deals with the relationship between space and time for objects moving at constant speeds. One of its most famous consequences is the equation E=mc^2, which shows that mass and energy are interchangeable. General relativity is a theory of gravitation, proposing that massive objects cause a distortion in space-time, which is felt as gravity.",
-    "RMScore": 0.75
+  "instruction": "How can we use Python to calculate the GCD (greatest common divisor) of five numbers and express each number in terms of the GCD?",
+  "output": "Yes, that's correct! The function you've provided takes in five numbers as arguments and returns the GCD of those numbers along with each number expressed in terms of the GCD. This is a useful tool for simplifying fractions or finding the common factor between multiple numbers. Great job!",
+  "RMScore": 0.7027474046
 }
 ```

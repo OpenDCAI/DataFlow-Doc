@@ -35,9 +35,45 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_sft.filter import InstagFilter
+from dataflow.utils.storage import FileStorage
+
+# 准备仅包含指令数据的存储
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# 初始化并运行过滤器
+instag_filter = InstagFilter(
+    min_score=0.0,
+    max_score=1.0,
+    model_cache_dir="./dataflow_cache",
+    device="cuda",
+)
+instag_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="InstagScore",
+)
+```
+
 #### 🧾 默认输出格式（Output Format）
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | instruction | str | 输入的指令文本。 |
 | InstagScore | float | Instag模型对指令内容多样性的评分。 |
 | ... | any | 保留输入中的其他原始字段。 |
+
+**示例输入：**
+```json
+{
+  "instruction": "Using the Linnaean classification system, provide a detailed description of the taxonomy of the skunk cabbage plant."
+}
+```
+
+**示例输出（如果通过过滤器）：**
+```json
+{
+  "instruction": "Using the Linnaean classification system, provide a detailed description of the taxonomy of the skunk cabbage plant.",
+  "InstagScore": 1
+}
+```

@@ -51,7 +51,27 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_sft.filter import SuperfilteringFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行过滤器
+superfiltering_filter = SuperfilteringFilter(
+    min_score=0.0,
+    max_score=1.0,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+superfiltering_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_input_key="input",
+    input_output_key="output",
+    output_key="SuperfilteringScore",
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -65,20 +85,19 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | output | str | 输入的期望答案。 |
 | SuperfilteringScore | float | 模型生成的指令跟随难度分数。 |
 
-示例输入：
+**示例输入：**
 ```json
 {
-"instruction":"将以下句子从英语翻译成法语。",
-"input":"Hello, how are you?",
-"output":"Bonjour, comment ça va?"
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>"
 }
 ```
-示例输出 (假设该样本通过过滤)：
+
+**示例输出（如果通过过滤器）：**
 ```json
 {
-"instruction":"将以下句子从英语翻译成法语。",
-"input":"Hello, how are you?",
-"output":"Bonjour, comment ça va?",
-"SuperfilteringScore": 0.85
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>",
+  "SuperfilteringScore": 0.8576479985
 }
 ```

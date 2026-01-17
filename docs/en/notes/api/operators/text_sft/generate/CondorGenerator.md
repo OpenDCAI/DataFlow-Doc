@@ -70,14 +70,43 @@ def run(self, storage: DataFlowStorage):
 | :--- | :--- | :--- | :--- |
 | **storage** | DataFlowStorage | Required | The DataFlowStorage instance, responsible for reading and writing data. |
 
-## Example Usage
+## 🧠 Example Usage
+```python
+from dataflow.operators.text_sft.generate import CondorGenerator
+from dataflow.prompts.general_text import CondorQuestionPrompt
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
-Example synthetic data
+# Prepare storage for generated SFT data
+storage = FileStorage(first_entry_file_name="../example_data/GeneralTextPipeline/empty.jsonl")
 
+# Initialize LLM serving
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# Initialize and run the operator
+generator = CondorGenerator(
+    llm_serving=llm_serving,
+    num_samples=15,  # total number of SFT samples to generate
+    prompt_template=CondorQuestionPrompt()
+)
+generator.run(storage.step())
+```
+
+#### 🧾 Output Format
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| difficulty | str | Difficulty level of the question (e.g., "Easy", "Medium", "Hard"). |
+| instruction | str | The generated question text. |
+| output | str | The generated answer for the corresponding instruction. |
+
+**Example Output:**
 ```json
 {
-    "difficulty":"Easy",
-    "instruction":"Imagine you're visiting a country where the custom is to greet others with a bow instead of a handshake. As a traveler aiming to adapt culturally, how would you approach your first meeting with locals to show respect for their traditions? How might you prepare before your trip to ensure you understand this and other greeting customs?",
-    "output":"Adapting to local customs when visiting a new country is a respectful and enriching approach. Here's how you might approach your first meeting with locals to show respect for their tradition of greeting with a bow:\n\n1. **Preparation Before the Trip:**\n   - **Research Cultural Practices:** Begin by researching the social norms and customs specific to the country you are visiting. This can include watching videos, reading travel guides, and exploring reputable online resources that describe local etiquette.\n   - **Understand the Bowing Gesture:** Learn the different forms and depths of bowing, as some cultures have variations based on the social context or the status of the person you are greeting.\n   - **Learn the Language Basics:** Familiarize yourself with basic greetings and polite phrases in the local language, which will enhance your sincerity in adapting to their customs.\n   - **Connect with Locals:** If possible, reach out to locals or expatriate communities online to gather insights or tips on cultural norms and expectations.\n\n2. **During the Meeting:**\n   - **Observe and Mimic:** Upon meeting someone for the first time, observe how they initiate the greeting, the depth of their bow, and then respectfully mimic their approach.\n   - **Display Body Language that Conveys Openness:** Maintain good posture, smile genuinely, and make eye contact where culturally appropriate to convey warmth and openness.\n   - **Offer a Polite Verbal Greeting:** Combine the physical gesture with a courteous verbal greeting in their language or a respectful equivalent.\n\n3. **Be Open to Feedback:**\n   - **Ask for Guidance:** If you are unsure about the proper etiquette, it is perfectly fine to politely ask if you are doing it correctly or request guidance on any cultural nuances.\n   - **Show Appreciation:** Express gratitude for any insights or corrections offered by locals, demonstrating your willingness to learn and respect their traditions.\n\nBy thoroughly preparing and demonstrating genuine respect during your interactions, you show appreciation for their culture and foster positive and meaningful connections."
+  "difficulty": "Easy",
+  "instruction": "Imagine you're starting your study abroad journey in a new country. What are three essential steps you need to take upon arrival to ensure a smooth transition into overseas living? Consider aspects such as accommodation, communication, and local registration.",
+  "output": "Embarking on a study abroad journey is an exciting opportunity, and taking the right steps upon arrival can greatly aid in a smooth transition. Here are three essential steps to consider:\n\n1. **Secure and Settle into Accommodation:**\n   - **Confirmation and Check-in:** If you've arranged accommodation before arrival, ensure you have confirmation details and know the check-in procedures. If not, you should prioritize finding suitable temporary housing, like a hostel or hotel, while exploring long-term options such as student housing, apartments, or homestays.\n   - **Familiarize Yourself with the Area:** Once settled, get to know the neighborhood. Locate the nearest grocery store, pharmacy, public transportation stops, and other essential services.\n\n2. **Establish Communication:**\n   - **Local SIM Card and Mobile Plan:** Purchase a local SIM card to enable cost-effective communication. Ensure your phone is unlocked if you're planning to switch SIMs. Choose a mobile plan that suits your needs, whether that's data-heavy or voice-focused.\n   - **Internet Access:** Set up internet access in your accommodation if it is not already provided. Reliable internet is crucial for communication, study, and staying connected with family and friends.\n\n3. **Complete Local Registration and Administrative Obligations:**\n   - **University Registration:** Visit your university's international office for orientation and registration. Complete all necessary administrative tasks such as enrollment, student ID collection, and participation in orientation programs designed for international students.\n   - **Local Authorities Registration:** Some countries require international students to register with local authorities within a certain timeframe after arrival. This might involve visiting a local town hall, police station, or immigration office to register your residency. Check with your university or host country's regulations to ensure compliance.\n\nTending to these tasks ensures you have a solid foundation for your time abroad, positioning you well for a successful and enriching experience."
 }
 ```

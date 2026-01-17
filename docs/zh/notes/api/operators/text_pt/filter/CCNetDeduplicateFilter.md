@@ -28,7 +28,19 @@ def run(self, storage: DataFlowStorage, input_keys: list = None, input_key: str 
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.text_pt.filter import CCNetDeduplicateFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行去重过滤器
+ccnet_filter = CCNetDeduplicateFilter(bit_length=64)
+ccnet_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='minhash_deduplicated_label'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -39,17 +51,17 @@ def run(self, storage: DataFlowStorage, input_keys: list = None, input_key: str 
 | (原输入字段) | - | 输入数据中包含的所有原始字段。 |
 | minhash_deduplicated_label | int | 去重标记。值为 `1`，表示该条数据是唯一的。 |
 
-**示例输入：**
+**示例输入:**
 ```json
-{"text": "DataFlow是一个开源的数据处理框架。"}
-{"text": "这是一个测试样本。"}
-{"text": "DataFlow是一个开源的数据处理框架。"}
-{"text": "这是另一个独特的样本。"}
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
+}
 ```
 
-**示例输出：**
+**示例输出:**
 ```json
-{"text": "DataFlow是一个开源的数据处理框架。", "minhash_deduplicated_label": 1}
-{"text": "这是一个测试样本。", "minhash_deduplicated_label": 1}
-{"text": "这是另一个独特的样本。", "minhash_deduplicated_label": 1}
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+  "minhash_deduplicated_label": 1
+}
 ```

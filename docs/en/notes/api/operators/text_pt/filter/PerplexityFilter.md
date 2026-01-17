@@ -35,7 +35,24 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Perpl
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_pt.filter import PerplexityFilter
+from dataflow.utils.storage import FileStorage
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the filter
+perplexity_filter = PerplexityFilter(
+    min_score=10.0,
+    max_score=500.0,
+    model_name='gpt2',
+    device='cuda'
+)
+perplexity_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PerplexityScore'
+)
 ```
 #### 🧾 Default Output Format
 The operator adds a new column (specified by `output_key`) with the perplexity score to the existing data and filters the rows based on `min_score` and `max_score`.
@@ -48,13 +65,13 @@ The operator adds a new column (specified by `output_key`) with the perplexity s
 **Example Input:**
 ```json
 {
-"text": "This is a fluent and well-formed sentence."
+"raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
 }
 ```
 **Example Output (if it passes the filter):**
 ```json
 {
-"text": "This is a fluent and well-formed sentence.",
-"PerplexityScore": 42.5
+"raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+"PerplexityScore": 49.2016410828
 }
 ```

@@ -39,7 +39,25 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Deber
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.filter import DebertaV3Filter
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行过滤器
+deberta_filter = DebertaV3Filter(
+    allowed_scores=['Medium', 'High'],
+    model_name='nvidia/quality-classifier-deberta',
+    model_cache_dir='./dataflow_cache',
+    device='cuda',
+    batch_size=16
+)
+deberta_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='Debertav3Score'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -50,3 +68,17 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Deber
 | :--------------------------------- | :---- | :--------------------------------------------------------- |
 | ... | ... | （输入 DataFrame 的原始字段） |
 | **Debertav3Score** (或自定义的`output_key`) | str | 模型生成的质量分数（例如 'High', 'Medium', 'Low'）。 |
+
+**示例输入:**
+```json
+{
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
+}
+```
+**示例输出 (假设评分为'High'且'High'在`allowed_scores`中):**
+```json
+{
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+    "Debertav3Score": "High"
+}
+```

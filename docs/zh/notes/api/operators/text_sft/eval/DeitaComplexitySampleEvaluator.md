@@ -37,7 +37,24 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.text_sft.eval import DeitaComplexitySampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行评估器
+evaluator = DeitaComplexitySampleEvaluator(
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaComplexityScore",
+)
 ```
 #### 🧾 默认输出格式（Output Format）
 算子会保留所有输入字段，并添加一个新字段用于存储复杂性评分。
@@ -47,18 +64,19 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | ... | ... | 原始输入数据中的所有字段。 |
 | DeitaComplexityScore | float | 模型生成的指令复杂性评分（范围在1-6之间）。 |
 
-示例输入：
+**示例输入：**
 ```json
 {
-"instruction":"写一首关于春天的五言绝句。",
-"output": "草长莺飞日，风和柳絮时。花开香满径，客来鸟先知。"
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access."
 }
 ```
-示例输出：
+
+**示例输出：**
 ```json
 {
-"instruction":"写一首关于春天的五言绝句。",
-"output": "草长莺飞日，风和柳絮时。花开香满径，客来鸟先知。",
-"DeitaComplexityScore": 2.35
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access.",
+  "DeitaComplexityScore":2.9713823783
 }
 ```
