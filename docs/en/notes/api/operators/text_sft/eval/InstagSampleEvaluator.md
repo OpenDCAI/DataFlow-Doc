@@ -38,7 +38,23 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_sft.eval import InstagSampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# Prepare storage with instruction-only data
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# Initialize and run the evaluator
+evaluator = InstagSampleEvaluator(
+    model_cache_dir="./dataflow_cache",
+    device="cuda",
+    max_new_tokens=1024,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="InstagScore",
+)
 ```
 
 #### 🧾 Default Output Format
@@ -48,3 +64,18 @@ The operator adds a new column to the input dataframe containing the calculated 
 | :--- | :--- | :--- |
 | *input_columns* | - | The original columns from the input data are preserved. |
 | **InstagScore** | int | The calculated content diversity score (number of tags). The column name is determined by the `output_key` parameter. |
+
+**Example Input:**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points."
+}
+```
+
+**Example Output:**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "InstagScore": 2
+}
+```

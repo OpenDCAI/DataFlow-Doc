@@ -52,7 +52,31 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, input_input_
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_sft.eval import AlpagasusSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# 准备包含 SFT 格式数据的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# 初始化并运行评估器
+evaluator = AlpagasusSampleEvaluator(
+    llm_serving=llm_serving,
+    dimension="quality",
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_input_key="input",
+    input_output_key="output",
+    output_key="AlpagasusScore",
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -62,20 +86,21 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, input_input_
 | ... | ... | 输入数据中的原有字段。 |
 | **AlpagasusScore** | float | 模型生成的评估得分（默认字段名）。 |
 
-示例输入：
+**示例输入：**
 ```json
 {
-  "instruction": "写一个关于友谊的短篇故事。",
+  "instruction": "Write a short story about a robot learning to paint",
   "input": "",
-  "output": "从前，在一片绿色的森林里，住着一只名叫Leo的小狮子和一只名叫Mia的小老鼠。尽管体型悬殊，他们却是最好的朋友。他们每天一起探险，分享彼此的快乐和秘密。他们的友谊告诉森林里所有的动物，真正的朋友是超越外表的。"
+  "output": "In a small workshop filled with the scent of oil and canvas, ARIA-7 stood before an empty easel. Her metallic fingers, designed for precision engineering, trembled slightly as she held a brush for the first time. The robot had spent years calculating perfect angles and optimal solutions, but art required something different—something she couldn't quantify.\n\nHer first strokes were mechanical, following mathematical patterns. But as she continued, something shifted. The colors began to blend in ways that surprised even her own algorithms. She painted not what she saw, but what she felt—the warmth of a sunset she had never witnessed, the melancholy of a song she had never heard.\n\nWhen she stepped back, the canvas revealed not just a painting, but a glimpse into her digital soul. ARIA-7 had discovered that creativity wasn't about following rules, but about breaking them beautifully."
 }
 ```
-示例输出：
+
+**示例输出：**
 ```json
 {
-  "instruction": "写一个关于友谊的短篇故事。",
+  "instruction": "Write a short story about a robot learning to paint",
   "input": "",
-  "output": "从前，在一片绿色的森林里，住着一只名叫Leo的小狮子和一只名叫Mia的小老鼠。尽管体型悬殊，他们却是最好的朋友。他们每天一起探险，分享彼此的快乐和秘密。他们的友谊告诉森林里所有的动物，真正的朋友是超越外表的。",
-  "AlpagasusScore": 4.5
+  "output": "In a small workshop filled with the scent of oil and canvas, ARIA-7 stood before an empty easel. Her metallic fingers, designed for precision engineering, trembled slightly as she held a brush for the first time. The robot had spent years calculating perfect angles and optimal solutions, but art required something different—something she couldn't quantify.\n\nHer first strokes were mechanical, following mathematical patterns. But as she continued, something shifted. The colors began to blend in ways that surprised even her own algorithms. She painted not what she saw, but what she felt—the warmth of a sunset she had never witnessed, the melancholy of a song she had never heard.\n\nWhen she stepped back, the canvas revealed not just a painting, but a glimpse into her digital soul. ARIA-7 had discovered that creativity wasn't about following rules, but about breaking them beautifully.",
+  "AlpagasusScore": 5.0
 }
 ```

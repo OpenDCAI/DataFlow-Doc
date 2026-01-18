@@ -35,7 +35,24 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_sft.eval import DeitaQualitySampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# Prepare storage with instruction-output pairs
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize and run the evaluator
+evaluator = DeitaQualitySampleEvaluator(
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+    max_length=512,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaQualityScore",
+)
 ```
 
 #### 🧾 Default output format (Output Format)

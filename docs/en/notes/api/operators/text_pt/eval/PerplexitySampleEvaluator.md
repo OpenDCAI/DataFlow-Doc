@@ -40,21 +40,33 @@ def run(self, storage: DataFlowStorage, input_key: str = 'raw_content', output_k
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.text_pt.eval import PerplexitySampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the operator
+perplexity_evaluator = PerplexitySampleEvaluator(model_name='gpt2')
+perplexity_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PerplexityScore'
+)
 ```
 
 #### 🧾 Default Output Format
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| raw_content | str | The input text. |
+| ... | ... | Original columns from the input data. |
 | PerplexityScore | float | The calculated perplexity score for the input text. Lower is better. |
 
 **Example Input:**
 
 ```json
 {
-  "raw_content": "The quick brown fox jumps over the lazy dog."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
 
@@ -62,7 +74,7 @@ def run(self, storage: DataFlowStorage, input_key: str = 'raw_content', output_k
 
 ```json
 {
-  "raw_content": "The quick brown fox jumps over the lazy dog.",
-  "PerplexityScore": 35.82
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "PerplexityScore": 49.2016410828
 }
 ```

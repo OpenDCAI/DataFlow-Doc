@@ -29,13 +29,38 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Textboo
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_pt.eval import TextbookSampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the operator
+textbook_evaluator = TextbookSampleEvaluator()
+textbook_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='TextbookScore'
+)
 ```
 
 #### 🧾 Default Output Format (Output Format)
-The operator adds the `output_key` column to the existing dataframe.
-
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | ... | ... | Original columns from the input dataframe are preserved. |
-| **TextbookScore** | float | The educational value score assigned by the classifier. The value is a float derived from a weighted sum of 'Low' (1.0), 'Mid' (3.0), and 'High' (5.0) probabilities. |
+| **TextbookScore** | float | The educational value score assigned by the classifier. |
+
+**Example Input:**
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
+}
+```
+
+**Example Output:**
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "TextbookScore": 2.9629482031
+}
+```

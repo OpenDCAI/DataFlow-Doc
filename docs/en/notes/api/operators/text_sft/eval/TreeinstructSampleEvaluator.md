@@ -39,7 +39,26 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, output_key: 
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.text_sft.eval import TreeinstructSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# Prepare storage with instruction-only data
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# Initialize LLM serving
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# Initialize and run the evaluator
+evaluator = TreeinstructSampleEvaluator(llm_serving=llm_serving)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="TreeinstructScore",
+)
 ```
 
 #### 🧾 Default Output Format
@@ -50,18 +69,16 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, output_key: 
 | TreeinstructScore | float | The calculated complexity score for the instruction. |
 
 **Example Input:**
-
 ```json
 {
-    "instruction": "Write a Python function to calculate the factorial of a number."
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points."
 }
 ```
 
 **Example Output:**
-
 ```json
 {
-    "instruction": "Write a Python function to calculate the factorial of a number.",
-    "TreeinstructScore": 18.0
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "TreeinstructScore": 11.0
 }
 ```

@@ -38,6 +38,29 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, output_key: 
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_sft.eval import TreeinstructSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
+
+# 准备仅包含指令数据的存储
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# 初始化并运行评估器
+evaluator = TreeinstructSampleEvaluator(llm_serving=llm_serving)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="TreeinstructScore",
+)
+```
+
 #### 🧾 默认输出格式（Output Format）
 
 该算子会读取输入的 DataFrame，并向其中添加一个新的列（默认为 `TreeinstructScore`）来存储评估结果。
@@ -46,3 +69,18 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, output_key: 
 | :--- | :--- | :--- |
 | ... | ... | 输入的原始字段。 |
 | TreeinstructScore | float | 模型生成的指令复杂性得分。 |
+
+**示例输入：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points."
+}
+```
+
+**示例输出：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "TreeinstructScore": 11.0
+}
+```

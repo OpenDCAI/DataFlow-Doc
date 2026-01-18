@@ -4,10 +4,6 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/text_pt/filter/finewebedufilter/
 ---
 
-好的，这是根据您提供的代码和模板生成的 `FineWebEduFilter` 算子教程。
-
----
-
 ## 📘 概述
 
 `FineWebEduFilter` 是一个基于 FineWeb-Edu 分类器的数据筛选算子。它首先对输入的文本数据进行教育价值评分，然后根据用户设定的分数阈值（`min_score` 和 `max_score`）筛选出符合条件的数据。该算子主要用于从大规模数据集中筛选出具有较高教育意义的文本内容。
@@ -48,6 +44,26 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Fineweb
 | **output_key**| str             | 'FinewebEduScore' | 输出列名，对应生成的教育价值分数字段。 |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.text_pt.filter import FineWebEduFilter
+from dataflow.utils.storage import FileStorage
+
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行过滤器
+fineweb_filter = FineWebEduFilter(
+    min_score=2.5,
+    max_score=10000,
+    model_cache_dir='./dataflow_cache',
+    device='cuda'
+)
+fineweb_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='FinewebEduScore'
+)
+```
 
 #### 🧾 默认输出格式（Output Format）
 
@@ -55,3 +71,17 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Fineweb
 | :---------------- | :---- | :--------------------------- |
 | ...               | ...   | 输入数据原有的其他字段。         |
 | FinewebEduScore   | float | 模型生成的教育价值分数。       |
+
+**示例输入:**
+```json
+{
+    "raw_content": "Ohmydollz Frogitaire Jurassic Pinball Kore Putt Sling Jumper 2..."
+}
+```
+**示例输出:**
+```json
+{
+    "raw_content": "Ohmydollz Frogitaire Jurassic Pinball Kore Putt Sling Jumper 2...",
+    "FinewebEduScore": 2.5198585987
+}
+```

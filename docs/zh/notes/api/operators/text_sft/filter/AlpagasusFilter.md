@@ -44,7 +44,33 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, input_input_
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_sft.filter import AlpagasusFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# 准备包含 SFT 格式数据的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>",
+)
+
+# 初始化并运行过滤器
+alp_filter = AlpagasusFilter(
+    min_score=3,
+    max_score=5,
+    llm_serving=llm_serving,
+    dimension="quality",
+)
+alp_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_input_key="input",
+    input_output_key="output",
+    output_key="AlpagasusScore",
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -54,21 +80,20 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str, input_input_
 | ... | ... | 输入数据中的原始字段。 |
 | AlpagasusScore | int | 模型生成的质量分数（输出列名可通过 `output_key` 参数修改）。 |
 
-示例输入：
+**示例输入：**
 ```json
 {
-  "instruction": "请写一首关于春天的诗。",
-  "input": "",
-  "output": "春风拂面绿意浓，花开遍地鸟儿鸣。溪水潺潺流不尽，一派生机在其中。"
+    "difficulty":"Easy",
+    "instruction":"Imagine you are a school counselor tasked with promoting mental health among high school students. What are some basic steps you can take to create an environment that reduces the risk of psychological disorders among students? Consider actions such as organizing workshops or creating a supportive atmosphere.",
+    "output":"Creating an environment that supports mental health and reduces the risk of psychological disorders among high school students requires a thoughtful and collaborative approach. Here are some steps a school counselor might take, along with practical examples and considerations for implementation:\n\n1. **Educate and Raise Awareness:**\n   - Organize workshops and seminars using successful models like the "Mind Matters Program," which provides engaging sessions on stress management and coping skills. Partnering with local mental health organizations for expertise can enhance effectiveness.\n   - Use real-life stories and testimonials to normalize discussions around mental health and demonstrate that seeking help is a sign of strength.\n\n2. **Promote a Supportive Atmosphere:**\n   - Coordinate with teachers to implement inclusive classroom strategies, such as restorative circles or regular \"check-in\" moments, where students can openly share their feelings.\n   - Establish a peer support program, like a "Student Circle" where senior students mentor juniors, fostering a community of encouragement.\n\n3. **Provide Access to Resources:**\n   - Set up easy-access resources, such as a digital platform or app where students can find mental health information and local services. Collaborate with tech-savvy students or local developers for creation and maintenance.\n   - Introducing a virtual counseling option could cater to students who prefer more privacy when reaching out for help.\n\n4. **Develop and Implement Policies:**\n   - Work closely with the school's administration to craft and promote anti-bullying and mental health policies. Regularly update students on these policies through assemblies and classroom discussions.\n   - Creating a taskforce involving teachers, admin, and student leaders can ensure diverse perspectives and smoother policy implementation.\n\n5. **Incorporate Mental Health into the Curriculum:**\n   - Advocate for integrating emotional and social learning into existing classes. The use of programs like CASEL's SEL (Social Emotional Learning) framework can offer structure and resources for this integration.\n   - Providing teachers with training sessions on SEL can help them seamlessly incorporate into their teaching practices.\n\n6. **Engage Parents and Guardians:**\n   - Hold educational workshops for parents, focusing on understanding adolescent mental health and enhancing family communication. Using case studies from successful family engagement initiatives can illustrate impact and provide reassurance.\n   - Implement regular updates via newsletters that provide ongoing tips and strategies for parents to support their children.\n\n7. **Create Relaxation Spaces:**\n   - Explore partnerships with local businesses or artists to create inviting relaxation zones using minimal resources. For example, a student-led group could organize a "Zen Corner" with donated items.\n   - Share data on the mental health benefits of such spaces to justify allocation of existing school space.\n\n8. **Regular Check-ins:**\n   - Plan regular one-on-one or group check-ins. Using structured formats, such as a "Mood Meter" or guided journal prompts, can help facilitate meaningful dialogue.\n   - Encourage teachers to adopt short weekly emotional check-ins in classes to create consistency across student experiences.\n\nPrioritizing steps involves assessing the school's current needs and resources, and initially focusing on foundational actions like early education and resource access. Collaborating with school leadership ensures alignment and fosters support, and addressing potential challenges fortifies initiatives against setbacks.\n\nBy implementing these strategies and involving the broader community, a school counselor can effectively cultivate a nurturing environment that champions mental health and mitigates psychological distress among students."
 }
 ```
-
-示例输出（假设该条目的评分为4，且在 `[min_score, max_score]` 范围内）:
+**示例输出（如果通过过滤器）：**
 ```json
 {
-  "instruction": "请写一首关于春天的诗。",
-  "input": "",
-  "output": "春风拂面绿意浓，花开遍地鸟儿鸣。溪水潺潺流不尽，一派生机在其中。",
-  "AlpagasusScore": 4
+    "difficulty":"Easy",
+    "instruction":"Imagine you are a school counselor tasked with promoting mental health among high school students. What are some basic steps you can take to create an environment that reduces the risk of psychological disorders among students? Consider actions such as organizing workshops or creating a supportive atmosphere.",
+    "output":"Creating an environment that supports mental health and reduces the risk of psychological disorders among high school students requires a thoughtful and collaborative approach. Here are some steps a school counselor might take, along with practical examples and considerations for implementation:\n\n1. **Educate and Raise Awareness:**\n   - Organize workshops and seminars using successful models like the "Mind Matters Program," which provides engaging sessions on stress management and coping skills. Partnering with local mental health organizations for expertise can enhance effectiveness.\n   - Use real-life stories and testimonials to normalize discussions around mental health and demonstrate that seeking help is a sign of strength.\n\n2. **Promote a Supportive Atmosphere:**\n   - Coordinate with teachers to implement inclusive classroom strategies, such as restorative circles or regular \"check-in\" moments, where students can openly share their feelings.\n   - Establish a peer support program, like a "Student Circle" where senior students mentor juniors, fostering a community of encouragement.\n\n3. **Provide Access to Resources:**\n   - Set up easy-access resources, such as a digital platform or app where students can find mental health information and local services. Collaborate with tech-savvy students or local developers for creation and maintenance.\n   - Introducing a virtual counseling option could cater to students who prefer more privacy when reaching out for help.\n\n4. **Develop and Implement Policies:**\n   - Work closely with the school's administration to craft and promote anti-bullying and mental health policies. Regularly update students on these policies through assemblies and classroom discussions.\n   - Creating a taskforce involving teachers, admin, and student leaders can ensure diverse perspectives and smoother policy implementation.\n\n5. **Incorporate Mental Health into the Curriculum:**\n   - Advocate for integrating emotional and social learning into existing classes. The use of programs like CASEL's SEL (Social Emotional Learning) framework can offer structure and resources for this integration.\n   - Providing teachers with training sessions on SEL can help them seamlessly incorporate into their teaching practices.\n\n6. **Engage Parents and Guardians:**\n   - Hold educational workshops for parents, focusing on understanding adolescent mental health and enhancing family communication. Using case studies from successful family engagement initiatives can illustrate impact and provide reassurance.\n   - Implement regular updates via newsletters that provide ongoing tips and strategies for parents to support their children.\n\n7. **Create Relaxation Spaces:**\n   - Explore partnerships with local businesses or artists to create inviting relaxation zones using minimal resources. For example, a student-led group could organize a "Zen Corner" with donated items.\n   - Share data on the mental health benefits of such spaces to justify allocation of existing school space.\n\n8. **Regular Check-ins:**\n   - Plan regular one-on-one or group check-ins. Using structured formats, such as a "Mood Meter" or guided journal prompts, can help facilitate meaningful dialogue.\n   - Encourage teachers to adopt short weekly emotional check-ins in classes to create consistency across student experiences.\n\nPrioritizing steps involves assessing the school's current needs and resources, and initially focusing on foundational actions like early education and resource access. Collaborating with school leadership ensures alignment and fosters support, and addressing potential challenges fortifies initiatives against setbacks.\n\nBy implementing these strategies and involving the broader community, a school counselor can effectively cultivate a nurturing environment that champions mental health and mitigates psychological distress among students.",
+    "AlpagasusScore":5.0
 }
 ```

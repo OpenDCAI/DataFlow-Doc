@@ -46,7 +46,19 @@ def run(self, storage: DataFlowStorage, input_key: str = 'raw_content', output_k
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.eval import PerplexitySampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行算子
+perplexity_evaluator = PerplexitySampleEvaluator(model_name='gpt2')
+perplexity_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PerplexityScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -56,19 +68,16 @@ def run(self, storage: DataFlowStorage, input_key: str = 'raw_content', output_k
 | raw_content | str | 输入的待评估文本。 |
 | PerplexityScore | float | 模型计算出的困惑度分数。 |
 
-**示例输入：**
-
+示例输入：
 ```json
 {
-    "raw_content": "The cat sat on the mat."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
-
-**示例输出：**
-
+示例输出：
 ```json
 {
-    "raw_content": "The cat sat on the mat.",
-    "PerplexityScore": 35.86
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "PerplexityScore": 49.2016410828
 }
 ```

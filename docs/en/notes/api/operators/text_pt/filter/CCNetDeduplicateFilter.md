@@ -43,14 +43,16 @@ The operator adds a new column (specified by `output_key`) to the data. It marks
 | *original_fields* | - | The original fields from the input data are preserved. |
 | minhash_deduplicated_label | int | The deduplication label. The output file will only contain rows where this value is `1`. |
 
-Example Input (`input_key` = "text"):
+**Example Input:**
 ```json
-{"text": "DataFlow is a powerful library for processing large-scale datasets."}
-{"text": "It simplifies data cleaning, filtering, and transformation tasks."}
-{"text": "DataFlow is a powerful library for processing large-scale datasets."}
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
+}
 ```
-Example Output (The data written to storage):
+**Example Output:**
 ```json
-{"text": "DataFlow is a powerful library for processing large-scale datasets.", "minhash_deduplicated_label": 1}
-{"text": "It simplifies data cleaning, filtering, and transformation tasks.", "minhash_deduplicated_label": 1}
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+  "minhash_deduplicated_label": 1
+}
 ```

@@ -43,7 +43,24 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.text_sft.filter import InstagFilter
+from dataflow.utils.storage import FileStorage
 
+# Prepare storage with instruction-only data
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# Initialize and run the filter
+instag_filter = InstagFilter(
+    min_score=0.0,
+    max_score=1.0,
+    model_cache_dir="./dataflow_cache",
+    device="cuda",
+)
+instag_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="InstagScore",
+)
 ```
 
 #### 🧾 Default Output Format
@@ -52,3 +69,18 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | :--- | :--- | :--- |
 | ... | ... | Original input fields. |
 | InstagScore | float | The diversity score calculated by the Instag model. |
+
+**Example Input:**
+```json
+{
+  "instruction": "Using the Linnaean classification system, provide a detailed description of the taxonomy of the skunk cabbage plant."
+}
+```
+
+**Example Output (if it passes the filter):**
+```json
+{
+  "instruction": "Using the Linnaean classification system, provide a detailed description of the taxonomy of the skunk cabbage plant.",
+  "InstagScore": 1
+}
+```

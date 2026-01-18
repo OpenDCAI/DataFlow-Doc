@@ -33,6 +33,23 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Deberta
 | **output_key** | str | 'Debertav3Score' | The name of the output column to store the classification result. |
 
 ## 🧠 Example Usage
+```python
+from dataflow.operators.text_pt.eval import DebertaV3SampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the operator
+deberta_evaluator = DebertaV3SampleEvaluator(
+    model_name="Nvidia/deberta-v3-large-local"
+)
+deberta_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='Debertav3Score'
+)
+```
 
 #### 🧾 Default Output Format
 
@@ -40,3 +57,18 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Deberta
 | :--- | :--- | :--- |
 | ... | any | Original columns from the input DataFrame. |
 | Debertav3Score | str | The quality classification result from the model. The actual column name is determined by the `output_key`. |
+
+**Example Input:**
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
+}
+```
+
+**Example Output:**
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "Debertav3Score": "High"
+}
+```

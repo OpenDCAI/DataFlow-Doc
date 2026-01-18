@@ -38,7 +38,25 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.text_sft.filter import RMFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行过滤器
+rm_filter = RMFilter(
+    min_score=0.2,
+    max_score=0.8,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+)
+rm_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="RMScore",
+)
 ```
 #### 🧾 默认输出格式（Output Format）
 算子执行后，会向原始数据中添加一个奖励分数列（默认为 `RMScore`），并过滤掉得分不在 `[min_score, max_score]` 区间内的数据。
@@ -47,3 +65,20 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | :-------------- | :---- | :---------- |
 | ... | ... | 输入的原始字段。 |
 | RMScore | float | 模型生成的奖励分数。 |
+
+**示例输入：**
+```json
+{
+  "instruction": "How can we use Python to calculate the GCD (greatest common divisor) of five numbers and express each number in terms of the GCD?",
+  "output": "Yes, that's correct! The function you've provided takes in five numbers as arguments and returns the GCD of those numbers along with each number expressed in terms of the GCD. This is a useful tool for simplifying fractions or finding the common factor between multiple numbers. Great job!"
+}
+```
+
+**示例输出（如果通过过滤器）：**
+```json
+{
+  "instruction": "How can we use Python to calculate the GCD (greatest common divisor) of five numbers and express each number in terms of the GCD?",
+  "output": "Yes, that's correct! The function you've provided takes in five numbers as arguments and returns the GCD of those numbers along with each number expressed in terms of the GCD. This is a useful tool for simplifying fractions or finding the common factor between multiple numbers. Great job!",
+  "RMScore": 0.7027474046
+}
+```

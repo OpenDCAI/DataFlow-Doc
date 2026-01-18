@@ -45,7 +45,30 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Treei
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_sft.filter import TreeinstructFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# 准备包含指令数据的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>"
+)
+
+# 初始化并运行过滤器
+treeinstruct_filter = TreeinstructFilter(
+    min_score=7,
+    max_score=100,
+    llm_serving=llm_serving,
+)
+treeinstruct_filter.run(
+    storage.step(),
+    input_key="instruction",
+    output_key="TreeinstructScore",
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -55,19 +78,17 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Treei
 | [input_key] | str | 输入的指令文本。 |
 | [output_key] | int | 模型生成的语法树节点数。 |
 
-示例输入：
-
+**示例输入：**
 ```json
 {
-  "instruction": "请解释一下什么是人工智能，并列举三个实际应用案例。"
+  "instruction": "Generate a list of ten essential items a person might need for a camping trip in a specific region, taking into consideration the weather, terrain, and local wildlife."
 }
 ```
 
-示例输出（假设该指令的节点数分值为 15）：
-
+**示例输出（如果通过过滤器）：**
 ```json
 {
-  "instruction": "请解释一下什么是人工智能，并列举三个实际应用案例。",
-  "TreeinstructScore": 15
+  "instruction": "Generate a list of ten essential items a person might need for a camping trip in a specific region, taking into consideration the weather, terrain, and local wildlife.",
+  "TreeinstructScore": 11
 }
 ```

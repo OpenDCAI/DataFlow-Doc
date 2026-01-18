@@ -37,7 +37,19 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='PairQua
 
 ## 🧠 示例用法
 ```python
+from dataflow.operators.text_pt.eval import PairQualSampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行算子
+pairqual_evaluator = PairQualSampleEvaluator(lang='en')
+pairqual_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PairQualScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -49,13 +61,13 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='PairQua
 示例输入：
 ```json
 {
-"text":"A triangle has sides of lengths 7, 24, and 25. Determine if it is a right triangle."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
 示例输出：
 ```json
 {
-"text":"A triangle has sides of lengths 7, 24, and 25. Determine if it is a right triangle.",
-"PairQualScore": 0.856
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "PairQualScore": 3.2509903908
 }
 ```

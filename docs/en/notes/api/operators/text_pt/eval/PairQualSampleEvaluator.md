@@ -35,23 +35,37 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='PairQua
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_pt.eval import PairQualSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the operator
+pairqual_evaluator = PairQualSampleEvaluator(lang='en')
+pairqual_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PairQualScore'
+)
 ```
 #### 🧾 Default Output Format
 | Field | Type | Description |
 | :-------------- | :---- | :------------------------------------------------------------ |
-| *input_key* | str | The original input text from the specified input column. |
-| PairQualScore | float | The calculated quality score, ranging from 0 to 1. |
+| ... | ... | Original columns from the input data. |
+| PairQualScore | float | The calculated quality score. |
 
-Example Input:
+**Example Input:**
 ```json
 {
-"instruction":"This is a high-quality piece of text that should receive a good score."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
-Example Output:
+
+**Example Output:**
 ```json
 {
-"instruction":"This is a high-quality piece of text that should receive a good score.",
-"PairQualScore": 0.958
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "PairQualScore": 3.2509903908
 }
 ```

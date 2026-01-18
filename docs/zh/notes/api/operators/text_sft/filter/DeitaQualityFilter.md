@@ -43,6 +43,28 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_sft.filter import DeitaQualityFilter
+from dataflow.utils.storage import FileStorage
+
+# 准备包含指令-输出对的存储
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# 初始化并运行过滤器
+quality_filter = DeitaQualityFilter(
+    min_score=2.5,
+    max_score=6.0,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+)
+quality_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaQualityScore",
+)
+```
+
 #### 🧾 默认输出格式（Output Format）
 
 算子执行后，会在原始数据基础上增加一个由`output_key`指定的列，用于存放质量分数。
@@ -51,3 +73,20 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | :------------------ | :---- | :----------------------------------------------------------- |
 | ...                 | ...   | 原始输入数据中的所有字段。                                     |
 | DeitaQualityScore   | float | 模型为每条数据生成的质量评估分数（默认列名，可通过`output_key`参数修改）。 |
+
+**示例输入：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>"
+}
+```
+
+**示例输出（如果通过过滤器）：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "output": "Here's an HTML page with bullet points for healthy habits:\n<html>\n  <body>\n    <h3>Healthy Habits:</h3>\n    <ul>\n      <li>Eating a balanced diet with plenty of fruits and vegetables.</li>\n      <li>Engaging in regular physical activity, such as walking, running, or cycling.</li>\n      <li>Getting enough sleep each night, ideally 7-8 hours.</li>\n      <li>Staying hydrated by drinking plenty of water throughout the day.</li>\n      <li>Limiting alcohol consumption and avoiding smoking.</li>\n      <li>Managing stress through relaxation techniques like meditation or yoga.</li>\n      <li>Regularly visiting a healthcare provider for check-ups and preventative care.</li>\n    </ul>\n  </body>\n</html>",
+  "DeitaQualityScore": 5.87
+}
+```

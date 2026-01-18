@@ -34,6 +34,21 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='FineWeb
 | **output\_key** | str | 'FineWebEduScore' | The name of the output column where the generated educational value scores will be stored. |
 
 ## 🧠 Example Usage
+```python
+from dataflow.operators.text_pt.eval import FineWebEduSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the operator
+fineweb_evaluator = FineWebEduSampleEvaluator()
+fineweb_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='FinewebEduScore'
+)
+```
 
 ## 🧾 Output Format
 
@@ -41,20 +56,20 @@ The operator appends a new column (specified by `output_key`) to the input DataF
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| [input\_key] | str | The original input text from the source column. |
-| [output\_key] | float | The calculated educational value score, ranging from 0 to 1. |
+| ... | ... | Original columns from the input data. |
+| FinewebEduScore | float | The calculated educational value score. |
 
 **Example Input:**
 ```json
 {
-    "text": "Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy, through a process that uses sunlight, water, and carbon dioxide."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
 
 **Example Output:**
 ```json
 {
-    "text": "Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy, through a process that uses sunlight, water, and carbon dioxide.",
-    "FineWebEduScore": 0.98765
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "FinewebEduScore": 1.5264956951
 }
 ```

@@ -41,7 +41,30 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Treei
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.text_sft.filter import TreeinstructFilter
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# Prepare storage with instruction data
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize LLM serving
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>"
+)
+
+# Initialize and run the filter
+treeinstruct_filter = TreeinstructFilter(
+    min_score=7,
+    max_score=100,
+    llm_serving=llm_serving,
+)
+treeinstruct_filter.run(
+    storage.step(),
+    input_key="instruction",
+    output_key="TreeinstructScore",
+)
 ```
 
 #### 🧾 Output Format
@@ -55,20 +78,15 @@ The operator adds a new column (specified by `output_key`) with the complexity s
 
 **Example Input:**
 ```json
-[
-    {"instruction": "What is the capital of France?"},
-    {"instruction": "Provide a detailed explanation of the process of photosynthesis, including the chemical equations and the roles of chlorophyll and sunlight."},
-    {"instruction": "1 + 1"}
-]
+{
+  "instruction": "Generate a list of ten essential items a person might need for a camping trip in a specific region, taking into consideration the weather, terrain, and local wildlife."
+}
 ```
 
-**Example Output (assuming `min_score=7`, `max_score=100`):**
+**Example Output (if it passes the filter):**
 ```json
-[
-    {
-        "instruction": "Provide a detailed explanation of the process of photosynthesis, including the chemical equations and the roles of chlorophyll and sunlight.",
-        "TreeinstructScore": 25
-    }
-]
+{
+  "instruction": "Generate a list of ten essential items a person might need for a camping trip in a specific region, taking into consideration the weather, terrain, and local wildlife.",
+  "TreeinstructScore": 10.0
+}
 ```
-*(Note: The score of 25 is illustrative. The actual score for the low-complexity questions would fall below the `min_score` of 7, causing them to be filtered out.)*

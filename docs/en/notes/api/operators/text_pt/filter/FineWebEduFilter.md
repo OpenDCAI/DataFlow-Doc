@@ -35,7 +35,24 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Fineweb
 
 ## 🧠 Example Usage
 ```python
+from dataflow.operators.text_pt.filter import FineWebEduFilter
+from dataflow.utils.storage import FileStorage
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize and run the filter
+fineweb_filter = FineWebEduFilter(
+    min_score=2.5,
+    max_score=10000,
+    model_cache_dir='./dataflow_cache',
+    device='cuda'
+)
+fineweb_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='FinewebEduScore'
+)
 ```
 
 #### 🧾 Default Output Format (Output Format)
@@ -47,13 +64,13 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Fineweb
 **Example Input:**
 ```json
 {
-    "text": "The mitochondria is the powerhouse of the cell."
+    "raw_content": "Ohmydollz Frogitaire Jurassic Pinball Kore Putt Sling Jumper 2..."
 }
 ```
 **Example Output:**
 ```json
 {
-    "text": "The mitochondria is the powerhouse of the cell.",
-    "FinewebEduScore": 4.5
+    "raw_content": "Ohmydollz Frogitaire Jurassic Pinball Kore Putt Sling Jumper 2...",
+    "FinewebEduScore": 2.5198585987
 }
 ```

@@ -41,7 +41,19 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Textboo
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.eval import TextbookSampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行算子
+textbook_evaluator = TextbookSampleEvaluator()
+textbook_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='TextbookScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -52,18 +64,15 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Textboo
 | [output\_key] | float | 模型生成的教育价值分数。该分数是基于模型预测的低、中、高三个等级的置信度加权计算得出的。 |
 
 示例输入：
-
 ```json
 {
-"text":"光合作用是植物、藻类和某些细菌利用光能，将二氧化碳和水转化为富能有机物（主要是糖类），并释放出氧气的过程。"
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
-
 示例输出：
-
 ```json
 {
-"text":"光合作用是植物、藻类和某些细菌利用光能，将二氧化碳和水转化为富能有机物（主要是糖类），并释放出氧气的过程。",
-"TextbookScore": 4.85
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "TextbookScore": 2.9629482031
 }
 ```

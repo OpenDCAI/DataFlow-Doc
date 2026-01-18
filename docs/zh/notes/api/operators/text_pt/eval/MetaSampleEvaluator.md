@@ -37,6 +37,27 @@ def run(self, storage: DataFlowStorage, input_key: str):
 
 ## 🧠 示例用法
 
+```python
+from dataflow.operators.text_pt.eval import MetaSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
+
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化 LLM 服务
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>"
+)
+
+# 初始化并运行算子
+meta_evaluator = MetaSampleEvaluator(llm_serving=llm_serving)
+meta_evaluator.run(
+    storage.step(),
+    input_key='raw_content'
+)
+```
 
 ## 🧾 默认输出格式（Output Format）
 算子执行后，会在输入的 DataFrame 基础上追加每个评估维度的得分列。
@@ -44,8 +65,27 @@ def run(self, storage: DataFlowStorage, input_key: str):
 | :-------------- | :---- | :---------- |
 | ... | - | 输入的原始字段。 |
 | Text Structure | float | 文本结构维度的得分。 |
-| Diversity & Complexity | float | 多样性与复杂性维度的得分。 |
-| Fluency & Understandability | float | 流畅性与可理解性维度的得分。 |
+| Diversity and Complexity | float | 多样性与复杂性维度的得分。 |
+| Fluency and Understandability | float | 流畅性与可理解性维度的得分。 |
 | Safety | float | 安全性维度的得分。 |
 | Educational Value | float | 教育价值维度的得分。 |
-| Content Accuracy & Effectiveness | float | 内容准确性与有效性维度的得分。 |
+| Content Accuracy and Effectiveness | float | 内容准确性与有效性维度的得分。 |
+
+示例输入：
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
+}
+```
+示例输出：
+```json
+{
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "Text Structure": 4.0,
+  "Diversity and Complexity": 5.0,
+  "Fluency and Understandability": 4.0,
+  "Safety": 5.0,
+  "Educational Value": 5.0,
+  "Content Accuracy and Effectiveness": 5.0
+}
+```

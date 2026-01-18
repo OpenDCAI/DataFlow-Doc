@@ -46,14 +46,32 @@ def run(self, storage: DataFlowStorage, input_key: str):
 ## 🧠 Example Usage
 
 ```python
+from dataflow.operators.text_pt.eval import MetaSampleEvaluator
+from dataflow.utils.storage import FileStorage
+from dataflow.utils.llm_serving import APILLMServing_request
 
+# Prepare data and storage
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# Initialize LLM serving
+llm_serving = APILLMServing_request(
+    api_url="http://<your_llm_api_endpoint>",
+    model_name="<your_model_name>"
+)
+
+# Initialize and run the operator
+meta_evaluator = MetaSampleEvaluator(llm_serving=llm_serving)
+meta_evaluator.run(
+    storage.step(),
+    input_key='raw_content'
+)
 ```
 
 #### 🧾 Default Output Format
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| *input_key* | str | The original input text from the specified input column. |
+| ... | ... | Original columns from the input data. |
 | Text Structure | float | Score for the text's structure. |
 | Diversity & Complexity | float | Score for the text's diversity and complexity. |
 | Fluency & Understandability | float | Score for the text's fluency and understandability. |
@@ -61,11 +79,11 @@ def run(self, storage: DataFlowStorage, input_key: str):
 | Educational Value | float | Score for the text's educational value. |
 | Content Accuracy & Effectiveness | float | Score for the content's accuracy and effectiveness. |
 
-**Example Input (assuming `input_key="text"`):**
+**Example Input:**
 
 ```json
 {
-"text": "The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the lengths of the other two sides."
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
 
@@ -73,12 +91,12 @@ def run(self, storage: DataFlowStorage, input_key: str):
 
 ```json
 {
-"text": "The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the lengths of the other two sides.",
-"Text Structure": 5.0,
-"Diversity & Complexity": 4.0,
-"Fluency & Understandability": 5.0,
-"Safety": 5.0,
-"Educational Value": 5.0,
-"Content Accuracy & Effectiveness": 5.0
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "Text Structure": 4.0,
+  "Diversity and Complexity": 5.0,
+  "Fluency and Understandability": 4.0,
+  "Safety": 5.0,
+  "Educational Value": 5.0,
+  "Content Accuracy and Effectiveness": 5.0
 }
 ```

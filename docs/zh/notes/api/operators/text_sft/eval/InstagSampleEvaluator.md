@@ -43,3 +43,45 @@ def run(self, storage: DataFlowStorage, input_instruction_key: str = 'instructio
 | **output_key**          | str             | "InstagScore"   | 输出分数将存储在新列的列名。                               |
 
 ## 🧠 示例用法
+```python
+from dataflow.operators.text_sft.eval import InstagSampleEvaluator
+from dataflow.utils.storage import FileStorage
+
+# 准备仅包含指令数据的存储
+storage = FileStorage(first_entry_file_name="sft_instructions.jsonl")
+
+# 初始化并运行评估器
+evaluator = InstagSampleEvaluator(
+    model_cache_dir="./dataflow_cache",
+    device="cuda",
+    max_new_tokens=1024,
+)
+evaluator.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    output_key="InstagScore",
+)
+```
+
+#### 🧾 默认输出格式（Output Format）
+该算子会向输入 DataFrame 添加一个新列，包含计算出的分数。
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| *input_columns* | - | 输入数据中的原始列会被保留。 |
+| **InstagScore** | int | 计算出的内容多样性分数（标签数量）。列名由 `output_key` 参数决定。 |
+
+**示例输入：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points."
+}
+```
+
+**示例输出：**
+```json
+{
+  "instruction": "Can you provide a list of healthy habits to maintain a healthy lifestyle? Please format your response as an HTML page with bullet points.",
+  "InstagScore": 2
+}
+```

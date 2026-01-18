@@ -52,13 +52,13 @@ The operator filters the input data and adds a new column for the quality score.
 **Example Input:**
 ```json
 {
-    "text": "The quick brown fox jumps over the lazy dog."
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
 }
 ```
 **Example Output (assuming the score was 'High' and 'High' is in `allowed_scores`):**
 ```json
 {
-    "text": "The quick brown fox jumps over the lazy dog.",
+    "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
     "Debertav3Score": "High"
 }
 ```

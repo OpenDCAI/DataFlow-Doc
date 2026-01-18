@@ -46,7 +46,24 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Perpl
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.filter import PerplexityFilter
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行过滤器
+perplexity_filter = PerplexityFilter(
+    min_score=10.0,
+    max_score=500.0,
+    model_name='gpt2',
+    device='cuda'
+)
+perplexity_filter.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='PerplexityScore'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -55,3 +72,17 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str = 'Perpl
 | :--- | :--- | :--- |
 | ... | ... | 输入数据中的原有字段。 |
 | PerplexityScore | float | 模型为 `input_key` 中每个文本计算出的困惑度分数。 |
+
+**示例输入:**
+```json
+{
+"raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)..."
+}
+```
+**示例输出 (如果通过筛选):**
+```json
+{
+"raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)...",
+"PerplexityScore": 49.2016410828
+}
+```

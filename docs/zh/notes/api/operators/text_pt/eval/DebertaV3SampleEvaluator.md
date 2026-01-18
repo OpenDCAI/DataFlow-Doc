@@ -45,7 +45,21 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Deberta
 ## 🧠 示例用法
 
 ```python
+from dataflow.operators.text_pt.eval import DebertaV3SampleEvaluator
+from dataflow.utils.storage import FileStorage
 
+# 准备数据和存储
+storage = FileStorage(first_entry_file_name="pt_input.jsonl")
+
+# 初始化并运行算子
+deberta_evaluator = DebertaV3SampleEvaluator(
+    model_name="Nvidia/deberta-v3-large-local"
+)
+deberta_evaluator.run(
+    storage.step(),
+    input_key='raw_content',
+    output_key='Debertav3Score'
+)
 ```
 
 #### 🧾 默认输出格式（Output Format）
@@ -56,18 +70,15 @@ def run(self, storage: DataFlowStorage, input_key: str, output_key: str='Deberta
 | [output_key]     | str  | 模型生成的质量评估类别。 |
 
 示例输入：
-
 ```json
 {
-"text_to_evaluate":"这是一个高质量的句子，逻辑清晰，表达准确。"
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios..."
 }
 ```
-
-示例输出 (假设 `input_key="text_to_evaluate"` 且 `output_key="Debertav3Score"`)：
-
+示例输出：
 ```json
 {
-"text_to_evaluate":"这是一个高质量的句子，逻辑清晰，表达准确。",
-"Debertav3Score":"High"
+  "raw_content": "AMICUS ANTHOLOGIES, PART ONE (1965-1972)\nFebruary 23, 2017 Alfred Eaker Leave a comment\nWith Dr. Terror's House of Horrors (1965, directed by Freddie Francis and written by Milton Subotsky) Amicus Productions (spearheaded by Subotsky and Max Rosenberg, who previously produced for Hammer and was a cousin to Doris Wishman) established itself as a vital competitor to Hammer Studios...",
+  "Debertav3Score": "High"
 }
 ```

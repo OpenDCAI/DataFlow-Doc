@@ -35,6 +35,28 @@ The `DeitaComplexityFilter` is an operator designed to filter data based on comp
 
 ## 🧠 Example Usage
 
+```python
+from dataflow.operators.text_sft.filter import DeitaComplexityFilter
+from dataflow.utils.storage import FileStorage
+
+# Prepare storage with instruction-output pairs
+storage = FileStorage(first_entry_file_name="sft_data.jsonl")
+
+# Initialize and run the filter
+complexity_filter = DeitaComplexityFilter(
+    min_score=2.0,
+    max_score=5.0,
+    device="cuda",
+    model_cache_dir="./dataflow_cache",
+)
+complexity_filter.run(
+    storage.step(),
+    input_instruction_key="instruction",
+    input_output_key="output",
+    output_key="DeitaComplexityScore",
+)
+```
+
 #### 🧾 Output Format
 The operator adds a new column (default name `DeitaComplexityScore`) to the input data and filters the rows based on the score.
 
@@ -47,16 +69,17 @@ The operator adds a new column (default name `DeitaComplexityScore`) to the inpu
 Example Input:
 ```json
 {
-  "instruction": "Explain the theory of relativity in simple terms.",
-  "output": "The theory of relativity, developed by Albert Einstein, is split into two parts: special relativity and general relativity. Special relativity deals with the relationship between space and time for objects moving at constant speeds. A key idea is that the speed of light is constant for all observers. General relativity is a theory of gravitation, suggesting that gravity is the curvature of spacetime caused by mass and energy."
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access."
 }
+
 ```
 
-Example Output (assuming default `min_score=3.0`, `max_score=5.0` and a calculated score of 4.2):
+Example Output:
 ```json
 {
-  "instruction": "Explain the theory of relativity in simple terms.",
-  "output": "The theory of relativity, developed by Albert Einstein, is split into two parts: special relativity and general relativity. Special relativity deals with the relationship between space and time for objects moving at constant speeds. A key idea is that the speed of light is constant for all observers. General relativity is a theory of gravitation, suggesting that gravity is the curvature of spacetime caused by mass and energy.",
-  "DeitaComplexityScore": 4.2
+  "instruction":"Provide a detailed comparison between the 'list' and 'tuple' data structures in Python, focusing on mutability, performance, and common use cases.",
+  "output":"Certainly. The primary distinction between lists and tuples in Python lies in their mutability. Lists are mutable, meaning their elements can be added, removed, or modified after creation. Tuples are immutable; once created, their contents cannot be altered. This immutability makes tuples slightly more memory-efficient and faster to access.",
+  "DeitaComplexityScore":2.9713823783
 }
 ```
