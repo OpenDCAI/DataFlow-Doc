@@ -62,11 +62,15 @@ self.llm_serving = APILLMServing_request(
 并设置MinerU后端（'vlm-vllm-engine'或者'vlm-transformers'）和LLM最大token数量（建议不要设置大于128000，否则LLM因为无法记住细节而效果不好）。`vlm-vllm-engine` 模式需要 GPU。
 **目前这个pipeline只在`vlm`后端下经过测试，不确定是否能支持`pipeline`后端，根据官方文档两个后端格式有区别，因此建议使用`vlm`后端。**
 ```python
-self.vqa_extractor = VQAExtractor(
-            llm_serving=self.llm_serving,
-            mineru_backend='vlm-vllm-engine',
-            max_chunk_len=128000
-        )
+self.mineru_executor = FileOrURLToMarkdownConverterBatch(intermediate_dir = "intermediate", mineru_backend="vlm-vllm-engine")
+```
+
+```python
+self.vqa_extractor = ChunkedPromptedGenerator(
+    llm_serving=self.llm_serving,
+    system_prompt = self.vqa_extract_prompt.build_prompt(),
+    max_chunk_len=128000,
+)
 ```
 
 ### 步骤 5：一键运行
@@ -83,11 +87,12 @@ python api_pipelines/pdf_vqa_extract_pipeline.py
 
 - **题答分离**
   ```jsonl
-  {"question_pdf_path": "/abs/path/questions.pdf", "answer_pdf_path": "/abs/path/answers.pdf", "subject": "math", "output_dir": "./output/math"}
+  {"question_pdf_path": "/abs/path/questions.pdf", "answer_pdf_path": "/abs/path/answers.pdf", "name": "math1"}
   ```
 - **题答混排**
+  问题和答案设置成同一个pdf即可
   ```jsonl
-  {"pdf_path": "/abs/path/qa_mixed.pdf", "subject": "physics", "output_dir": "./output/physics"}
+  {"question_pdf_path": "/abs/path/qa.pdf", "answer_pdf_path": "/abs/path/qa.pdf", "name": "math2"}
   ```
 
 `FileStorage` 负责读取与缓存：
@@ -102,7 +107,7 @@ self.storage = FileStorage(
 
 ### 2. 文档布局解析（MinerU）
 
-对每个 PDF（题目、答案或混排）调用 `VQAExtractor` 内部的 `_extract_doc_layout`，MinerU 会产出：
+对每个 PDF（题目、答案或混排）调用 `FileOrURLToMarkdownConverterBatch` 内部的 `_parse_file_with_mineru`，MinerU 会产出：
 
 - `<book>/<backend>/<book>_content_list.json`：结构化布局 token
 - `<book>/<backend>/images/`：对应页面切图
@@ -112,37 +117,42 @@ self.storage = FileStorage(
 - `vlm-transformers`：CPU/GPU 均可
 - `vlm-vllm-engine`：高吞吐 GPU 模式（需 CUDA）
 
+之后会使用MinerU2LLMInputOperator处理成给llm的输入，主要包括展平列表项并重新编号。
+
 ### 3. 问答抽取（VQAExtractor）
 
-`VQAExtractor` 将布局 JSON 切块以控制 token，利用 `QAExtractPrompt` 生成学科提示，并通过 `APILLMServing_request` 批量调用 LLM。主要特性：
+`ChunkedPromptedGenerator` 将布局 JSON 切块以控制 token，利用 `QAExtractPrompt` 为提示词，并通过 `APILLMServing_request` 批量调用 LLM。主要特性：
 
 - 整合、匹配问答对，并将图片插入到正确位置。
-- 同时支持 `question_pdf_path`/`answer_pdf_path` 与单一 `pdf_path`（自动判定混排）。
-- 将 MinerU 切图复制到 `output_dir/question_images`、`answer_images`。
+- 同时支持题目答案在不同pdf，以及题目答案混排（question1-answer1-question2-answer2-...）。
+- 将 MinerU 切图复制到 `cache_path/name/question_images`、`answer_images`。
 - 解析 `<qa_pair>`、`<question>`、`<answer>`、`<solution>`、`<chapter>`、`<label>` 标签。
 
 ### 4. 后处理与产物
 
-每个 `output_dir` 会得到：
+调用QA_Merger进行问答对匹配，这个算子：
+- 对于题目答案混排的，会直接把已经完整的问答对原样写入，等于什么都没做
+- 对于题目答案分离的，会根据章节标题，题目序号进行启发式匹配
+
+这个算子可以设置一个`strict_title_match`参数，如果设置为True，会对章节标题进行严格匹配，否则会尝试提取标题中的中文/英文序号再匹配。
+
+每个 output_dir （cache_path/name/下面） 会得到：
 
 1. `vqa_extracted_questions.jsonl`
-2. `vqa_extracted_answers.jsonl`（分离模式）
+2. `vqa_extracted_answers.jsonl`
 3. `vqa_merged_qa_pairs.jsonl`
-4. `vqa_filtered_qa_pairs.jsonl`
-5. `vqa_filtered_qa_pairs.md`
-6. `question_images/`、`answer_images/`
+4. `vqa_merged_qa_pairs.md`
+5. `question_images/`、`answer_images/`
 
-过滤逻辑：保留有题目且答案或解答非空的条目，并通过 `jsonl_to_md` 输出 Markdown 便于审阅。
+此外，cache的主文件最后一个step会包含提取出来的所有问答对，方便后面直接接算子做后处理。
 
-## 4. 输出数据
-
-筛选后的记录包含：
+每个qa_item包含：
 
 - `question`：题干文本与图片
-- `answer`：答案文本与图片（若来自答案 PDF）
+- `answer`：答案文本与图片
 - `solution`：可选的解题过程
-- `label`：原始编号，如“例 3”“习题 2”
-- `chapter_title`：所在章节/小节标题
+- `label`：题目编号
+- `chapter_title`：所在章节/小节标题（如果`strict_title_match=False`则为标题序号）
 
 示例：
 ```json
@@ -150,7 +160,7 @@ self.storage = FileStorage(
   "question": "计算 $x$ 使得 $x^2-1=0$。",
   "answer": "$x = 1$ 或 $x = -1$",
   "solution": "因式分解 $(x-1)(x+1)=0$。",
-  "label": "例1",
+  "label": 1,
   "chapter_title": "第一章 二次方程"
 }
 ```
@@ -158,12 +168,19 @@ self.storage = FileStorage(
 ## 5. 流水线示例
 
 ```python
+from dataflow.operators.knowledge_cleaning import FileOrURLToMarkdownConverterBatch
+
 from dataflow.serving import APILLMServing_request
 from dataflow.utils.storage import FileStorage
-from dataflow.operators.pdf2vqa import VQAExtractor
+from dataflow.operators.pdf2vqa import MinerU2LLMInputOperator, LLMOutputParser, QA_Merger
+from dataflow.operators.core_text import ChunkedPromptedGenerator
 
-class VQA_extract_optimized_pipeline:
+from dataflow.pipeline import PipelineABC
+from dataflow.prompts.pdf2vqa import QAExtractPrompt
+
+class VQA_extract_optimized_pipeline(PipelineABC):
     def __init__(self):
+        super().__init__()
         self.storage = FileStorage(
             first_entry_file_name="./example_data/PDF2VQAPipeline/vqa_extract_test.jsonl",
             cache_path="./cache",
@@ -172,36 +189,91 @@ class VQA_extract_optimized_pipeline:
         )
         
         self.llm_serving = APILLMServing_request(
-            api_url="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            api_url="http://123.129.219.111:3000/v1/chat/completions",
             key_name_of_api_key="DF_API_KEY",
             model_name="gemini-2.5-pro",
             max_workers=100,
         )
         
-        self.vqa_extractor = VQAExtractor(
-            llm_serving=self.llm_serving,
-            mineru_backend='vlm-vllm-engine',
-            max_chunk_len=128000
-        )
+        self.vqa_extract_prompt = QAExtractPrompt()
         
+        self.mineru_executor = FileOrURLToMarkdownConverterBatch(intermediate_dir = "intermediate", mineru_backend="vlm-vllm-engine")
+        self.input_formatter = MinerU2LLMInputOperator()
+        self.vqa_extractor = ChunkedPromptedGenerator(
+            llm_serving=self.llm_serving,
+            system_prompt = self.vqa_extract_prompt.build_prompt(),
+            max_chunk_len=128000,
+        )
+        self.llm_output_question_parser = LLMOutputParser(mode="question", output_dir="./cache", intermediate_dir="intermediate")
+        self.llm_output_answer_parser = LLMOutputParser(mode="answer", output_dir="./cache", intermediate_dir="intermediate")
+        self.qa_merger = QA_Merger(output_dir="./cache", strict_title_match=False)
     def forward(self):
-        # 单一算子：包含预处理、QA提取、后处理的所有功能
+        # 目前的处理逻辑是：MinerU处理问题-MinerU处理答案-格式化问题文本-格式化答案文本-问题文本输入LLM-答案文本输入LLM-解析问题输出-解析答案输出-合并问答对
+        # 由于问答对可能来自同一份pdf，也有可能来自不同pdf，而dataflow目前不支持分支，因此这里只能将question和answer的pdf都进行一次处理，
+        # 即使是同一份pdf也会被处理两次，最后再合并问答对。
+        # 未来会再思考如何优化这个流程，避免重复处理同一份pdf，提升性能。
+        
+        self.mineru_executor.run(
+            storage=self.storage.step(),
+            input_key="question_pdf_path",
+            output_key="question_markdown_path",
+        )
+        self.mineru_executor.run(
+            storage=self.storage.step(),
+            input_key="answer_pdf_path",
+            output_key="answer_markdown_path",
+        )
+        self.input_formatter.run(
+            storage=self.storage.step(),
+            input_markdown_path_key="question_markdown_path",
+            output_converted_layout_key="converted_question_layout_path",
+        )
+        self.input_formatter.run(
+            storage=self.storage.step(),
+            input_markdown_path_key="answer_markdown_path",
+            output_converted_layout_key="converted_answer_layout_path",
+        )
         self.vqa_extractor.run(
             storage=self.storage.step(),
-            input_question_pdf_path_key="question_pdf_path",
-            input_answer_pdf_path_key="answer_pdf_path",
-            input_pdf_path_key="pdf_path",  # 支持 interleaved 模式
-            input_subject_key="subject",
-            output_dir_key="output_dir",
-            output_jsonl_key="output_jsonl_path",
+            input_path_key="converted_question_layout_path",
+            output_path_key="vqa_extracted_questions_path",
+        )
+        self.vqa_extractor.run(
+            storage=self.storage.step(),
+            input_path_key="converted_answer_layout_path",
+            output_path_key="vqa_extracted_answers_path",
+        )
+        self.llm_output_question_parser.run(
+            storage=self.storage.step(),
+            input_response_path_key="vqa_extracted_questions_path",
+            input_converted_layout_path_key="converted_question_layout_path",
+            input_name_key="name",
+            output_qalist_path_key="extracted_questions_path",
+        )
+        self.llm_output_answer_parser.run(
+            storage=self.storage.step(),
+            input_response_path_key="vqa_extracted_answers_path",
+            input_converted_layout_path_key="converted_answer_layout_path",
+            input_name_key="name",
+            output_qalist_path_key="extracted_answers_path",
+        )
+        self.qa_merger.run(
+            storage=self.storage.step(),
+            input_question_qalist_path_key="extracted_questions_path",
+            input_answer_qalist_path_key="extracted_answers_path",
+            input_name_key="name",
+            output_merged_qalist_path_key="output_merged_qalist_path",
+            output_merged_md_path_key="output_merged_md_path",
+            output_qa_item_key="qa_pair",
         )
 
 
 
 if __name__ == "__main__":
-    # jsonl中每一行包含question_pdf_path, answer_pdf_path, subject (math, physics, chemistry, ...), output_dir
-    # 如果question和answer在同一份pdf中，请将question_pdf_path和answer_pdf_path设置为相同的路径，会自动切换为interleaved模式
+    # jsonl中每一行包含question_pdf_path, answer_pdf_path, name (math1, math2, physics1, chemistry1, ...)
+    # 如果question和answer在同一份pdf中，请将question_pdf_path和answer_pdf_path设置为相同的路径
     pipeline = VQA_extract_optimized_pipeline()
+    pipeline.compile()
     pipeline.forward()
 ```
 
