@@ -23,14 +23,27 @@ Major stages:
 ## 2. Quick Start
 
 ### Step 1: Install Dataflow (and MinerU)
+Install Dataflow:
 ```shell
-pip install open-dataflow
-pip install "mineru[vllm]"
+pip install "open-dataflow[pdf2vqa]"
+```
+
+Or install Dataflow from source:
+```shell
+git clone https://github.com/OpenDCAI/DataFlow.git
+cd Dataflow
+pip install -e ".[pdf2vqa]"
+```
+
+Then install MinerU and download models:
+```shell
+pip install "mineru[vllm]>=2.5.0,<2.7.0"
 mineru-models-download
 ```
 
 ### Step 2: Create a workspace
 ```shell
+cd /your/working/directory
 mkdir run_dataflow
 cd run_dataflow
 ```

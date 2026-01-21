@@ -23,14 +23,27 @@ icon: heroicons:document-text
 ## 2. 快速开始
 
 ### 步骤 1：安装 Dataflow（以及 MinerU）
+安装 Dataflow：
 ```shell
-pip install open-dataflow
-pip install "mineru[vllm]"
+pip install "open-dataflow[pdf2vqa]"
+```
+
+或者从源码安装 Dataflow：
+```shell
+git clone https://github.com/OpenDCAI/DataFlow.git
+cd Dataflow
+pip install -e ".[pdf2vqa]"
+```
+
+安装 MinerU 及下载模型：
+```shell
+pip install "mineru[vllm]>=2.5.0,<2.7.0"
 mineru-models-download
 ```
 
 ### 步骤 2：创建工作区
 ```shell
+cd /your/working/directory
 mkdir run_dataflow
 cd run_dataflow
 ```
