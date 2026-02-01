@@ -25,7 +25,8 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'first_pipeline',
                 'second_pipeline',
                 'dataflow_init',
-                'df_ecosystem'
+                'df_ecosystem',
+                'dataflow_webui'
 
 
             ],
