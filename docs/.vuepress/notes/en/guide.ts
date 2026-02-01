@@ -44,7 +44,6 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'prompted_vqa',
                 'mathquestion_extract',
                 'knowledge_cleaning',
-                'quick_general_text_evaluation',
                 'speech_transcription',
             ],
 
@@ -95,17 +94,6 @@ export const Guide: ThemeNote = defineNoteConfig({
             items: [
                 "command_eval",
                 "easy_evaluation",
-            ]
-        },
-        {
-            text: "General Operators",
-            collapsed: false,
-            icon: 'material-symbols:analytics-outline',
-            prefix: 'general_operators',
-            items: [
-                "text_evaluation_operators",
-                "text_process_operators",
-                "text_generate_operators",
             ]
         },
         {
