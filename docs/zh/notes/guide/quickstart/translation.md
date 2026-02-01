@@ -23,8 +23,8 @@ dataflow init
 ```
 这时你会看见
 ```shell
-run_dataflow/playground/generate_qa_api.py  # (api模型)
-run_dataflow/playground/generate_qa_local.py  # (本地模型)
+run_dataflow/playground/prompted_generator/generate_qa_api.py  # (api模型)
+run_dataflow/playground/prompted_generator/generate_qa_local.py  # (本地模型)
 ```
 ### 第四步(如果选择API翻译):填入你的api key以及api_url
 对于Linux和Mac OS

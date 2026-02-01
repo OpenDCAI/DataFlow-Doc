@@ -63,8 +63,8 @@ dataflow init
 
 初始化后将生成两个流水线文件：
 
-- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_gen.py`
-- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_refine.py`
+- `run_dataflow/api_pipelines/text2sql_pipeline_gen.py`
+- `run_dataflow/api_pipelines/text2sql_pipeline_refine.py`
 
 ### 第四步：配置 API 密钥和端点
 
@@ -236,13 +236,13 @@ self.storage = FileStorage(
 ### 第七步：运行流水线
 
 ```bash
-python pipelines/api_pipelines/text2sql_pipeline_gen.py
+python api_pipelines/text2sql_pipeline_gen.py
 ```
 
 或
 
 ```bash
-python pipelines/api_pipelines/text2sql_pipeline_refine.py
+python api_pipelines/text2sql_pipeline_refine.py
 ```
 
 您可以根据需求选择运行任意 Pipeline，运行方式类似。后续章节将介绍 Pipeline 中使用的算子及参数配置方法。

@@ -30,7 +30,7 @@ dataflow init
 At this point you will see
 
 ```shell
-run_dataflow/pipelines/api_pipelines/reasoning_general_pipeline.py  
+run_dataflow/api_pipelines/reasoning_general_pipeline.py  
 ```
 
 ## Step 4: Fill in your api key and api_url
