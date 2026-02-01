@@ -84,7 +84,7 @@ After running, the pipeline will invoke `MetaScorer`, which multi-dimensional da
   * `description`: Detailed description of the dimension
   * `example_list`: List of examples, where each follows a format like `{"text": "some text", "score": 1}`
 
-The dimensions used in the sample pipeline are listed in [dataflow/operators/eval/GeneralText/APIcaller/meta\_scorer.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py):
+The dimensions used in the sample pipeline are listed in [dataflow/operators/text_pt/eval/meta_sample_evaluator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/text_pt/eval/meta_sample_evaluator.py):
 
 ```python
 example_dimensions = [
@@ -179,7 +179,7 @@ example_dimensions = [
 
 The full implementation of the operator is located in the following files:
 
-* [dataflow/operators/eval/GeneralText/APIcaller/meta\_scorer.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py)
+* [dataflow/operators/text_pt/eval/meta_sample_evaluator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/text_pt/eval/meta_sample_evaluator.py)
 
 
 ### Output

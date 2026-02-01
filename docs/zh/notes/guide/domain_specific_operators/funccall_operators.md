@@ -8,7 +8,7 @@ permalink: /zh/guide/kgdzd34m/
 
 ## 概述
 
-函数调用数据合成算子是专门用于从对话或现实场景合成函数调用数据的算子集合，这些算子主要包括了真实任务场景的提取和生成，任务的生成与验证，函数生成，多智能体多轮对话生成等功能。这些算子位于[dataflow/operators/conversations/func_call_operators.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/func_call_operators.py)文件中，其适用场景可以参考下面的表格：
+函数调用数据合成算子是专门用于从对话或现实场景合成函数调用数据的算子集合，这些算子主要包括了真实任务场景的提取和生成，任务的生成与验证，函数生成，多智能体多轮对话生成等功能。这些算子位于[dataflow/operators/conversations](https://github.com/OpenDCAI/DataFlow/tree/main/dataflow/operators/conversations)文件夹中，其适用场景可以参考下面的表格：
 
 <table class="tg">
   <thead>
@@ -244,4 +244,4 @@ permalink: /zh/guide/kgdzd34m/
 - 多智能体对话模拟  
 - 支持函数嵌入与调用结构  
 
-算子的示例代码请参考文档[函数调用数据合成流水线](https://opendcai.github.io/DataFlow-Doc/zh/guide/hy4417i0/)或[GitHub仓库](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/func_call_operators.py)
+算子的示例代码请参考文档[函数调用数据合成流水线](https://opendcai.github.io/DataFlow-Doc/zh/guide/hy4417i0/)或[GitHub仓库](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/)

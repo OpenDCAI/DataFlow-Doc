@@ -66,7 +66,7 @@ python quick_evaluate.py
     * `description`: 维度的具体描述
     * `example_list`: 示例列表，其中每个示例都遵循类似于`{"text": "some text", "score": 1}`的字典格式。
 
-下面是示例流水线中用到的维度列表，位于[dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py)中：
+下面是示例流水线中用到的维度列表，位于[dataflow/operators/text_pt/eval/meta_sample_evaluator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/text_pt/eval/meta_sample_evaluator.py)中：
 ```python
 example_dimensions = [
     {
@@ -157,7 +157,7 @@ example_dimensions = [
 ```
 
 ### 算子逻辑
-算子的完整实现位于[dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/eval/GeneralText/APIcaller/meta_scorer.py)文件中。
+算子的完整实现位于[dataflow/operators/text_pt/eval/meta_sample_evaluator.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/text_pt/eval/meta_sample_evaluator.py)文件中。
 
 ### 输出
 运行脚本执行完毕后，可在工作区的`playground/cache/`文件夹下观察到脚本的运行结果，下面是示例数据中的一个例子
