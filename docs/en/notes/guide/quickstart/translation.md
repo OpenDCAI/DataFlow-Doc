@@ -24,8 +24,8 @@ dataflow init
 ```
 After this step, you should see:
 ```shell
-run_dataflow/playground/generate_qa_api.py  # (api LLM)
-run_dataflow/playground/generate_qa_local.py  # (local LLM)
+run_dataflow/playground/prompted_generator/generate_qa_api.py  # (api LLM)
+run_dataflow/playground/prompted_generator/generate_qa_local.py  # (local LLM)
 ```
 
 ### Step 4: (API Translation Option) Set Your API Key and API URL

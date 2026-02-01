@@ -43,7 +43,7 @@ dataflow init
 ```
 You will see:
 ```shell
-run_dataflow/pipelines/api_pipelines/reasoning_math_pipeline.py  
+run_dataflow/api_pipelines/reasoning_math_pipeline.py  
 ```
 
 ### Step 4: Configure API Key and API URL

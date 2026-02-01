@@ -70,8 +70,8 @@ dataflow init
 
 After initialization, two pipeline files will be generated:
 
-- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_gen.py`
-- `run_dataflow/pipelines/api_pipelines/text2sql_pipeline_refine.py`
+- `run_dataflow/api_pipelines/text2sql_pipeline_gen.py`
+- `run_dataflow/api_pipelines/text2sql_pipeline_refine.py`
 
 ### Step 4: Configure API Keys and Endpoints
 
@@ -243,13 +243,13 @@ self.storage = FileStorage(
 ### Step 7: Run the Pipeline
 
 ```bash
-python pipelines/api_pipelines/text2sql_pipeline_gen.py
+python api_pipelines/text2sql_pipeline_gen.py
 ```
 
 or
 
 ```bash
-python pipelines/api_pipelines/text2sql_pipeline_refine.py
+python api_pipelines/text2sql_pipeline_refine.py
 ```
 
 You can choose to run any Pipeline based on your needs; the running method is similar. Subsequent sections will introduce the operators used in the Pipeline and how to configure their parameters.
