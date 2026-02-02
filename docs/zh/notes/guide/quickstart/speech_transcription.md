@@ -1,5 +1,5 @@
 ---
-title: 案例9. 语音转文字
+title: 案例8. 语音转文字
 createTime: 2025/08/22 16:37:30
 permalink: /zh/guide/du2akut8/
 icon: fad:headphones
