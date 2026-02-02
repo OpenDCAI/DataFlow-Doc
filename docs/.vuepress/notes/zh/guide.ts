@@ -50,7 +50,7 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'conversation_synthesis',
                 "reasoning_general",
                 "prompted_vqa",
-                "mathquestion_extract",
+                "PDFVQAExtract",
                 'knowledge_cleaning',
                 'speech_transcription',
             ],
@@ -81,7 +81,6 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "KnowledgeBaseCleaningPipeline",
                 "FuncCallPipeline",
                 "Pdf2ModelPipeline",
-                "PDFVQAExtractPipeline",
             ]
         },
         {
