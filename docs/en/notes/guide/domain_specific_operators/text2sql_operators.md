@@ -1,22 +1,22 @@
 ---
 title: Text2SQL Operators
 createTime: 2025/06/24 11:43:42
-permalink: /en/guide/Text2SQL_operators/
+permalink: /zh/guide/Text2SQL_operators/
 ---
 
 # Text2SQL Operators
 
 ## Overview
 
-Text-to-SQL operators are a specialized set of components designed for data processing and quality enhancement in Text-to-SQL tasks, aiming to:
-- Clean and augment existing Text-to-SQL datasets
-- Generate high-quality question-answer pairs for each sample, including training prompts and chain-of-thought (CoT) reasoning processes
-- Provide multi-dimensional data quality assessment and difficulty grading
+Text-to-SQL operators are a specialized collection of operators designed for data processing and quality enhancement in Text-to-SQL tasks, aiming to:
+- Clean and augment existing Text-to-SQL datasets.
+- Generate high-quality question-answer pairs containing training prompts and chain-of-thought reasoning for each sample.
+- Provide multi-dimensional data quality assessment and difficulty grading.
 
-Open-source operator varieties are severely limited. To achieve superior data processing quality and fill the gap in publicly available data synthesis and processing methods, we have meticulously designed and **developed in-house** a new suite of operators. Their labels carry the following meanings:
+The variety of open-source operators is quite limited. To achieve better data processing quality and fill the gaps in open-source data synthesis and processing methods, we have meticulously designed and **independently developed** a new set of operators. Their marker meanings are as follows:
 
-- 🚀 **Innovative Development**: Core algorithms are originally developed, either filling existing algorithmic gaps or further enhancing performance beyond current bottlenecks.
-- ✨ **Open-Source First**: This operator is integrated into mainstream community frameworks for the first time, enabling broader developer adoption and open sharing.
+- 🚀 **Independent Innovation**: Core algorithms are originally developed, filling gaps in existing algorithms or further improving performance, breaking through current bottlenecks.
+- ✨ **Open-Source Debut**: This operator is integrated into the mainstream community framework for the first time, facilitating use by more developers and enabling open-source sharing.
 
 ## Data Generation Operators
 
@@ -24,7 +24,7 @@ Open-source operator varieties are severely limited. To achieve superior data pr
   <thead>
     <tr>
       <th class="tg-0pky">Name</th>
-      <th class="tg-0pky">Type</th>
+      <th class="tg-0pky">Applicable Type</th>
       <th class="tg-0pky">Description</th>
       <th class="tg-0pky">Official Repository or Paper</th>
     </tr>
@@ -33,32 +33,38 @@ Open-source operator varieties are severely limited. To achieve superior data pr
     <tr>
       <td class="tg-0pky">SQLGenerator</td>
       <td class="tg-0pky">Data Generation</td>
-      <td class="tg-0pky">Generates diverse SQL statements based on database schemas</td>
+      <td class="tg-0pky">Generates diverse SQL statements based on database schema.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
     </tr>
     <tr>
       <td class="tg-0pky">SQLVariationGenerator🚀</td>
       <td class="tg-0pky">Data Augmentation</td>
-      <td class="tg-0pky">Generates SQL variants based on SQL statements and database schemas</td>
+      <td class="tg-0pky">Generates SQL variants based on SQL statements and database schema.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
       <td class="tg-0pky">Text2SQLQuestionGenerator</td>
       <td class="tg-0pky">Question Generation</td>
-      <td class="tg-0pky">Generates corresponding natural language questions from SQL statements</td>
+      <td class="tg-0pky">Generates corresponding natural language questions based on SQL statements.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
     </tr>
     <tr>
       <td class="tg-0pky">Text2SQLPromptGenerator✨</td>
       <td class="tg-0pky">Prompt Generation</td>
-      <td class="tg-0pky">Constructs training prompts containing schema and question information</td>
+      <td class="tg-0pky">Constructs training prompts containing schema and questions.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
       <td class="tg-0pky">Text2SQLCoTGenerator</td>
-      <td class="tg-0pky">Chain-of-Thought Generation</td>
-      <td class="tg-0pky">Generates step-by-step reasoning chains for SQL derivation</td>
+      <td class="tg-0pky">Reasoning Chain Generation</td>
+      <td class="tg-0pky">Generates step-by-step chain-of-thought reasoning for SQL.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
+    </tr>
+    <tr>
+      <td class="tg-0pky">Text2SQLCoTVotingGenerator✨</td>
+      <td class="tg-0pky">Reasoning Chain Selection</td>
+      <td class="tg-0pky">Performs execution consistency voting on candidate reasoning processes to select the final CoT.</td>
+      <td class="tg-0pky">-</td>
     </tr>
   </tbody>
 </table>
@@ -69,7 +75,7 @@ Open-source operator varieties are severely limited. To achieve superior data pr
   <thead>
     <tr>
       <th class="tg-0pky">Name</th>
-      <th class="tg-0pky">Type</th>
+      <th class="tg-0pky">Applicable Type</th>
       <th class="tg-0pky">Description</th>
       <th class="tg-0pky">Official Repository or Paper</th>
     </tr>
@@ -78,13 +84,13 @@ Open-source operator varieties are severely limited. To achieve superior data pr
     <tr>
       <td class="tg-0pky">SQLComponentClassifier</td>
       <td class="tg-0pky">Difficulty Assessment</td>
-      <td class="tg-0pky">Grades difficulty based on SQL syntax complexity</td>
+      <td class="tg-0pky">Performs difficulty grading based on SQL syntax complexity.</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/1809.08887">Spider</a></td>
     </tr>
     <tr>
       <td class="tg-0pky">SQLExecutionClassifier🚀</td>
       <td class="tg-0pky">Execution Difficulty Assessment</td>
-      <td class="tg-0pky">Grades difficulty based on model execution success rate</td>
+      <td class="tg-0pky">Performs difficulty grading based on model execution success rate.</td>
       <td class="tg-0pky">-</td>
     </tr>
   </tbody>
@@ -96,7 +102,7 @@ Open-source operator varieties are severely limited. To achieve superior data pr
   <thead>
     <tr>
       <th class="tg-0pky">Name</th>
-      <th class="tg-0pky">Type</th>
+      <th class="tg-0pky">Applicable Type</th>
       <th class="tg-0pky">Description</th>
       <th class="tg-0pky">Official Repository or Paper</th>
     </tr>
@@ -105,33 +111,39 @@ Open-source operator varieties are severely limited. To achieve superior data pr
     <tr>
       <td class="tg-0pky">SQLExecutionFilter✨</td>
       <td class="tg-0pky">Data Cleaning</td>
-      <td class="tg-0pky">Filters out SQL statements that cannot be executed successfully</td>
+      <td class="tg-0pky">Filters SQL statements that cannot be executed normally.</td>
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">SQLConsistencyFilter✨</td>
+      <td class="tg-0pky">SQLExecutabilityFilter✨</td>
       <td class="tg-0pky">Data Cleaning</td>
-      <td class="tg-0pky">Verifies semantic consistency between SQL queries and their corresponding natural language questions</td>
+      <td class="tg-0pky">Uses query plans to filter inexecutable SQL statements.</td>
+      <td class="tg-0pky">-</td>
+    </tr>
+    <tr>
+      <td class="tg-0pky">Text2SQLCorrespondenceFilter✨</td>
+      <td class="tg-0pky">Data Cleaning</td>
+      <td class="tg-0pky">Verifies semantic consistency between SQL and problem description.</td>
       <td class="tg-0pky">-</td>
     </tr>
   </tbody>
 </table>
 
-## Operator Interface Usage Guide
+## Operator Interface Usage Instructions
 
-Specifically, for operators requiring designated storage paths or model invocations, we provide encapsulated **Model Interfaces**, **Storage Object Interfaces**, and **Database Management Interfaces**. These interfaces allow pre-definition of required configurations.
+Specifically, for operators requiring specified storage paths or model calls, we provide encapsulated **Model Interfaces**, **Storage Object Interfaces**, and **Database Management Interfaces**. These interfaces allow for pre-defining the required configurations.
 
 ### Model Interface Configuration
 
-You can pre-define API parameters for operators using the following methods, supporting both generative and embedding models:
+You can pre-define model API parameters for operators in the following way, including generative models and embedding models:
 
 ```python
 from dataflow.serving import APILLMServing_request
 
 api_llm_serving = APILLMServing_request(
-    api_url="your_api_url",        # API service endpoint
+    api_url="your_api_url",        # API service URL
     model_name="model_name",       # Model name
-    max_workers=5                  # Maximum concurrent workers
+    max_workers=5                  # Maximum concurrency
 )
 
 embedding_serving = APILLMServing_request(
@@ -143,7 +155,7 @@ embedding_serving = APILLMServing_request(
 
 ### Storage Interface Configuration
 
-You can pre-define storage parameters for operators as follows:
+You can pre-define storage parameters for operators in the following way:
 
 ```python
 from dataflow.utils.storage import FileStorage
@@ -151,14 +163,14 @@ from dataflow.utils.storage import FileStorage
 storage = FileStorage(
     first_entry_file_name="your_file_path",           # Initial file path
     cache_path="./cache",                             # Cache directory
-    file_name_prefix="dataflow_cache_step",           # File name prefix
+    file_name_prefix="dataflow_cache_step",           # Filename prefix
     cache_type="jsonl",                               # Cache file type
 )
 ```
 
 ### Database Management Interface Configuration
 
-Since database schema information is required, you can pre-define database management as follows. Within operators, interactions with the database manager enable reading and managing database information:
+Since database schema information is required, you can pre-define the database management as follows. In the operators, database information is read and managed by interacting with the database manager:
 
 ```python
 from dataflow.utils.text2sql.database_manager import DatabaseManager
@@ -167,22 +179,22 @@ database_manager = DatabaseManager(
     db_type="your_db_type", # Currently supports SQLite and MySQL
     config={
         "your_db_config_key": "your_db_config_value"
-    }    
+    }
 )
 ```
 
-Note that SQLite and MySQL databases require specific configuration formats:
+Note: For SQLite and MySQL databases, configuration should be done as follows:
 
 ```python
-# SQLite Full Example
+# Complete SQLite example
 database_manager = DatabaseManager(
     db_type="sqlite",
     config={
-        "root_path": "/path/to/your/database/folder"  # Directory containing SQLite files
+        "root_path": "/path/to/your/database/folder"  # Directory path containing SQLite files
     }
 )
 
-# MySQL Full Example
+# Complete MySQL example
 database_manager = DatabaseManager(
     db_type="mysql",
     config={
@@ -197,7 +209,7 @@ database_manager = DatabaseManager(
 
 ### Prompt Template Configuration
 
-Operators support predefined prompt templates, which can be imported and used as follows:
+Operators support using predefined prompt templates. You can import and use them as follows:
 
 ```python
 from dataflow.prompts.text2sql import (
@@ -205,14 +217,14 @@ from dataflow.prompts.text2sql import (
     SelectSQLGeneratorPrompt,
     Text2SQLQuestionGeneratorPrompt,
     Text2SQLPromptGeneratorPrompt,
-    SQLConsistencyFilterPrompt,
+    Text2SQLCorrespondenceFilterPrompt,
     SQLVariationGeneratorPrompt
 )
 ```
 
-The `llm_serving`, `storage`, `database_manager`, and prompt templates referenced later are the interface objects defined above. Complete usage examples can be found in actual pipeline code.
+The `llm_serving`, `storage`, `database_manager`, and prompt template objects used later refer to the interface objects defined here. For complete usage examples, please refer to the actual pipeline code.
 
-For parameter passing: The operator constructor primarily accepts configuration-related parameters, allowing one-time setup for multiple uses; while the `X.run()` function accepts I/O-related `key` parameters. See detailed operator descriptions below for specifics.
+Regarding parameters: The constructor of the operator object mainly passes information related to operator configuration, which can be set once and used multiple times. The `X.run()` function passes `key` information related to I/O. Details can be found in the operator description examples below.
 
 ## Detailed Operator Descriptions
 
@@ -220,27 +232,29 @@ For parameter passing: The operator constructor primarily accepts configuration-
 
 #### 1. SQLGenerator
 
-**Function Description:** Generates diverse SQL statements based on database schemas.
-- Generates queries covering various SQL syntaxes and difficulty levels
-- Supports complex queries such as JOINs, subqueries, and aggregate functions
+**Function Description:** Generates diverse SQL statements based on database schema.
+- Generates query statements covering various SQL syntax and difficulty levels.
+- Supports complex queries such as JOINs, subqueries, aggregate functions, etc.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for SQL generation
-  - `database_manager`: Database manager for accessing schema information
-  - `generate_num`: Number of SQL statements to generate per database
-  - `prompt_template`: Prompt template for SQL generation
+  - `llm_serving`: LLM service interface for SQL generation.
+  - `database_manager`: Database manager for accessing database schema.
+  - `generate_num`: Number of SQL statements to generate per database.
+  - `prompt_template`: Prompt template for SQL generation.
 
 - `run()`
-  - `output_sql_key`: Output field name for SQL statements, default "SQL"
-  - `output_db_id_key`: Output field name for database ID, default "db_id"
+  - `output_sql_key`: Output SQL statement field name, default "SQL".
+  - `output_db_id_key`: Output database ID field name, default "db_id".
+  - `output_sql_complexity_key`: Output SQL complexity field name, default "sql_complexity_type".
 
 **Key Features:**
-- Intelligent schema analysis and SQL template generation
-- Supports multiple database types (SQLite, MySQL)
-- Automatically handles table relationships and foreign key constraints
-- Generates SQL across varying difficulty levels
+
+- Intelligent schema analysis and SQL template generation.
+- Supports multiple database types (SQLite, MySQL).
+- Automatically handles table relationships and foreign key constraints.
+- Generates SQL covering different difficulty levels.
 
 **Usage Example:**
 
@@ -248,7 +262,6 @@ For parameter passing: The operator constructor primarily accepts configuration-
 from dataflow.prompts.text2sql import SelectSQLGeneratorPrompt
 
 sql_generator = SQLGenerator(
-    llm_serving=llm_serving,
     database_manager=database_manager,
     generate_num=50,
     prompt_template=SelectSQLGeneratorPrompt()
@@ -256,33 +269,36 @@ sql_generator = SQLGenerator(
 sql_generator.run(
     storage=storage.step(),
     output_sql_key="SQL",
-    output_db_id_key="db_id"
+    output_db_id_key="db_id",
+    output_sql_complexity_key="sql_complexity_type"
 )
 ```
 
 #### 2. SQLVariationGenerator🚀
 
-**Function Description:** Generates SQL variants based on SQL statements and database schemas.
-- Increases syntactic diversity
-- Supports alias substitution, subquery transformation, JOIN rewriting, etc.
-- Effectively expands training data diversity
+**Function Description:** Generates SQL statement variants based on SQL statements and database schema.
+- Increases syntactic diversity.
+- Supports alias replacement, subquery transformation, JOIN rewriting, etc.
+- Effectively expands the diversity of training data.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for variant generation
-  - `database_manager`: Database manager for validating variant correctness
-  - `num_variations`: Number of variants to generate per SQL, default 5
-  - `prompt_template`: Prompt template for variant generation
+  - `llm_serving`: LLM service interface for SQL variant generation.
+  - `database_manager`: Database manager for validating variant correctness.
+  - `num_variations`: Number of variants to generate per SQL, default 5.
+  - `prompt_template`: Prompt template for SQL variant generation.
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `output_sql_variation_type_key`: Output SQL variant type field name, default "sql_variation_type".
 
 **Key Features:**
-- Intelligent SQL variant generation
-- Covers multiple variation directions to ensure diversity
-- Supports multiple expression styles for complex queries
+
+- Intelligent SQL variant generation.
+- Covers multiple variant directions to ensure SQL statement diversity.
+- Supports various expressions for complex queries.
 
 **Usage Example:**
 
@@ -290,7 +306,6 @@ sql_generator.run(
 from dataflow.prompts.text2sql import SQLVariationGeneratorPrompt
 
 sql_variation_generator = SQLVariationGenerator(
-    llm_serving=llm_serving,
     database_manager=database_manager,
     num_variations=5,
     prompt_template=SQLVariationGeneratorPrompt()
@@ -298,37 +313,41 @@ sql_variation_generator = SQLVariationGenerator(
 sql_variation_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
-    input_db_id_key="db_id"
+    input_db_id_key="db_id",
+    output_sql_variation_type_key="sql_variation_type"
 )
 ```
 
 #### 3. Text2SQLQuestionGenerator
 
-**Function Description:** Generates natural language questions corresponding to SQL statements.
-- Analyzes SQL semantics to generate reasonable questions
-- Uses embedding techniques to select optimal question candidates
-- Ensures consistency between questions and SQL intent
-- Supports multiple question expression styles
+**Function Description:** Generates corresponding natural language questions based on SQL statements.
+- Analyzes SQL semantics to generate reasonable natural language questions.
+- Uses embedding technology to select the optimal question candidate.
+- Ensures consistency between the question and the SQL query intent.
+- Supports multiple question expression styles.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for question generation
-  - `embedding_serving`: Embedding model interface for candidate selection
-  - `database_manager`: Database manager for schema information
-  - `question_candidates_num`: Number of candidate questions, default 5
-  - `prompt_template`: Prompt template for question generation
+  - `llm_serving`: LLM service interface for question generation.
+  - `embedding_serving`: Embedding model interface for question selection.
+  - `database_manager`: Database manager for obtaining schema information.
+  - `question_candidates_num`: Number of question candidates, default 5.
+  - `prompt_template`: Prompt template for question generation.
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
-  - `output_question_key`: Output field name for generated questions, default "question"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `output_question_key`: Output question field name, default "question".
+  - `output_evidence_key`: Output evidence field name, default "evidence".
 
 **Key Features:**
-- Semantics-aware intelligent question generation
-- Multi-candidate generation with optimal selection
-- Contextual understanding leveraging database schema
-- Ensures naturalness and accuracy of questions
+
+- Intelligent question generation based on SQL semantics.
+- Multi-candidate question generation and optimal selection.
+- Contextual understanding combining database schema.
+- Ensures naturalness and accuracy of questions.
+- Automatically supplements the `question_type` field.
 
 **Usage Example:**
 
@@ -336,7 +355,6 @@ sql_variation_generator.run(
 from dataflow.prompts.text2sql import Text2SQLQuestionGeneratorPrompt
 
 text2sql_question_generator = Text2SQLQuestionGenerator(
-    llm_serving=llm_serving,
     embedding_serving=embedding_serving,
     database_manager=database_manager,
     question_candidates_num=5,
@@ -346,34 +364,37 @@ text2sql_question_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
-    output_question_key="question"
+    output_question_key="question",
+    output_evidence_key="evidence"
 )
 ```
 
 #### 4. Text2SQLPromptGenerator✨
 
-**Function Description:** Constructs training prompts containing schema and question information.
-- Formats database schema information
-- Generates standardized prompts combining schema and question
-- Supports multiple schema formats (DDL, formatted schema, etc.)
-- Configurable option to include example data
+**Function Description:** Constructs training prompts containing schema and questions.
+- Formats database schema information.
+- Generates standardized training prompts combining questions.
+- Supports multiple schema formats (DDL, formatted schema, etc.).
+- Configurable to include example data.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `database_manager`: Database manager for schema information
-  - `prompt_template`: Prompt template must include placeholders {schema} and {question}
+  - `database_manager`: Database manager for obtaining schema information.
+  - `prompt_template`: Prompt template, must contain `{schema}` and `{question}` placeholders.
 
 - `run()`
-  - `input_question_key`: Input field name for questions, default "question"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
-  - `output_prompt_key`: Output field name for generated prompts, default "prompt"
+  - `input_question_key`: Question field name, default "question".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `input_evidence_key`: Evidence field name, default "evidence".
+  - `output_prompt_key`: Output prompt field name, default "prompt".
 
 **Key Features:**
-- Flexible prompt template system
-- Support for multiple schema formats
-- Automatic schema formatting and optimization
-- Supports schema with embedded example data
+
+- Flexible prompt template system.
+- Support for multiple schema formats.
+- Automatic schema formatting and optimization.
+- Supports schemas containing example data.
 
 **Usage Example:**
 
@@ -388,38 +409,40 @@ text2sql_prompt_generator.run(
     storage=storage.step(),
     input_question_key="question",
     input_db_id_key="db_id",
+    input_evidence_key="evidence",
     output_prompt_key="prompt"
 )
 ```
 
 #### 5. Text2SQLCoTGenerator
 
-**Function Description:** Generates step-by-step reasoning chains for SQL derivation.
-- Produces detailed reasoning steps based on questions and SQL
-- Explains the logical process behind SQL construction
-- Supports retry mechanisms and quality assurance
-- Enhances model reasoning capability and interpretability
+**Function Description:** Generates step-by-step chain-of-thought reasoning for SQL.
+- Generates detailed reasoning steps based on questions and SQL.
+- Explains the logical process of SQL construction.
+- Generates multiple candidate reasoning processes (no validation).
+- Improves model reasoning ability and explainability.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for CoT generation
-  - `database_manager`: Database manager for schema information
-  - `max_retries`: Maximum retry attempts, default 3
-  - `enable_retry`: Whether to enable retry mechanism, default True
-  - `prompt_template`: Prompt template for CoT generation
+  - `llm_serving`: LLM service interface for CoT generation.
+  - `database_manager`: Database manager for obtaining schema information.
+  - `sampling_num`: Number of candidate reasoning processes to generate, default 3.
+  - `prompt_template`: Prompt template for CoT generation.
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_question_key`: Input field name for questions, default "question"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
-  - `output_cot_key`: Output field name for CoT reasoning, default "cot_reasoning"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_question_key`: Question field name, default "question".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `input_evidence_key`: Evidence field name, default "evidence".
+  - `output_cot_key`: Output CoT reasoning field name, default "cot_reasoning" (actual output column is `cot_responses`).
 
 **Key Features:**
-- High-quality reasoning chain generation
-- Automated error detection and retry mechanism
-- Schema-aware contextual reasoning
-- Supports stepwise decomposition of complex queries
+
+- High-quality reasoning chain generation.
+- Multi-candidate reasoning process output (`cot_responses`).
+- Contextual reasoning combining schema.
+- Supports step-by-step decomposition of complex queries.
 
 **Usage Example:**
 
@@ -429,14 +452,51 @@ from dataflow.prompts.text2sql import Text2SQLCotGeneratorPrompt
 text2sql_cot_generator = Text2SQLCoTGenerator(
     llm_serving=cot_generation_llm_serving,
     database_manager=database_manager,
-    max_retries=3,
-    enable_retry=True,
+    sampling_num=3,
     prompt_template=Text2SQLCotGeneratorPrompt()
 )
 text2sql_cot_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_question_key="question",
+    input_db_id_key="db_id",
+    input_evidence_key="evidence",
+    output_cot_key="cot_reasoning"
+)
+```
+
+#### 6. Text2SQLCoTVotingGenerator✨
+
+**Function Description:** Performs execution consistency voting on candidate CoTs to select the final reasoning process.
+- Extracts SQL from `cot_responses` and executes them.
+- Votes based on execution result consistency.
+- Outputs the final `cot_reasoning`.
+
+**Input Parameters:**
+
+- `__init__()`
+  - `database_manager`: Database manager for executing SQL and comparing results.
+
+- `run()`
+  - `input_cot_responses_key`: Candidate CoT field name, default "cot_responses".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `output_cot_key`: Output final CoT field name, default "cot_reasoning".
+
+**Key Features:**
+
+- Reliable voting based on execution consistency.
+- Automatically handles invalid candidates and ties.
+- Generates the final usable reasoning process.
+
+**Usage Example:**
+
+```python
+text2sql_cot_voter = Text2SQLCoTVotingGenerator(
+    database_manager=database_manager
+)
+text2sql_cot_voter.run(
+    storage=storage.step(),
+    input_cot_responses_key="cot_responses",
     input_db_id_key="db_id",
     output_cot_key="cot_reasoning"
 )
@@ -446,27 +506,28 @@ text2sql_cot_generator.run(
 
 #### 1. SQLComponentClassifier
 
-**Function Description:** Grades difficulty based on SQL syntax complexity.
-- Analyzes syntactic components of SQL statements
-- Scores based on JOIN count, subquery depth, aggregate functions, etc.
-- Supports custom difficulty thresholds and labels
-- Provides a standardized difficulty classification system
+**Function Description:** Performs difficulty grading based on SQL syntax complexity.
+- Analyzes the complexity of SQL statement syntax components.
+- Scores based on number of JOINs, subquery depth, aggregate functions, etc.
+- Supports custom difficulty thresholds and labels.
+- Provides a standardized difficulty classification system.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `difficulty_thresholds`: List of difficulty thresholds, default [2, 4, 6]
-  - `difficulty_labels`: List of difficulty labels, default ['easy', 'medium', 'hard', 'extra']
+  - `difficulty_thresholds`: List of difficulty thresholds, default [2, 4, 6].
+  - `difficulty_labels`: List of difficulty labels, default ['easy', 'medium', 'hard', 'extra'].
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `output_difficulty_key`: Output field name for difficulty label, default "sql_component_difficulty"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `output_difficulty_key`: Output difficulty label field name, default "sql_component_difficulty".
 
 **Key Features:**
-- Complexity analysis based on SQL syntax structure
-- Configurable thresholds and labels
-- Fast batch processing capability
-- Standardized evaluation framework
+
+- Complexity analysis based on SQL syntactic structure.
+- Configurable difficulty thresholds and labels.
+- Fast batch processing capability.
+- Standardized difficulty assessment system.
 
 **Usage Example:**
 
@@ -484,32 +545,33 @@ sql_component_classifier.run(
 
 #### 2. SQLExecutionClassifier🚀
 
-**Function Description:** Grades difficulty based on model execution success rate.
-- Uses LLM to repeatedly attempt SQL generation for difficulty assessment
-- Dynamically adjusts difficulty level based on model success rate
-- Provides difficulty evaluation more aligned with real-world applications
-- Supports customizable difficulty configurations and generation counts
+**Function Description:** Performs difficulty grading based on model execution success rate.
+- Uses LLM to attempt SQL generation multiple times to assess difficulty.
+- Dynamically adjusts difficulty levels based on model success rate.
+- Provides difficulty assessment closer to real-world applications.
+- Supports custom difficulty configurations and generation counts.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for test generation
-  - `database_manager`: Database manager for SQL execution validation
-  - `num_generations`: Number of generation attempts, default 10
-  - `difficulty_thresholds`: Difficulty thresholds list, default [2, 5, 9]
-  - `difficulty_labels`: Difficulty labels list, default ['extra', 'hard', 'medium', 'easy']
+  - `llm_serving`: LLM service interface for SQL generation testing.
+  - `database_manager`: Database manager for SQL execution verification.
+  - `num_generations`: Number of test generations, default 10.
+  - `difficulty_thresholds`: List of difficulty thresholds, default [2, 5, 9].
+  - `difficulty_labels`: List of difficulty labels, default ['extra', 'hard', 'medium', 'easy'].
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
-  - `input_prompt_key`: Input field name for prompts, default "prompt"
-  - `output_difficulty_key`: Output field name for difficulty label, default "sql_execution_difficulty"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `input_prompt_key`: Prompt field name, default "prompt".
+  - `output_difficulty_key`: Output difficulty label field name, default "sql_execution_difficulty".
 
 **Key Features:**
-- Difficulty evaluation based on actual model performance
-- Dynamic adjustment mechanism
-- Statistical analysis from multiple generations
-- Difficulty grading more representative of real-world scenarios
+
+- Difficulty assessment based on actual model performance.
+- Dynamic difficulty adjustment mechanism.
+- Statistical analysis of multiple generations.
+- Difficulty grading more aligned with real-world scenarios.
 
 **Usage Example:**
 
@@ -534,25 +596,26 @@ sql_execution_classifier.run(
 
 #### 1. SQLExecutionFilter✨
 
-**Function Description:** Validates SQL executability and syntactic correctness.
-- Executes SQL statements in a real database environment
-- Detects syntax errors, runtime errors, and logical inconsistencies
-- Filters out non-executable SQL statements
-- Ensures SQL validity and usability within the dataset
+**Function Description:** Verifies the executability and syntactic correctness of SQL statements.
+- Executes SQL statements in a real database environment.
+- Detects syntax errors, runtime errors, and logical errors.
+- Filters SQL statements that cannot be executed normally.
+- Ensures the validity and usability of SQL in the dataset.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `database_manager`: Database manager for SQL execution and validation
+  - `database_manager`: Database manager for SQL execution and verification.
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
 
 **Key Features:**
-- Real-time SQL execution validation
-- Automatic filtering of failed executions
-- Efficient batch processing
+
+- Real-time SQL execution verification.
+- Automatic filtering of failed SQL statements.
+- Efficient batch processing capability.
 
 **Usage Example:**
 
@@ -567,46 +630,82 @@ sql_execution_filter.run(
 )
 ```
 
-#### 2. SQLConsistencyFilter✨
+#### 2. SQLExecutabilityFilter✨
 
-**Function Description:** Verifies semantic consistency between SQL and natural language questions.
-- Uses LLM to determine whether SQL results answer the posed question
-- Checks alignment between question semantics and SQL logic
-- Filters semantically inconsistent question-SQL pairs
-- Enhances dataset quality and reliability
+**Function Description:** Filters inexecutable SQL using query plans.
+- Generates query plans via database EXPLAIN.
+- Judges executability without executing the SQL.
+- Filters SQL statements that are inexecutable or invalid.
 
 **Input Parameters:**
 
 - `__init__()`
-  - `llm_serving`: LLM service interface for consistency judgment
-  - `database_manager`: Database manager for SQL execution
-  - `prompt_template`: Prompt template for consistency checking
+  - `database_manager`: Database manager for generating query plans.
 
 - `run()`
-  - `input_sql_key`: Input field name for SQL statements, default "SQL"
-  - `input_db_id_key`: Input field name for database ID, default "db_id"
-  - `input_question_key`: Input field name for questions, default "question"
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
 
 **Key Features:**
-- Intelligent semantic consistency checking
-- Combines SQL execution results with question semantics
-- Automatically filters mismatched pairs
-- Supports consistency verification for complex queries
+
+- Fast filtering without SQL execution.
+- Lower resource consumption and higher throughput.
+- Can be combined with execution filters.
 
 **Usage Example:**
 
 ```python
-from dataflow.prompts.text2sql import SQLConsistencyFilterPrompt
+sql_executability_filter = SQLExecutabilityFilter(
+    database_manager=database_manager
+)
+sql_executability_filter.run(
+    storage=storage.step(),
+    input_sql_key="SQL",
+    input_db_id_key="db_id"
+)
+```
 
-sql_consistency_filter = SQLConsistencyFilter(
+#### 3. Text2SQLCorrespondenceFilter✨
+
+**Function Description:** Verifies the semantic consistency between SQL and problem description.
+- Uses LLM to judge whether the SQL answers the question.
+- Checks the match between the question and SQL logic.
+- Filters semantically inconsistent data pairs.
+
+**Input Parameters:**
+
+- `__init__()`
+  - `llm_serving`: LLM service interface for consistency judgment.
+  - `database_manager`: Database manager for schema reading.
+  - `prompt_template`: Prompt template for consistency checking.
+
+- `run()`
+  - `input_sql_key`: SQL statement field name, default "SQL".
+  - `input_db_id_key`: Database ID field name, default "db_id".
+  - `input_question_key`: Question field name, default "question".
+  - `input_evidence_key`: Evidence field name, default "evidence".
+
+**Key Features:**
+
+- Intelligent semantic consistency checking.
+- Consistency judgment incorporating schema.
+- Automatic filtering of mismatched data pairs.
+
+**Usage Example:**
+
+```python
+from dataflow.prompts.text2sql import Text2SQLCorrespondenceFilterPrompt
+
+text2sql_correspondence_filter = Text2SQLCorrespondenceFilter(
     llm_serving=llm_serving,
     database_manager=database_manager,
-    prompt_template=SQLConsistencyFilterPrompt()
+    prompt_template=Text2SQLCorrespondenceFilterPrompt()
 )
-sql_consistency_filter.run(
+text2sql_correspondence_filter.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
-    input_question_key="question"
+    input_question_key="question",
+    input_evidence_key="evidence"
 )
 ```
