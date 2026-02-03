@@ -2,7 +2,7 @@
 title: Text-to-SQL Data Synthesis Pipeline
 icon: material-symbols-light:checkbook-outline-rounded
 createTime: 2025/06/17 02:00:31
-permalink: /zh/guide/text2sqlpipeline/
+permalink: /en/guide/text2sqlpipeline/
 ---
 
 # Text-to-SQL Data Synthesis Pipeline
