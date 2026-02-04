@@ -60,6 +60,12 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
       <td class="tg-0pky">生成SQL推理的逐步思维链过程</td>
       <td class="tg-0pky"><a href="https://arxiv.org/abs/2503.02240">OmniSQL</a></td>
     </tr>
+    <tr>
+      <td class="tg-0pky">Text2SQLCoTVotingGenerator✨</td>
+      <td class="tg-0pky">推理链筛选</td>
+      <td class="tg-0pky">对候选推理过程进行执行一致性投票，选出最终CoT</td>
+      <td class="tg-0pky">-</td>
+    </tr>
   </tbody>
 </table>
 
@@ -109,7 +115,13 @@ Text-to-SQL算子是专门用于Text-to-SQL问题数据处理和质量提升的�
       <td class="tg-0pky">-</td>
     </tr>
     <tr>
-      <td class="tg-0pky">SQLConsistencyFilter✨</td>
+      <td class="tg-0pky">SQLExecutabilityFilter✨</td>
+      <td class="tg-0pky">数据清洗</td>
+      <td class="tg-0pky">使用查询计划过滤不可执行SQL语句</td>
+      <td class="tg-0pky">-</td>
+    </tr>
+    <tr>
+      <td class="tg-0pky">Text2SQLCorrespondenceFilter✨</td>
       <td class="tg-0pky">数据清洗</td>
       <td class="tg-0pky">验证SQL与问题描述的语义一致性</td>
       <td class="tg-0pky">-</td>
@@ -205,7 +217,7 @@ from dataflow.prompts.text2sql import (
     SelectSQLGeneratorPrompt,
     Text2SQLQuestionGeneratorPrompt,
     Text2SQLPromptGeneratorPrompt,
-    SQLConsistencyFilterPrompt,
+    Text2SQLCorrespondenceFilterPrompt,
     SQLVariationGeneratorPrompt
 )
 ```
@@ -235,6 +247,7 @@ from dataflow.prompts.text2sql import (
 - `run()`
   - `output_sql_key`: 输出SQL语句字段名，默认"SQL"
   - `output_db_id_key`: 输出数据库ID字段名，默认"db_id"
+  - `output_sql_complexity_key`: 输出SQL复杂度字段名，默认"sql_complexity_type"
 
 **主要特性：**
 
@@ -249,7 +262,6 @@ from dataflow.prompts.text2sql import (
 from dataflow.prompts.text2sql import SelectSQLGeneratorPrompt
 
 sql_generator = SQLGenerator(
-    llm_serving=llm_serving,
     database_manager=database_manager,
     generate_num=50,
     prompt_template=SelectSQLGeneratorPrompt()
@@ -257,7 +269,8 @@ sql_generator = SQLGenerator(
 sql_generator.run(
     storage=storage.step(),
     output_sql_key="SQL",
-    output_db_id_key="db_id"
+    output_db_id_key="db_id",
+    output_sql_complexity_key="sql_complexity_type"
 )
 ```
 
@@ -279,6 +292,7 @@ sql_generator.run(
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
   - `input_db_id_key`: 数据库ID字段名，默认"db_id"
+  - `output_sql_variation_type_key`: 输出SQL变体类型字段名，默认"sql_variation_type"
 
 **主要特性：**
 
@@ -292,7 +306,6 @@ sql_generator.run(
 from dataflow.prompts.text2sql import SQLVariationGeneratorPrompt
 
 sql_variation_generator = SQLVariationGenerator(
-    llm_serving=llm_serving,
     database_manager=database_manager,
     num_variations=5,
     prompt_template=SQLVariationGeneratorPrompt()
@@ -300,7 +313,8 @@ sql_variation_generator = SQLVariationGenerator(
 sql_variation_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
-    input_db_id_key="db_id"
+    input_db_id_key="db_id",
+    output_sql_variation_type_key="sql_variation_type"
 )
 ```
 
@@ -325,6 +339,7 @@ sql_variation_generator.run(
   - `input_sql_key`: SQL语句字段名，默认"SQL"
   - `input_db_id_key`: 数据库ID字段名，默认"db_id"
   - `output_question_key`: 输出问题字段名，默认"question"
+  - `output_evidence_key`: 输出证据字段名，默认"evidence"
 
 **主要特性：**
 
@@ -332,6 +347,7 @@ sql_variation_generator.run(
 - 多候选问题生成和最优选择
 - 结合数据库Schema的上下文理解
 - 确保问题的自然性和准确性
+- 自动补充 `question_type` 问题类型字段
 
 **使用示例：**
 
@@ -339,7 +355,6 @@ sql_variation_generator.run(
 from dataflow.prompts.text2sql import Text2SQLQuestionGeneratorPrompt
 
 text2sql_question_generator = Text2SQLQuestionGenerator(
-    llm_serving=llm_serving,
     embedding_serving=embedding_serving,
     database_manager=database_manager,
     question_candidates_num=5,
@@ -349,7 +364,8 @@ text2sql_question_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
-    output_question_key="question"
+    output_question_key="question",
+    output_evidence_key="evidence"
 )
 ```
 
@@ -370,6 +386,7 @@ text2sql_question_generator.run(
 - `run()`
   - `input_question_key`: 问题字段名，默认"question"
   - `input_db_id_key`: 数据库ID字段名，默认"db_id"
+  - `input_evidence_key`: 证据字段名，默认"evidence"
   - `output_prompt_key`: 输出提示词字段名，默认"prompt"
 
 **主要特性：**
@@ -392,6 +409,7 @@ text2sql_prompt_generator.run(
     storage=storage.step(),
     input_question_key="question",
     input_db_id_key="db_id",
+    input_evidence_key="evidence",
     output_prompt_key="prompt"
 )
 ```
@@ -401,7 +419,7 @@ text2sql_prompt_generator.run(
 **功能描述：** 生成SQL推理的逐步思维链过程
 - 基于问题和SQL生成详细的推理步骤
 - 解释SQL构建的逻辑过程
-- 支持错误重试和质量保证
+- 生成多个候选推理过程（不做验证）
 - 提升模型的推理能力和可解释性
 
 **输入参数：**
@@ -409,20 +427,20 @@ text2sql_prompt_generator.run(
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于CoT生成
   - `database_manager`: 数据库管理器，用于Schema信息获取
-  - `max_retries`: 最大重试次数，默认3
-  - `enable_retry`: 是否启用重试机制，默认True
+  - `sampling_num`: 生成候选推理过程数量，默认3
   - `prompt_template`: CoT生成的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
   - `input_question_key`: 问题字段名，默认"question"
   - `input_db_id_key`: 数据库ID字段名，默认"db_id"
-  - `output_cot_key`: 输出CoT推理字段名，默认"cot_reasoning"
+  - `input_evidence_key`: 证据字段名，默认"evidence"
+  - `output_cot_key`: 输出CoT推理字段名，默认"cot_reasoning"（实际输出列为 `cot_responses`）
 
 **主要特性：**
 
 - 高质量的推理链生成
-- 自动错误检测和重试机制
+- 多候选推理过程输出（`cot_responses`）
 - 结合Schema的上下文推理
 - 支持复杂查询的逐步分解
 
@@ -434,14 +452,51 @@ from dataflow.prompts.text2sql import Text2SQLCotGeneratorPrompt
 text2sql_cot_generator = Text2SQLCoTGenerator(
     llm_serving=cot_generation_llm_serving,
     database_manager=database_manager,
-    max_retries=3,
-    enable_retry=True,
+    sampling_num=3,
     prompt_template=Text2SQLCotGeneratorPrompt()
 )
 text2sql_cot_generator.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_question_key="question",
+    input_db_id_key="db_id",
+    input_evidence_key="evidence",
+    output_cot_key="cot_reasoning"
+)
+```
+
+#### 6. Text2SQLCoTVotingGenerator✨
+
+**功能描述：** 对候选CoT进行执行一致性投票，选出最终推理过程
+- 从 `cot_responses` 中提取SQL并执行
+- 基于执行结果一致性进行投票
+- 输出最终 `cot_reasoning`
+
+**输入参数：**
+
+- `__init__()`
+  - `database_manager`: 数据库管理器，用于执行SQL并比较结果
+
+- `run()`
+  - `input_cot_responses_key`: 候选CoT字段名，默认"cot_responses"
+  - `input_db_id_key`: 数据库ID字段名，默认"db_id"
+  - `output_cot_key`: 输出最终CoT字段名，默认"cot_reasoning"
+
+**主要特性：**
+
+- 基于执行一致性的可靠投票
+- 自动处理无效候选与并列情况
+- 生成最终可用的推理过程
+
+**使用示例：**
+
+```python
+text2sql_cot_voter = Text2SQLCoTVotingGenerator(
+    database_manager=database_manager
+)
+text2sql_cot_voter.run(
+    storage=storage.step(),
+    input_cot_responses_key="cot_responses",
     input_db_id_key="db_id",
     output_cot_key="cot_reasoning"
 )
@@ -575,47 +630,82 @@ sql_execution_filter.run(
 )
 ```
 
-#### 2. SQLConsistencyFilter✨
+#### 2. SQLExecutabilityFilter✨
+
+**功能描述：** 使用查询计划过滤不可执行SQL
+- 通过数据库EXPLAIN生成查询计划
+- 不执行SQL即可判断可执行性
+- 过滤无法执行或不合法的SQL语句
+
+**输入参数：**
+
+- `__init__()`
+  - `database_manager`: 数据库管理器，用于生成查询计划
+
+- `run()`
+  - `input_sql_key`: SQL语句字段名，默认"SQL"
+  - `input_db_id_key`: 数据库ID字段名，默认"db_id"
+
+**主要特性：**
+
+- 不执行SQL的快速过滤
+- 更低的资源消耗与更高的吞吐
+- 可与执行过滤器组合使用
+
+**使用示例：**
+
+```python
+sql_executability_filter = SQLExecutabilityFilter(
+    database_manager=database_manager
+)
+sql_executability_filter.run(
+    storage=storage.step(),
+    input_sql_key="SQL",
+    input_db_id_key="db_id"
+)
+```
+
+#### 3. Text2SQLCorrespondenceFilter✨
 
 **功能描述：** 验证SQL与问题描述的语义一致性
-- 使用LLM判断SQL执行结果是否回答了问题
+- 使用LLM判断SQL是否回答了问题
 - 检查问题与SQL逻辑的匹配度
 - 过滤语义不一致的数据对
-- 提升数据集的质量和可靠性
 
 **输入参数：**
 
 - `__init__()`
   - `llm_serving`: LLM服务接口，用于一致性判断
-  - `database_manager`: 数据库管理器，用于SQL执行
+  - `database_manager`: 数据库管理器，用于Schema读取
   - `prompt_template`: 一致性检查的提示词模板
 
 - `run()`
   - `input_sql_key`: SQL语句字段名，默认"SQL"
   - `input_db_id_key`: 数据库ID字段名，默认"db_id"
   - `input_question_key`: 问题字段名，默认"question"
+  - `input_evidence_key`: 证据字段名，默认"evidence"
 
 **主要特性：**
 
 - 智能语义一致性检查
-- 结合SQL执行结果和问题语义
+- 结合Schema进行一致性判断
 - 自动过滤不匹配的数据对
-- 支持复杂查询的一致性验证
 
 **使用示例：**
 
 ```python
-from dataflow.prompts.text2sql import SQLConsistencyFilterPrompt
+from dataflow.prompts.text2sql import Text2SQLCorrespondenceFilterPrompt
 
-sql_consistency_filter = SQLConsistencyFilter(
+text2sql_correspondence_filter = Text2SQLCorrespondenceFilter(
     llm_serving=llm_serving,
     database_manager=database_manager,
-    prompt_template=SQLConsistencyFilterPrompt()
+    prompt_template=Text2SQLCorrespondenceFilterPrompt()
 )
-sql_consistency_filter.run(
+text2sql_correspondence_filter.run(
     storage=storage.step(),
     input_sql_key="SQL",
     input_db_id_key="db_id",
-    input_question_key="question"
+    input_question_key="question",
+    input_evidence_key="evidence"
 )
 ```
