@@ -37,7 +37,7 @@ permalink: /zh/guide/agent/operator_write/
 
 ## 3. 工作流架构
 
-该功能由 `wf_pipeline_write.py` 编排，形成一个包含条件循环的有向图。
+该功能由 `dataflow_agent/workflow/wf_pipeline_write.py` 编排，形成一个包含条件循环的有向图。
 
 1. **Match Node**: 检索参考算子。
 2. **Write Node**: 编写初始代码。
@@ -52,7 +52,11 @@ permalink: /zh/guide/agent/operator_write/
 
 ### 4.1 界面操作
 
-前端页面代码位于 `operator_write.py`，提供了可视化的交互体验。
+前端页面代码位于 `gradio_app/pages/operator_write.py`，提供了可视化的交互体验，适合交互式探索和快速验证。启动 Web 界面：
+```python
+python gradio_app/app.py
+```
+访问 `http://127.0.0.1:7860` 开始使用
 
 #### 1. 配置输入 
 
@@ -80,39 +84,187 @@ permalink: /zh/guide/agent/operator_write/
 
 ### 4.2 脚本调用与显式配置 
 
-对于开发者或自动化任务，可以直接运行 `run_dfa_operator_write.py`。
+对于开发者，推荐直接修改并运行 `script/run_dfa_operator_write.py`。这种方式可以更灵活地集成到自动化流程中，并保存生成的算子文件。
 
 #### 1. 修改配置
 
-打开 `run_dfa_operator_write.py`，在文件顶部的配置区域修改参数：
+打开 `script/run_dfa_operator_write.py`，在文件顶部的配置区域修改参数。
 
-```Python
-CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
-MODEL = os.getenv("DF_MODEL", "gpt-4o")
-LANGUAGE = "en"
+**任务配置**
+  * **`TARGET`**: 用自然语言描述算子的功能。描述越具体，生成的代码越准确。建议包含对输入字段和预期输出的描述。
+    * 示例：`"创建一个算子，用于对文本进行情感分析"`
+    * 示例：`"实现一个数据去重算子，支持多字段组合去重"`
+  * **`CATEGORY`**: 算子所属类别，用于匹配相似算子作为参考
+    * 默认：`"Default"`
+    * 可选：`"reasoning"`, `"agentic_rag"`, `"knowledge_cleaning"` 等
+  * **`JSON_FILE`**: 用于测试算子的数据文件（`.jsonl` 格式）。
+    * 默认：留空则使用项目自带的测试数据`tests/test.jsonl`。
+  * **`OUTPUT_PATH`**: 生成的 Python 代码保存路径。如果留空，代码只会打印在控制台，不会保存文件。
 
-TARGET = "Create an operator that filters out missing values and keeps rows with non-empty fields."
-CATEGORY = "Default"          # 兜底类别（若 classifier 未命中）
-OUTPUT_PATH = ""              # e.g. "cache_local/my_operator.py"；空则不落盘
-JSON_FILE = ""                # 空则使用项目自带 tests/test.jsonl
-
-NEED_DEBUG = False
-MAX_DEBUG_ROUNDS = 3
-```
+**API 与 调试配置**
+  * **`CHAT_API_URL`**: LLM 服务地址
+  * **`api_key`**: 访问密钥（使用环境变量 DF_API_KEY）
+  * **`MODEL`**: 模型名称，默认 gpt-4o
+  * **`NEED_DEBUG`**: 是否开启自动调试循环 (`True` / `False`)
+    * `True`：如果生成的代码在 `JSON_FILE` 上运行报错，Agent 会自动分析错误堆栈并尝试重写代码
+    * `False`：生成代码并执行后立即结束，不管是否能运行成功
+  * **`MAX_DEBUG_ROUNDS`**: 最大自动修复次数，默认 3 次
 
 #### 2. 运行脚本
 
-```Bash
-python run_dfa_operator_write.py
+配置完成后，在终端执行：
+
+```bash
+python script/run_dfa_operator_write.py
+
 ```
 
 #### 3. 结果输出
 
-脚本会在控制台打印关键信息：
+脚本执行过程中会输出以下关键信息：
 
-- `Matched ops`: 匹配到的参考算子。
-- `Code preview`: 生成代码的预览片段。
-- `Execution Result`:
-  - `Success: True` 表示代码生成并运行通过。
-  - `Success: False` 会打印 `stderr preview` 供排查。
-- `Debug Runtime Preview`: 显示自动选择的 `input_key` 和运行时日志。
+* **[Match Operator Result]**: 显示 Agent 在现有算子库中找到的“参考算子”
+* **[Writer Result]**: 生成的代码长度和保存位置
+* **[Execution Result]**：代码执行结果
+  * `Success: True`：表示代码生成成功，且在测试数据上运行无误。
+  * `Success: False`：表示运行失败。
+* **[Debug Runtime Preview]**：运行时捕获的 `stdout`/`stderr` 以及选定的输入字段键名 (`input_key`)
+
+#### 4. 实战 Case：编写一个情感分析算子
+
+我们有一个日志文件 `tests/test.jsonl`，其中包含字段 `"raw_content"`。我们希望创建一个算子，对该字段的文本内容进行情感分析。
+
+**配置示例：**
+
+```python
+# ===== Example config (edit here) =====、
+# API KEY 通过设置环境变量 DF_API_KEY 传入
+CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
+MODEL = os.getenv("DF_MODEL", "gpt-4o")
+LANGUAGE = "en"
+
+# 1. 定义具体需求
+TARGET = "创建一个算子，用于对文本进行情感分析"
+CATEGORY = "Default"          
+# 2. 指定结果保存路径
+OUTPUT_PATH = "cache_local/my_operator.py"
+# 3. 指定测试数据路径 
+JSON_FILE = "tests/test.jsonl"
+# 4. 开启调试
+NEED_DEBUG = True
+MAX_DEBUG_ROUNDS = 10
+
+```
+
+**运行：**
+运行脚本后，终端会给出以下输出：
+``` bash
+==== Match Operator Result ====
+Matched ops: ['LangkitSampleEvaluator', 'LexicalDiversitySampleEvaluator', 'PresidioSampleEvaluator', 'PerspectiveSampleEvaluator']
+
+==== Writer Result ====
+Code length: 3619
+Saved to: cache_local/my_operator.py
+
+==== Execution Result (instantiate) ====
+Success: True
+
+==== Debug Runtime Preview ==== 
+input_key: raw_content
+available_keys: ['raw_content']
+[debug stdout]
+ [selected_input_key] raw_content
+
+[debug stderr]
+Generating......: 100%|######### | 18/20 [00:08<00:00,  3.34it/s]
+```
+生成的代码保存到 `script/cache_local/my_operator.py`中，打开可以查看生成的代码：
+``` python
+from dataflow.core import OperatorABC
+from dataflow.utils.registry import OPERATOR_REGISTRY
+from dataflow.utils.storage import DataFlowStorage, FileStorage
+from dataflow import get_logger
+from dataflow.serving import APILLMServing_request
+import pandas as pd
+
+@OPERATOR_REGISTRY.register()
+class SentimentAnalysisOperator(OperatorABC):
+    def __init__(self, llm_serving=None):
+        self.logger = get_logger()
+        self.logger.info(f'Initializing {self.__class__.__name__}...')
+        self.llm_serving = llm_serving
+        self.score_name = 'SentimentScore'
+        self.logger.info(f'{self.__class__.__name__} initialized.')
+
+    @staticmethod
+    def get_desc(lang: str = "zh"):
+        if lang == "zh":
+            return (
+                "使用LLM进行文本情感分析，返回情感得分，得分越高表示情感越积极。\n"
+                "输入参数：\n"
+                "- llm_serving：LLM服务对象\n"
+                "- input_key：输入文本字段名\n"
+                "- output_key：输出得分字段名，默认'SentimentScore'\n"
+                "输出参数：\n"
+                "- 包含情感分析得分的DataFrame"
+            )
+        else:
+            return (
+                "Perform sentiment analysis on text using LLM, returning sentiment scores where higher scores indicate more positive sentiment.\n"
+                "Input Parameters:\n"
+                "- llm_serving: LLM serving object\n"
+                "- input_key: Field name for input text\n"
+                "- output_key: Field name for output score, default 'SentimentScore'\n"
+                "Output Parameters:\n"
+                "- DataFrame containing sentiment analysis scores"
+            )
+
+    def get_score(self, samples: list[dict], input_key: str) -> list[float]:
+        texts = [sample.get(input_key, '') or '' for sample in samples]
+        return self.llm_serving.generate_from_input(texts)
+
+    def eval(self, dataframe: pd.DataFrame, input_key: str) -> list[float]:
+        self.logger.info(f"Evaluating {self.score_name}...")
+        samples = dataframe.to_dict(orient='records')
+        scores = self.get_score(samples, input_key)
+        self.logger.info("Evaluation complete!")
+        return scores
+
+    def run(self,
+            storage: DataFlowStorage,
+            input_key: str | None = None,
+            output_key: str = 'SentimentScore'):
+        dataframe = storage.read("dataframe")
+        if input_key is None:
+            input_key = self._auto_select_input_key(dataframe)
+        dataframe[output_key] = self.eval(dataframe, input_key)
+        storage.write(dataframe)
+
+    def _auto_select_input_key(self, dataframe: pd.DataFrame) -> str:
+        preferred_keys = ['raw_content', 'text', 'content', 'sentence', 'instruction', 'input', 'query', 'problem', 'prompt']
+        for key in preferred_keys:
+            if key in dataframe.columns and dataframe[key].notnull().any():
+                return key
+        return dataframe.columns[0]
+
+# Runnable entry code
+
+test_data_path = '/root/autodl-tmp/DataFlow-Agent/tests/test.jsonl'
+
+# Initialize FileStorage
+storage = FileStorage(first_entry_file_name=test_data_path, cache_path="./cache_local", file_name_prefix="dataflow_cache_step", cache_type="jsonl")
+storage = storage.step()
+
+# Initialize llm_serving
+llm_serving = APILLMServing_request(api_url="http://123.129.219.111:3000/v1/chat/completions", key_name_of_api_key="DF_API_KEY", model_name="gpt-4o")
+
+# Select input key
+available_keys = ['raw_content']
+preselected_input_key = 'raw_content'
+input_key = preselected_input_key if preselected_input_key in available_keys else available_keys[0]
+print(f"[selected_input_key] {input_key}")
+
+# Instantiate and run the operator
+operator = SentimentAnalysisOperator(llm_serving=llm_serving)
+operator.run(storage=storage, input_key=input_key)
+```

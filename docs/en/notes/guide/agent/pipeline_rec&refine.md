@@ -20,7 +20,7 @@ The system possesses self-healing capabilities: when generated code fails to exe
 
 ### 2. System Architecture
 
-This function is orchestrated by `wf_pipeline_recommend_extract_json.py`, forming a directed graph containing multiple levels of intelligent agents. The detailed responsibilities of the nodes are as follows:
+This function is orchestrated by `dataflow_agent/workflow/wf_pipeline_recommend_extract_json.py`, forming a directed graph containing multiple levels of intelligent agents. The detailed responsibilities of the nodes are as follows:
 
 #### 2.1 Analysis and Planning Phase
 
@@ -75,7 +75,7 @@ This function is orchestrated by `wf_pipeline_recommend_extract_json.py`, formin
 #### 2.2 Construction and Execution Phase
 
 1. **Builder Node**
-   1. **Responsibility**: Converts the recommendation plan (JSON) into an actual Python code file (`pipeline.py`) and launches a subprocess to execute that code.
+   1. **Responsibility**: Converts the recommendation plan (JSON) into an actual Python code file and launches a subprocess to execute that code.
    2. **Mechanism**: Supports creating subprocesses to execute code, capturing standard output (stdout) and standard error (stderr).
    3. **Output**: `state.execution_result` (Success/Fail status and logs).
 
@@ -108,9 +108,15 @@ When the `builder` execution fails and `need_debug=True`, it enters this loop:
 
 ### 3. User Guide
 
+This feature provides two modes of usage: **Graphical Interface (Gradio UI)** and **Command Line Script**.
+
 #### 3.1 Graphical Interface
 
-Code located in `pipeline_rec.py`.
+Code located in `gradio_app/pages/pipeline_rec.py`.It is ideal for interactive exploration and rapid validation. To launch the web interface:
+```python
+python gradio_app/app.py
+```
+Visit `http://127.0.0.1:7860` and start using  
 
 1. **Configure Inputs**:
    1. Enter your requirements in the "Target Description" box.
@@ -136,30 +142,82 @@ Code located in `pipeline_rec.py`.
 
 #### 3.2 Script Invocation
 
-Use the `run_dfa_pipeline_recommend.py` script.
+For automated tasks or batch generation, it is recommended to directly modify and run `script/run_dfa_pipeline_recommend.py`.
 
-**Configuration Parameters:**
+##### 1. Modify the Configuration
 
-```python
-LANGUAGE = "en"
-CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
-MODEL = os.getenv("DF_MODEL", "gpt-4o")
-TARGET = "Just give me simple filtering or deduplication operators, only 2 operators needed"
-NEED_DEBUG = True           # Enable auto-repair
-MAX_DEBUG_ROUNDS = 5        # Maximum repair attempts
-CACHE_DIR = "dataflow_cache"
-TEST_JSON_REL_PATH = "tests/test.jsonl" # Test data path
+Open `script/run_dfa_pipeline_recommend.py` and make modifications in the configuration section at the top of the file.
 
-```
+**API Configuration**
 
-**Run Command:**
+  * **`CHAT_API_URL`**: URL of the LLM service
+  * **`api_key`**: Access key (using the environment variable DF_API_KEY)
+  * **`MODEL`**: Model name, default is gpt-4o
+
+**Task Configuration**
+
+   * **`TARGET`**: Describe your data processing requirements in detail in natural language
+      * Example: `"Please help me orchestrate a pipeline specifically for large-scale pre-training data cleaning, covering the entire process from deduplication and rewriting to quality filtering"`
+   * **`TEST_JSON_REL_PATH`**: Relative path of the data file used to test the Pipeline
+      * Format: One JSON object per line
+      * Default: `{Project Root Directory}/tests/test.jsonl`
+
+**Debug Configuration**
+
+   * **`NEED_DEBUG`**: Whether to enable automatic debugging and repair
+      * **`True`**: The Agent will attempt to run the generated code immediately. If an error is reported (e.g., `ImportError`, `KeyError`), it will start the Debugger Agent to analyze the error stack, automatically modify the code and retry
+      * **`False`**: End immediately after generating and running the code, without automatic debugging and repair
+   * **`MAX_DEBUG_ROUNDS`**: Maximum number of automatic repair attempts, default is 5 rounds
+
+**File Configuration**
+
+   * **`CACHE_DIR`**: Result output directory. The generated pipeline code, execution logs, intermediate results, etc., will all be saved here
+
+##### 2. Run the Script
 
 ```bash
 python run_dfa_pipeline_recommend.py
-
 ```
 
-**Output:** After running, the script generates `pipeline.py`, `final_state.json`, and `graph.png` under `dataflow_cache/session_{id}/`.
+##### 3. Result Output
+
+After the script is executed, the console will print the execution logs and the final execution status. After the script runs, `my_pipeline.py`, `final_state.json` and `graph.png` will be generated under `CACHE_DIR`.
+
+##### 4. Practical Case: Pre-training Data Cleaning Pipeline
+
+Suppose we have pre-training data `tests/test.jsonl` containing dirty data, and we want to clean it to obtain high-quality data. Open the script and modify the configuration as follows:
+
+**Scenario Configuration:**
+
+```python
+# ===== Example config (edit here) =====
+
+# 1. Define the task flow
+TARGET = """
+- 1. Please help me orchestrate a dedicated pipeline for large-scale pre-training data cleaning, covering the entire process from deduplication and rewriting to quality filtering.  - 1. Please help me orchestrate a dedicated pipeline for large-scale pre-training data cleaning, covering the entire process from deduplication and rewriting to quality filtering.
+- 2. In the pre-training phase, raw web data (such as Common Crawl) is often filled with a large amount of noise, advertisements, garbled characters, and duplicate content, resulting in uneven data quality. I need to first perform appropriate rewriting on the raw data, such as removing a large number of excessive spaces, HTML tags, etc. Then, rule-based heuristic filtering needs to be applied to eliminate obviously garbage text, incomplete text, and overly short invalid data. Meanwhile, considering the complexity of online content, I need to filter data in a specified language for training large models. Web data has a high duplication rate, so it is best to use a fuzzy deduplication algorithm to clean up similar documents, leaving only one copy. Finally, to ensure that the model learns high-quality knowledge, I hope to have a quality classification model to score the cleaned data and retain only the content with high educational value, thereby building a high-quality pre-training corpus.
+- 3. I need an end-to-end pipeline specifically for processing massive pre-training corpora. First, you can perform basic normalization processing on the raw text, removing excessive spaces, HTML tags, and emojis. Then, use heuristic rules for initial filtering to screen out obviously low-quality text. These heuristic rules should cover a wide range, including filtering out text segments with an excessively high symbol/word ratio, text segments containing sensitive words, text segments with an abnormal number of words, incomplete text segments ending with colons/ellipses, text segments with an abnormal number of sentences, empty text, text segments with an abnormal average word length, text segments containing HTML tags, text segments without punctuation marks, text segments with special symbols or watermarks, text segments with an excessively high proportion of parentheses, text segments with an excessively high proportion of uppercase letters, text segments containing lorem ipsum (random dummy text), text segments with an excessively low proportion of independent words, text segments with a small number of characters, text segments starting with bullet points, and text segments containing an excessive amount of Javascript. On this basis, use MinHash or similar algorithms for document-level fuzzy deduplication to significantly reduce data redundancy. Subsequently, use a trained quality assessment model to score and filter the remaining data. Finally, a language identification step can be added to ensure that only high-quality and clean text in the target language is retained in the end.
+"""
+
+# 2. Specify the test data path
+TEST_JSON_REL_PATH = "tests/test.jsonl" 
+
+# 3. Enable Debug 
+NEED_DEBUG = True
+MAX_DEBUG_ROUNDS = 5
+```
+
+**Run:**
+After running the script, the workflow will execute in the following steps:
+
+1. **Analyze user data and intent**: Analyze the characteristics of the user's data.
+2. **Decompose user tasks and recommend operators**: Decompose the user's intent into multiple tasks, retrieve and match operators related to the user's intent.
+3. **Generate code**: Analyze the order of requirements, connect these operators in series, and write the pipeline code.
+4. **Automatic testing**: Start a child process for trial operation. If an error occurs and debug mode is enabled, the Debugger Node will attempt to fix it.
+5. **Final delivery**: End the workflow when execution is successful or the maximum number of debug rounds is reached.
+
+Users can find the generated Pipeline code files and execution log files in the `CACHE_DIR` directory.
+
 
 
 ## Part 2: Pipeline Refinement
@@ -170,7 +228,7 @@ Pipeline Refinement allows users to fine-tune generated DataFlow Pipelines using
 
 ### 2. System Architecture
 
-This function is orchestrated by `wf_pipeline_refine.py`, adopting a three-stage architecture of **Analyzer -> Planner -> Refiner**:
+This function is orchestrated by `dataflow_agent/workflow/wf_pipeline_refine.py`, adopting a three-stage architecture of **Analyzer -> Planner -> Refiner**:
 
 #### 2.1 Refine Target Analyzer
 
@@ -199,9 +257,15 @@ This function is orchestrated by `wf_pipeline_refine.py`, adopting a three-stage
 
 ### 3. User Guide
 
+This feature provides two modes of usage: **Graphical Interface (Gradio UI)** and **Command Line Script**.
+
 #### 3.1 Graphical Interface
 
-Integrated at the bottom of the `pipeline_rec.py` page.
+Integrated in `gradio_app/pages/pipeline_rec.py`.It is ideal for interactive exploration and rapid validation. To launch the web interface:
+```python
+python gradio_app/app.py
+```
+Visit `http://127.0.0.1:7860` and start using  
 
 1. **Prerequisite**: Must first click "Generate Pipeline" at the top of the page to generate initial pipeline code, at which point `pipeline_json_state` will be initialized.
 2. **Input Optimization Instruction**: Enter instructions in the "Optimization Requirement" text box.
@@ -209,28 +273,50 @@ Integrated at the bottom of the `pipeline_rec.py` page.
 4. **History Backtracking**: Use "Previous Round" and "Next Round" buttons to switch between different optimization versions and view the code evolution process.
 5. **Warning Prompts**: If RAG match quality is low, an `Optimization Warning` comment will be automatically added to the top of the code, alerting the user that the currently generated operator may not fully match the requirement.
 
-#### 3.2 Script Invocation
+#### 3.2 Script Invocation 
 
-Use the `run_dfa_pipeline_refine.py` script.
+Use `script/run_dfa_pipeline_refine.py` to fine-tune the structure of an existing Pipeline.
 
-**Configuration Parameters:**
+##### 1. Modify the Configuration
 
-```python
-# Input file: pipeline structure file generated in the previous step (.json)
-INPUT_JSON = "dataflow_cache/session_xxx/final_state.json" 
-OUTPUT_JSON = "cache_local/pipeline_refine_result.json" # Output file; if empty string, only prints result
-# Modification Target
-TARGET = "Please adjust the Pipeline to contain only 3 nodes, simplifying data flow"
+**API Configuration**
 
-LANGUAGE = "en"
-CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
-MODEL = os.getenv("DF_MODEL", "gpt-4o")
+  * **`CHAT_API_URL`**: URL of the LLM service
+  * **`api_key`**: Access key (using the environment variable DF_API_KEY)
+  * **`MODEL`**: Model name, default is gpt-4o
 
-```
+**Task Configuration**
 
-**Run Command:**
+  * **`INPUT_JSON`**: Path of the Pipeline structure file to be optimized
+  * **`OUTPUT_JSON`**: Save path for the optimized Pipeline JSON structure file
+  * **`TARGET`**: Describe how you want to modify the Pipeline in natural language
+      * Example: `"Please adjust the Pipeline to contain only 3 nodes and simplify the data flow"`
+
+##### 2. Run the Script
 
 ```bash
-python run_dfa_pipeline_refine.py
-
+python script/run_dfa_pipeline_refine.py
 ```
+
+##### 3. Practical Case: Simplify the Pipeline
+
+Suppose the Pipeline generated in the previous step is too complex and contains redundant "cleaning" operators, and we want to remove them to simplify the Pipeline.
+
+**Scenario Configuration:**
+
+```python
+# ===== Example config (edit here) =====
+
+# 1. Specify the Pipeline structure file generated in the previous step
+INPUT_JSON = "dataflow_agent/tmps/pipeline.json"
+
+# 2. Issue modification instructions
+TARGET = "Please simplify the intermediate cleaning operators and streamline the data flow."
+
+# 3. Specify the result save location
+OUTPUT_JSON = "cache_local/pipeline_refine_result.json.json"
+```
+
+**Run:**
+The Agent will analyze the JSON topology structure of the current Pipeline, find the corresponding deduplication node, and remove it.
+
