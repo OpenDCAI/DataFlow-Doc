@@ -20,7 +20,7 @@ permalink: /zh/guide/agent/pipeline_rec&refine/
 
 ### 2. 系统架构
 
-该功能由 `wf_pipeline_recommend_extract_json.py` 编排，形成一个包含多级智能体的有向图。以下是详细的节点职责说明：
+该功能由 `dataflow_agent/workflow/wf_pipeline_recommend_extract_json.py` 编排，形成一个包含多级智能体的有向图。以下是详细的节点职责说明：
 
 #### 2.1 分析与规划阶段
 
@@ -73,7 +73,7 @@ permalink: /zh/guide/agent/pipeline_rec&refine/
 #### 2.2 构建与执行阶段
 
 1. **Builder Node**
-   1. **职责**: 将推荐方案（JSON）转化为实际的 Python 代码文件 (`pipeline.py`)，并启动子进程执行该代码。
+   1. **职责**: 将推荐方案（JSON）转化为实际的 Python 代码文件，并启动子进程执行该代码。
    2. **机制**: 支持创建子进程执行代码，捕获标准输出 (stdout) 和标准错误 (stderr)。
    3. **输出**: `state.execution_result` (Success/Fail 状态及日志)。
 
@@ -99,9 +99,15 @@ permalink: /zh/guide/agent/pipeline_rec&refine/
 
 ### 3. 使用指南 
 
+本功能提供 **图形界面 (Gradio UI)** 和 **命令行脚本** 两种使用方式。
+
 #### 3.1 图形界面
 
-代码位于 `pipeline_rec.py`。
+代码位于 `gradio_app/pages/pipeline_rec.py`，适合交互式探索和快速验证。启动 Web 界面：
+```python
+python gradio_app/app.py
+```
+访问 `http://127.0.0.1:7860` 开始使用
 
 1. **配置输入**：
    1. 在"目标描述"框中输入您的需求
@@ -121,28 +127,84 @@ permalink: /zh/guide/agent/pipeline_rec&refine/
 
 #### 3.2 脚本调用 
 
-使用 `run_dfa_pipeline_recommend.py` 脚本。
+对于自动化任务或批量生成，推荐直接修改并运行 `script/run_dfa_pipeline_recommend.py`。
+##### 1. 修改配置
 
-**配置参数：**
+打开 `script/run_dfa_pipeline_recommend.py`，在文件顶部的配置区域进行修改。
 
-```Python
-LANGUAGE = "en"
-CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
-MODEL = os.getenv("DF_MODEL", "gpt-4o")
-TARGET = "给我简单的过滤或者去重算子就好了,只需要2个算子"
-NEED_DEBUG = True           # 开启自动修复
-MAX_DEBUG_ROUNDS = 5        # 最大尝试修复次数
-CACHE_DIR = "dataflow_cache"
-TEST_JSON_REL_PATH = "tests/test.jsonl" # 测试数据路径
+**API 配置**
+
+  * **`CHAT_API_URL`**: LLM 服务地址
+  * **`api_key`**: 访问密钥（使用环境变量 DF_API_KEY）
+  * **`MODEL`**: 模型名称，默认 gpt-4o
+
+**任务配置**
+
+   * **`TARGET`**: 用自然语言详细描述您的数据处理需求
+      * 示例：`"请帮我编排一个专门用于大规模预训练数据清洗的流水线，涵盖从去重、改写到质量过滤的全过程"`
+   * **`TEST_JSON_REL_PATH`**: 用于测试 Pipeline 的数据文件的相对路径
+      * 格式：每行一个 JSON 对象
+      * 默认：`{项目根目录}/tests/test.jsonl`
+
+**调试配置**
+
+   * **`NEED_DEBUG`**: 是否启用自动调试和修复
+      * **`True`**: Agent 生成代码后会立即尝试运行。如果报错（如 `ImportError`, `KeyError`），它会启动 Debugger Agent 分析错误堆栈，自动修改代码并重试
+      * **`False`**：生成代码运行后立即结束，不进行自动调试和修复
+   * **`MAX_DEBUG_ROUNDS`**: 最大自动修复次数，默认 5 次
+
+**文件配置**
+
+   * **`CACHE_DIR`**: 结果输出目录。生成的 pipeline 代码、执行的日志、中间结果等都会保存在这里
+
+##### 2. 运行脚本
+
+```bash
+python script/run_dfa_pipeline_recommend.py
+
 ```
 
-**运行命令：**
+##### 3. 结果输出
 
-```Bash
-python run_dfa_pipeline_recommend.py
+脚本执行完毕后，控制台会打印执行的日志和最终执行状态，脚本运行后会在 `CACHE_DIR` 下生成 `my_pipeline.py`, `final_state.json` 和 `graph.png`。
+
+##### 4. 实战 Case：预训练数据清洗流水线
+
+假设我们有一个包含脏数据的预训练数据 `tests/test.jsonl`，我们希望清洗出一份高质量数据。打开脚本修改如下配置：
+
+**场景配置：**
+
+```python
+# ===== Example config (edit here) =====
+
+# 1. 定义任务流程
+TARGET = """
+- 1.请帮我编排一个专门用于大规模预训练数据清洗的流水线，涵盖从去重、改写到质量过滤的全过程。  - 1. 请帮我编排一个专门用于大规模预训练数据清洗的流水线，涵盖从去重、改写到质量过滤的全过程。
+- 2. 在预训练阶段，原始的网页数据（如Common Crawl）往往充斥着大量的噪声、广告、乱码以及重复内容，数据质量参差不齐。我需要先做对原始数据做适当的改写，比如删除大量多余空格、html标签等。接着，需要通过基于规则的启发式过滤，把那些显而易见的垃圾文本、不完整文本和过短的无效数据剔除掉。同时，考虑到网络上内容复杂，我需要筛选指定语言的数据来训练大模型。网络数据的重复率很高，最好能通过模糊去重算法把相似的文档都清理掉，只保留一份。最后，为了保证模型学到的是高质量知识，我希望还能有一个质量分类模型，对清洗后的数据打分，只留下那些高教育价值的内容，从而构建一个高质量的预训练语料库。
+- 3. 我需要一个专门处理海量预训练语料的端到端流水线。首先，你可以对原始文本进行基础的规范化处理，删除多余空格、html标签和表情符号。接着，利用启发式规则进行初步过滤，筛掉显着的低质量文本。这些启发式规则覆盖广泛，需要过滤掉符号/单词比例过高的文段、含敏感词的文段、单词数量异常的文段、以冒号/省略号结尾的不完整文段、语句数量异常的文段、空文本、平均单词长度异常的文段、含html标签的文段、无标点符号的文段、含特殊符号或水印的文段、括号比例过高的文段、大写字母比例过高的文段、含lorem ipsum（随机假文）的文段、独立单词比例过小的文段、字符数量较少的文段、以项目符号开头的文段和含有Javascript数量过多的文段。在此基础上，使用MinHash或类似算法进行文档级的模糊去重，大幅降低数据冗余。随后，利用训练好的质量评估模型对剩余数据进行打分和筛选。最后，还可以加入一个语言识别步骤，确保最终留下的都是目标语言的高质量纯净文本。
+"""
+
+# 2. 指定测试数据路径
+TEST_JSON_REL_PATH = "tests/test.jsonl" 
+
+# 3. 开启 Debug 
+NEED_DEBUG = True
+MAX_DEBUG_ROUNDS = 5
+
 ```
 
-**输出：** 脚本运行后会在 `dataflow_cache/session_{id}/` 下生成 `pipeline.py`, `final_state.json` 和 `graph.png`。
+**运行：**
+运行脚本后，工作流会按以下步骤执行：
+
+1. **分析用户的数据和意图**：分析用户的数据的特征。
+2. **拆解用户任务，推荐算子**：将用户的意图拆解成多个任务，检索匹配出与用户意图相关的算子。
+3. **生成代码**：分析需求顺序，串联这些算子，编写 pipeline 代码。
+4. **自动测试**：启动子进程试运行。如果出现了错误并启动了调试模式，Debugger Node 会尝试修复。
+5. **最终交付**：在成功执行或者达到最大调试轮数时结束工作流。
+
+用户可以在`CACHE_DIR`目录下找到生成的 Pipeline 代码文件和执行的日志文件。
+
+
 
 ## 第二部分：Pipeline 迭代优化 (Pipeline Refinement)
 
@@ -152,7 +214,7 @@ Pipeline 迭代优化 (Refinement) 允许用户通过自然语言对已生成的
 
 ### 2. 系统架构 
 
-该功能由 `wf_pipeline_refine.py` 编排，采用 **Analyzer -> Planner -> Refiner** 的三段式架构：
+该功能由 `dataflow_agent/workflow/wf_pipeline_refine.py` 编排，采用 **Analyzer -> Planner -> Refiner** 的三段式架构：
 
 #### 2.1 Refine Target Analyzer 
 
@@ -179,9 +241,15 @@ Pipeline 迭代优化 (Refinement) 允许用户通过自然语言对已生成的
 
 ### 3. 使用指南
 
+本功能提供 **图形界面 (Gradio UI)** 和 **命令行脚本** 两种使用方式。
+
 #### 3.1 图形界面
 
-集成在 `pipeline_rec.py` 页面底部。
+集成在 `gradio_app/pages/pipeline_rec.py`，适合交互式探索和快速验证。启动 Web 界面：
+```python
+python gradio_app/app.py
+```
+访问 `http://127.0.0.1:7860` 开始使用
 
 1. **前提**：必须先在页面上方点击 "Generate Pipeline" 生成初始 pipeline 代码，此时 `pipeline_json_state` 会被初始化。
 2. **输入优化指令**：在 "优化需求" 文本框中输入指令。
@@ -191,24 +259,49 @@ Pipeline 迭代优化 (Refinement) 允许用户通过自然语言对已生成的
 
 #### 3.2 脚本调用 
 
-使用 `run_dfa_pipeline_refine.py` 脚本。
+使用 `script/run_dfa_pipeline_refine.py` 对已有的 Pipeline 结构进行微调。
 
-**配置参数：**
+##### 1. 修改配置
 
-```Python
-# 输入文件：上一步生成的 pipeline 结构文件 (.json)
-INPUT_JSON = "dataflow_cache/session_xxx/final_state.json" 
-OUTPUT_JSON = "cache_local/pipeline_refine_result.json" # 输出文件，如果是空字符串仅打印结果
-# 修改目标
-TARGET = "请将 Pipeline 调整为只包含3个节点，简化数据流"
+**API 配置**
 
-LANGUAGE = "en"
-CHAT_API_URL = os.getenv("DF_API_URL", "http://123.129.219.111:3000/v1/")
-MODEL = os.getenv("DF_MODEL", "gpt-4o")
+  * **`CHAT_API_URL`**: LLM 服务地址
+  * **`api_key`**: 访问密钥（使用环境变量 DF_API_KEY）
+  * **`MODEL`**: 模型名称，默认 gpt-4o
+
+**任务配置**
+
+  * **`INPUT_JSON`**: 待优化的 Pipeline 结构文件路径
+  * **`OUTPUT_JSON`**: 优化后的 Pipeline JSON 结构文件保存路径
+  * **`TARGET`**: 用自然语言描述您希望如何修改 Pipeline
+      * 示例：`"请将Pipeline调整为只包含3个节点，简化数据流"`
+
+##### 2. 运行脚本
+
+```bash
+python script/run_dfa_pipeline_refine.py
+
 ```
 
-**运行命令：**
+##### 3. 实战 Case：简化流水线
 
-```Bash
-python run_dfa_pipeline_refine.py
+假设上一步生成的流水线太复杂，包含了多余的“清洗”算子，我们希望将其移除来简化 Pipeline。
+
+**场景配置：**
+
+```python
+# ===== Example config (edit here) =====
+
+# 1. 指定上一步生成的 Pipeline 结构文件
+INPUT_JSON = "dataflow_agent/tmps/pipeline.json"
+
+# 2. 下达修改指令
+TARGET = "请简化中间的清洗算子，简化数据流。"
+
+# 3. 指定结果保存位置
+OUTPUT_JSON = "cache_local/pipeline_refine_result.json.json"
+
 ```
+
+**运行：**
+Agent 会分析当前 Pipeline 的 JSON 拓扑结构，找到对应的去重节点，将其移除。

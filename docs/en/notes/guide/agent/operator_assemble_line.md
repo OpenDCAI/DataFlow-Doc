@@ -16,7 +16,7 @@ The core value of this feature lies in:
 
 ## 2. Features
 
-This functional module primarily consists of frontend interaction logic (`op_assemble_line.py`) and a backend execution workflow (`wf_df_op_usage.py`).
+This functional module primarily consists of frontend interaction logic (`gradio_app/pages/op_assemble_line.py`) and a backend execution workflow (`dataflow_agent/workflow/wf_df_op_usage.py`).
 
 ### 2.1 Dynamic Operator Loading and Introspection
 
@@ -35,7 +35,11 @@ This feature provides two modes of use: the **Graphical Interface (Gradio UI)** 
 
 ### 3.1 UI Operation
 
-Ideal for interactive exploration and rapid verification.
+It is ideal for interactive exploration and rapid validation. To launch the web interface:
+```python
+python gradio_app/app.py
+```
+Visit `http://127.0.0.1:7860` and start using  
 
 1. **Environment Configuration**: Enter API-related information and the input JSONL file path at the top of the page.
 2. **Orchestrate Pipeline**:
@@ -46,25 +50,33 @@ Ideal for interactive exploration and rapid verification.
 
 ### 3.2 Script Invocation and Explicit Configuration
 
-For automated tasks or batch processing, the `run_dfa_op_assemble.py` script can be used. This method bypasses the UI and defines the operator sequence directly through code.
+For automated tasks or batch processing, you can use the `script/run_dfa_op_assemble.py` script. This method skips the UI and directly defines the operator sequence through code.
 
-> **Note: Explicit Configuration Requirement**: Unlike the "Automatic Linking" in the UI, the script mode requires you to **explicitly configure** all parameters. You must ensure that the `output_key` of the previous operator strictly matches the `input_key` of the next; the script will not automatically correct parameter names for you.
+#### 1. Modify the Configuration 
 
-#### 1. Modify Configuration
+Open `script/run_dfa_op_assemble.py` and make modifications in the configuration section at the top of the file.
 
-Open `run_dfa_op_assemble.py` and modify the configuration area at the top of the file.
+##### API and File Configuration
+- CHAT_API_URL: URL of the LLM service
+- API_KEY: Authentication key for model invocation. If your Pipeline contains operators that need to call large models (such as reasoning generation, content rewriting, etc.), this item is **required**; otherwise, the operators will not run.
+- MODEL: Model name, default is gpt-4o
+- INPUT_FILE: Path of the input JSONL file (test data file)
+##### Other Configurations
+- CACHE_DIR: Storage directory for results and pipeline code files. The pipeline code files generated during script execution, intermediate execution data, and final data results will all be saved here.
+- SESSION_ID: Unique identifier for the task.
 
-**Key Configuration Item**: **`PIPELINE_STEPS`**—a list defining the pipeline execution steps. Each element contains an `op_name` and `params`.
+#### 2. Define Pipeline Steps
+This is the most critical part of the script. You need to define the execution order and parameters of operators in the `PIPELINE_STEPS` list. Each step consists of an **operator name (op_name)** and a **parameter set (params)**.
 
-```python
-# [Pipeline Definition]
+```Python
+# [Pipeline 定义]
 PIPELINE_STEPS = [
     {
         "op_name": "ReasoningAnswerGenerator",
         "params": {
-            # __init__ parameters (Note: unified into 'params' in wf_df_op_usage)
-            "prompt_template": "dataflow.prompts.reasoning.math.MathAnswerGeneratorPrompt",
-            # run parameters
+            # __init__ 参数 (注意：在 wf_df_op_usage 中统一合并为 params)
+            "prompt_template": "dataflow.prompts.reasoning.general.GeneralAnswerGeneratorPrompt",
+            # run 参数
             "input_key": "raw_content",
             "output_key": "generated_cot"
         }
@@ -81,28 +93,64 @@ PIPELINE_STEPS = [
         }
     }
 ]
+```
+> **Note: Explicit Configuration Requirements** Unlike the "automatic linking" in the UI, you must **explicitly configure** all parameters in script mode. You need to ensure that the `output_key` of the previous operator strictly matches the `input_key` of the next operator; the script will not automatically correct parameter names for you.
 
+#### 3. Run the Script
+
+```Bash
+python script/run_dfa_op_assemble.py
 ```
 
-**Other Required Configurations**:
+#### 4. Result Output
 
-* `CACHE_DIR`: **Must use an absolute path** to avoid path errors when the generated Python script executes in a subprocess.
-* `INPUT_FILE`: The absolute path to the initial data file.
+After the script is executed, the console will print:
 
-#### 2. Run Script
+- **[Generation]**: Path of the generated Pipeline code.
+- **[Code Preview]**: Preview of the first 20 lines of the generated code.
+- **[Execution]**: Execution status.
 
-```bash
-python run_dfa_op_assemble.py
+#### 5. Practical Case: General Text Reasoning and Pseudo-Answer Generation
+We have a `tests/test.jsonl` file, where each line contains a `"raw_content"` field. Our goal is: based on the general English text content of this field, first invoke the large language model to generate reasoning-based answers for the text content, then generate pseudo-answers by generating candidate answers in multiple rounds and selecting the optimal one through statistics, and finally output key fields such as the list of candidate answers, optimal pseudo-answer, corresponding reasoning processes, and typical correct reasoning examples. Therefore, we select the `ReasoningAnswerGenerator` and `ReasoningPseudoAnswerGenerator` operators to orchestrate the Pipeline.
 
+The following is a complete configuration example:
+
+```Python
+# [Pipeline 定义]
+PIPELINE_STEPS = [
+    {
+        "op_name": "ReasoningAnswerGenerator",
+        "params": {
+            # __init__ 参数 (注意：在 wf_df_op_usage 中统一合并为 params)
+            "prompt_template": "dataflow.prompts.reasoning.general.GeneralAnswerGeneratorPrompt",
+            # run 参数
+            "input_key": "raw_content",
+            "output_key": "generated_cot"
+        }
+    },
+    {
+        "op_name": "ReasoningPseudoAnswerGenerator",
+        "params": {
+            "max_times": 3,
+            "input_key": "generated_cot",
+            "output_key_answer": "pseudo_answers",
+            "output_key_answer_value": "pseudo_answer_value",
+            "output_key_solutions": "pseudo_solutions",
+            "output_key_correct_solution_example": "pseudo_correct_solution_example"
+        }
+    }
+]
 ```
+After completing the configuration, execute the following command in the terminal:
 
-#### 3. Output Results
+```Bash
+python script/run_dfa_op_assemble.py
+```
+The script will automatically perform the following actions:
 
-After execution, the console will print:
+1. Build the graph: Parse your PIPELINE_STEPS.
+2. Generate code: Convert the configuration into standard Python code and store it under `dataflow_cache/generated_pipelines/`.
+3. Execute the task: Start a child process to run the generated Pipeline.
+4. Output the report: The terminal will display [Execution] Status: success as well as a partial preview of the code.
 
-* **[Generation]**: The path of the generated Python script (e.g., `pipeline_script_pipeline_001.py`).
-* **[Code Preview]**: A preview of the first 20 lines of the generated code.
-* **[Execution]**:
-    * `Status: success` indicates successful execution.
-    * `STDOUT`: Prints the standard output logs from the pipeline runtime.
-
+You can directly go to the `CACHE_DIR` directory to view the generated JSONL result file and verify whether the data meets expectations.
