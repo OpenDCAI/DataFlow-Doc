@@ -111,6 +111,9 @@ After the script is executed, the console will print:
 - **[Execution]**: Execution status.
 
 #### 5. Practical Case: General Text Reasoning and Pseudo-Answer Generation
+
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1W3Wb1sTyea1xDAGmVu3Tyn7fcvrsppAp?usp=sharing) we provide to run the program:
+
 We have a `tests/test.jsonl` file, where each line contains a `"raw_content"` field. Our goal is: based on the general English text content of this field, first invoke the large language model to generate reasoning-based answers for the text content, then generate pseudo-answers by generating candidate answers in multiple rounds and selecting the optimal one through statistics, and finally output key fields such as the list of candidate answers, optimal pseudo-answer, corresponding reasoning processes, and typical correct reasoning examples. Therefore, we select the `ReasoningAnswerGenerator` and `ReasoningPseudoAnswerGenerator` operators to orchestrate the Pipeline.
 
 The following is a complete configuration example:

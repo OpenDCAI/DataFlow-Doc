@@ -118,6 +118,8 @@ python script/run_dfa_operator_qa.py
 
 #### 4. 实战 Case：查找“清洗数据”的算子
 
+你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1maDKWp-3zEQNScmL_S7MHUdUC1xyCIcK?usp=sharing)样例来运行：
+
 假设您在开发 Pipeline 时遇到数据需要清洗，想知道 DataFlow 库里有没有现成的算子可以处理。
 
 **场景配置：** 我们将其设置为单次查询模式，并指定将结果保存到本地，以便后续在代码中查看详细参数。
