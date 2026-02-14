@@ -116,6 +116,8 @@ After the script is executed, the console behaves differently depending on the m
 
 #### 4. Practical Case: Find Operators for "Data Cleaning"
 
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1maDKWp-3zEQNScmL_S7MHUdUC1xyCIcK?usp=sharing) we provide to run the program:
+
 Suppose you need to clean data when developing a Pipeline and want to know if there are ready-made operators in the DataFlow library for processing.
 
 **Scenario Configuration**: We set it to one-time query mode and specify to save the results locally for viewing detailed parameters in the code later.

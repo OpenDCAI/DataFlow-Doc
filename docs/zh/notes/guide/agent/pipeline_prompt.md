@@ -126,6 +126,8 @@ python script/run_dfa_pipeline_prompt.py
 
 #### 4. 实战 Case：复用ReasoningQuestionFilter过滤器，编写适用金融问题的过滤器提示词
 
+你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1cU5Eg6tuc7WVDG33tU9Wplza52e54kts?usp=sharing)样例来运行：
+
 假设我们想复用系统中的 `ReasoningQuestionFilter` 算子，让它变成为一个金融领域问题的过滤器。打开脚本修改如下配置：
 
 ```python

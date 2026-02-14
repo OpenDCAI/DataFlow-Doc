@@ -185,6 +185,8 @@ After the script is executed, the console will print the execution logs and the 
 
 ##### 4. Practical Case: Pre-training Data Cleaning Pipeline
 
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing) we provide to run the program:
+
 Suppose we have pre-training data `tests/test.jsonl` containing dirty data, and we want to clean it to obtain high-quality data. Open the script and modify the configuration as follows:
 
 **Scenario Configuration:**
@@ -299,6 +301,8 @@ python script/run_dfa_pipeline_refine.py
 ```
 
 ##### 3. Practical Case: Simplify the Pipeline
+
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing) we provide to run the program:
 
 Suppose the Pipeline generated in the previous step is too complex and contains redundant "cleaning" operators, and we want to remove them to simplify the Pipeline.
 

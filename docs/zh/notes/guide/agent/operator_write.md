@@ -132,6 +132,8 @@ python script/run_dfa_operator_write.py
 
 #### 4. 实战 Case：编写一个情感分析算子
 
+你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1oTkwMNwxMFGAe9rNtYCC47CQ9HxsA0uH?usp=sharing)样例来运行：
+
 我们有一个日志文件 `tests/test.jsonl`，其中包含字段 `"raw_content"`。我们希望创建一个算子，对该字段的文本内容进行情感分析。
 
 **配置示例：**

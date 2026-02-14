@@ -111,6 +111,9 @@ python script/run_dfa_op_assemble.py
 - **[Execution]**: 执行情况。
 
 #### 5. 实战 Case：通用文本推理与伪答案生成
+
+你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1W3Wb1sTyea1xDAGmVu3Tyn7fcvrsppAp?usp=sharing)样例来运行：
+
 我们有一个 `tests/test.jsonl` 文件，里面每行都有一个 `"raw_content"` 字段。我们希望：基于该字段的通用英文文本内容，先调用大语言模型针对文本内容生成推理式答案，再通过多轮生成候选答案并统计选优的方式生成伪答案，最终输出候选答案列表、最优伪答案、对应推理过程及典型正确推理示例等关键字段。所以我们选择 `ReasoningAnswerGenerator` 和 `ReasoningPseudoAnswerGenerator` 两个算子来编排 Pipeline。
 
 以下是完整的配置示例：

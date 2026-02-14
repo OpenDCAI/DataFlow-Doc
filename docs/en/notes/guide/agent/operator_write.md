@@ -152,6 +152,8 @@ During script execution, the following key information will be output:
 
 #### 4. Practical Case: Writing a Sentiment Analysis Operator
 
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1oTkwMNwxMFGAe9rNtYCC47CQ9HxsA0uH?usp=sharing) we provide to run the program:
+
 We have a log file `tests/test.jsonl` containing the field `"raw_content"`. We want to create an operator to perform sentiment analysis on the text content of this field.
 
 **Configuration Example:**

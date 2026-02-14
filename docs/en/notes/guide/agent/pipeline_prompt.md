@@ -126,6 +126,8 @@ After the script is executed, the console will print the generation process. You
 
 #### 4. Practical Case: Reuse the ReasoningQuestionFilter to Write a Filter Prompt for Financial Questions
 
+You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1cU5Eg6tuc7WVDG33tU9Wplza52e54kts?usp=sharing) we provide to run the program:
+
 Suppose we want to reuse the `ReasoningQuestionFilter` operator in the system and turn it into a filter for financial domain questions. Open the script and modify the configuration as follows:
 
 ```python
