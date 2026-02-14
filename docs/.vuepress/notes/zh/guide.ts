@@ -120,7 +120,8 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "operator_qa",
                 "operator_write",
                 "pipeline_prompt",
-                "pipeline_rec&refine"
+                "pipeline_rec&refine",
+                "web_collection"
             ]
         },
         // {
