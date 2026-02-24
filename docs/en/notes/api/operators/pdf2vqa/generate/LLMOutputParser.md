@@ -1,7 +1,7 @@
 ---
 title: LLMOutputParser
 createTime: 2026/01/20 20:15:00
-permalink: /en/api/operators/core_text/parse/llmoutputparser/
+permalink: /en/api/operators/pdf2vqa/generate/llmoutputparser/
 ---
 
 ## 📘 Overview
@@ -16,8 +16,7 @@ The core functionalities of this operator include:
 ## `__init__` Function
 
 ```python
-def __init__(self, 
-             mode: Literal['question', 'answer'], 
+def __init__(self,  
              output_dir: str, 
              intermediate_dir: str = "intermediate"
              )
@@ -28,7 +27,6 @@ def __init__(self,
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
-| **mode** | str | Required | Parsing mode. Options are `'question'` or `'answer'`, which affects the output filename and the image subdirectory name. |
 | **output_dir** | str | Required | The final root directory for structured data and images. |
 | **intermediate_dir** | str | "intermediate" | The intermediate directory where original image resources processed by MinerU are located. |
 
@@ -76,7 +74,7 @@ Suppose the LLM returns: `<question>1, 3</question>`
 The operator looks up entries with `id` 1 and 3 in the layout JSON:
 
 * If `id: 1` is the text "What is AI?" and `id: 3` is the image `path/to/img.png`.
-* The restored content will be: `What is AI?\n![image](images/img.png)`.
+* The restored content will be: `What is AI?\n![image](vqa_images/img.png)`.
 
 ### 2. Output File Structure
 
@@ -86,7 +84,7 @@ After execution, the directory structure under `output_dir` (referenced as `cach
 output_dir/
 └── {name}/
     ├── extracted_questions.jsonl  # Structured data
-    └── question_images/           # Automatically synchronized images
+    └── vqa_images/           # Automatically synchronized images
         ├── img1.png
         └── ...
 
@@ -96,7 +94,7 @@ output_dir/
 
 ```json
 {
-  "question": "Please analyze the image below:\n![image](question_images/fig1.png)",
+  "question": "Please analyze the image below:\n![image](vqa_images/img1.png)",
   "answer": "This is the parsed answer text.",
   "solution": "Detailed step-by-step solution...",
   "label": "1",
