@@ -24,10 +24,45 @@ The main workflow of the pipeline includes:
 
 ### 1. Information Extraction
 
-The first step of the pipeline is to extract textual knowledge from users' original documents or URLs using FileOrURLToMarkdownConverter. This step is crucial as it converts various formats of raw documents into unified markdown text, facilitating subsequent cleaning processes.
+The first step of the pipeline is to extract textual knowledge from the user's original documents or URLs using one of three operators: FileOrURLToMarkdownConverterFlash, FileOrURLToMarkdownConverterAPI, or FileOrURLToMarkdownConverterLocal. This step is critical, as it extracts raw documents in various formats into a unified markdown format text, facilitating subsequent cleaning steps.
 
-<!-- > *Since `MinerU` is primarily deployed based on `SGLang`, the `open-dataflow[minerU]` environment mainly operates on `Dataflow[SGLang]`. Currently, there is no tutorial available for processing based on `Dataflow[vllm]`.* -->
+#### 1.1 FileOrURLToMarkdownConverterFlash operator
 
+If the FileOrURLToMarkdownConverterFlash operator is used in this system, PDF extraction is based on [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU), and the flash-mineru library needs to be additionally installed. (flash-mineru implements multi-process inference acceleration based on mineru, and the parsing speed is much faster than mineru. If local parsing is required, it is recommended to use this operator).
+
+```shell
+pip install 'flash-mineru[vllm]'
+# or
+pip install 'open-dataflow[flash-mineru]'
+```
+
+Then, you also need to download the pre-trained MinerU model for local inference. You can refer to the model download method in the FileOrURLToMarkdownConverterLocal operator tutorial later in this document, or directly download from huggingface ([mineru model huggingface](https://huggingface.co/opendatalab/MinerU2.5-2509-1.2B)), or download from modelscope ([mineru model modelscope](https://www.modelscope.ai/models/OpenDataLab/MinerU2.5-2509-1.2B)). After downloading, configure the model path into the FileOrURLToMarkdownConverterFlash operator.
+
+**Input**: original document file or URL (using Flash-MinerU) **Output**: extracted markdown text
+
+**Example**:
+
+```python
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
+    intermediate_dir = "intermediate", # Directory for intermediate artifacts generated during processing
+    mineru_model_path=None, # Model path used by FlashMinerU (required; e.g., MinerU2.5-xxx weights directory)
+    batch_size = 4, # Batch size
+    replicas = 2, # Number of replicas for PDF inference
+    num_gpus_per_replica = 1, # Number of GPUs occupied by each replica
+    engine_gpu_util_rate_to_ray_cap = 0.9 # Upper bound coefficient for Ray resource utilization (flash-mineru essentially uses ray for multi-process inference)
+)
+self.knowledge_cleaning_step1.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
+```
+
+#### 1.2 FileOrURLToMarkdownConverterLocal operator
+
+If the FileOrURLToMarkdownConverterLocal operator is used in this system, PDF extraction is based on [MinerU](https://github.com/opendatalab/MinerU), and additional configuration is required. Users can configure it as follows.
+
+<!-- > *Since `MinerU` is mainly deployed based on `SGLang`, the `open-dataflow[minerU]` environment is mainly processed based on `Dataflow[SGLang]`, and there is currently no tutorial based on `Dataflow[vllm]`.* -->
 
 ```shell
 conda create -n dataflow python=3.10
@@ -38,71 +73,69 @@ pip install -e .
 pip install 'mineru[all]'
 ```
 
-PDF file extraction in this system is based on [MinerU](https://github.com/opendatalab/MinerU), and requires additional configuration. Users can configure it using the following steps.
-
-
-> #### Using the Local Model
-> 
-> To run the `MinerU` model locally, you need to first download the model files to your local storage. `MinerU` provides an interactive command-line tool to simplify this process.
-> 
-> #### 1. Download Tool Guide:
-> 
-> You can view the help information for the model download tool using the following command:
-> 
+> #### Using local models
+>
+> To run `MinerU` models locally, you need to download them to local storage first. `MinerU` provides an interactive command-line tool to simplify this process.
+>
+> #### 1. Download tool instructions:
+>
+> You can use the following command to view the help information of the model download tool:
+>
 > ```bash
 > mineru-models-download --help
 > ```
-> 
-> #### 2. Start the Model Download:
-> 
-> Run the following command to begin the download process:
-> 
+>
+> #### 2. Start model download:
+>
+> Execute the following command to start the download process:
+>
 > ```bash
 > mineru-models-download
 > ```
-> 
-> During the download process, you will encounter the following interactive prompts:
-> 
-> * **Choose Model Download Source**:
-> 
-> ```bash
-> Please select the model download source: (huggingface, modelscope) [huggingface]:
-> ```
-> 
-> *It is recommended to choose `modelscope` as the source for a better download experience.*
-> 
-> * **Select `MinerU` Version**:
-> 
-> `MinerU1` uses a `pipeline` approach — slower but with lower GPU memory requirements.  `MinerU2.5` uses a `vlm` (Vision-Language Model) approach — faster but requires more GPU memory. Users can choose the MinerU version based on their needs and download it locally.
-> ```bash
-> Please select the model type to download: (pipeline, vlm, all) [all]:
-> ```
-> 
-> *It is recommended to choose the `vlm` (MinerU2) version for faster parsing. If you have strict GPU memory limitations or prefer the traditional pipeline approach, choose `pipeline` (MinerU1). You can also select `all` to download all available versions.*
-> 
-> #### 3. Model Path Configuration
-> 
-> The `mineru.json` configuration file will be automatically generated when you run the `mineru-models-download` command for the first time. After the download completes, the local path to the model will be displayed in the terminal and automatically written to your `mineru.json` file in your user directory for future use.
-> 
-> #### 4. Environment Verification
-> 
-> You can verify your setup using the simplest command-line call:
-> 
+>
+> During the download process, you will see the following interactive prompts:
+>
+> * **Select model download source**:
+>
+>   ```bash
+>   Please select the model download source: (huggingface, modelscope) [huggingface]:
+>   ```
+>
+>   *It is recommended to select `modelscope` as the download source for a better download experience.*
+> * **Select `MinerU` version**:
+>
+>   `MinerU1` uses `pipeline`-based parsing, which is slower but has lower VRAM requirements.
+>   `MinerU2.5` uses `vlm`-based parsing, which is faster but has higher VRAM requirements. Users can freely select the desired MinerU parsing version as needed and download it locally.
+>
+>   ```bash
+>   Please select the model type to download: (pipeline, vlm, all) [all]:
+>   ```
+>
+>   *It is recommended to select the `vlm` (MinerU2) version, as it provides faster parsing speed. If you have strict VRAM requirements or prefer traditional pipeline processing, you can select `pipeline` (MinerU1). You can also select `all` to download all available versions.*
+>
+> #### 3. Model path configuration
+>
+> The `mineru.json` configuration file will be automatically generated when you use the `mineru-models-download` command for the first time. After the model download is complete, its local path will be displayed in the current terminal window and automatically written into the `mineru.json` file in your user directory for convenient subsequent use.
+>
+> #### 4. MinerU environment verification
+>
+> The simplest command-line invocation method for environment verification:
+>
 > ```bash
 > mineru -p <input_path> -o <output_path> -b <MinerU_Backend> --source local
 > ```
-> 
-> * `<input_path>`: Local PDF/image file or directory (`./demo.pdf` or `./image_dir`)
-> * `<output_path>`: Output directory
-> * `<mineru_backend>`: Backend engine of the MinerU version. For `MinerU2.5`, set `MinerU_Backend` to `"vlm-vllm-engine"`or`"vlm-transformers"`or`"vlm-http-client"`; for `MinerU1`, set it to `"pipeline"`.
-> 
-> #### 5. Tool Usage
-> 
-> The `FileOrURLToMarkdownConverter` operator allows you to choose the desired backend engine of MinerU.
-> 
-> * If using `MinerU1`: set the `MinerU_Backend` parameter to `"pipeline"`, which uses the traditional pipeline approach.
-> * If using `MinerU2.5` **(recommended by default)**: set the `MinerU_Backend` parameter to `"vlm-vllm-engine"`or`"vlm-transformers"`or`"vlm-http-client"` to enable the vision-language model engine.
-> 
+>
+> * `<input_path>`: local PDF/image file or directory (`./demo.pdf` or `./image_dir`)
+> * `<output_path>`: output directory
+> * `<mineru_backend>`: MinerU version selection interface. To use `MinerU2.5`, set the `MinerU_Backend` parameter to `"vlm-vllm-engine"` or `"vlm-transformers"` or `"vlm-http-client"`; to use `MinerU1`, set the `MinerU_Backend` parameter to `"pipeline"`.
+>
+> #### 5. Tool usage
+>
+> The `FileOrURLToMarkdownConverter` operator provides a MinerU version selection interface, allowing users to select the appropriate backend engine according to their needs.
+>
+> * If the user uses `MinerU1`: set the `MinerU_Backend` parameter to `"pipeline"`. This will enable the traditional pipeline processing method.
+> * If the user uses `MinerU2.5` **(default recommended)**: set the `MinerU_Backend` parameter to `"vlm-vllm-engine"` or `"vlm-transformers"` or `"vlm-http-client"`. This will enable the new engine based on a multimodal language model.
+>
 > ```python
 > self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
 >    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
@@ -111,20 +144,20 @@ PDF file extraction in this system is based on [MinerU](https://github.com/opend
 >    raw_file = raw_file,
 > )
 > ```
-> 
-> 🌟 **More Info**: For detailed information about MinerU, please refer to its GitHub repository: [MinerU Official Documentation](https://github.com/opendatalab/MinerU)
+>
+> 🌟**More details**: For detailed information about MinerU, please refer to its GitHub repository: [MinerU official documentation](https://github.com/opendatalab/MinerU).
 
-
-**Input**: Original document files or URL (Using MinerU2)
- ​**​Output​**: Extracted markdown text
+**Input**: original document file or URL (using MinerU2) **Output**: extracted markdown text
 
 **Example**:
 
 ```python
-self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
-    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en",
-    mineru_backend="vlm-vllm-engine",
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(self, 
+    intermediate_dir="intermediate", 
+    mineru_backend="vlm-auto-engine",
+    mineru_source="local",
+    mineru_model_path=None,
+    mineru_download_model_type="vlm"
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),
@@ -132,6 +165,9 @@ self.knowledge_cleaning_step1.run(
     # output_key=,
 )
 ```
+
+#### 1.3 FileOrURLToMarkdownConverterAPI operator
+
 
 ------
 

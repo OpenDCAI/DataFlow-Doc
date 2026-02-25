@@ -21,7 +21,9 @@ permalink: /zh/guide/Knowledgebase_QA_operators/
 
 | 名称                  | 适用类型 | 简介                                                         | 官方仓库或论文                                         |
 | --------------------- | :------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| FileOrURLToMarkdownConverterBatch🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。 | -                                                      |
+| FileOrURLToMarkdownConverterFlash🚀🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于Flash-MinerU） | [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU)                                                      |
+| FileOrURLToMarkdownConverterAPI🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于MinerU官方API） | [MinerU](https://github.com/opendatalab/MinerU)                                                      |
+| FileOrURLToMarkdownConverterLocal✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于MinerU） | [MinerU](https://github.com/opendatalab/MinerU)                                                        |
 | KBCChunkGenerator✨   | 语料分段 | 该算子提供多种方式，用于将文本全文切分成合适大小的片段，方便后续索引等操作。 | -                                                      |
 | KBCTextCleaner🚀✨    | 知识清洗 | 该算子利用LLM对整理好的原始文本进行清洗，包括但不限于规范化，去隐私等操作。 | -                                                      |
 | Text2MultiHopQAGenerator🚀✨ | 知识转述 | 该算子利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的QA，更有利于RAG准确推理。 | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
