@@ -14,7 +14,7 @@ permalink: /zh/guide/kbcpipeline/
 
 流水线的主要流程包括：
 
-1. 信息提取：借助[MinerU](https://github.com/opendatalab/MinerU), [trafilatura](https://github.com/adbar/trafilatura)等工具从原始文档中提取文本信息。
+1. 信息提取：借助[MinerU](https://github.com/opendatalab/MinerU), [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU), [trafilatura](https://github.com/adbar/trafilatura)等工具从原始文档中提取文本信息。
 2. 文本分段：借助[chonkie](https://github.com/chonkie-inc/chonkie)将文本切分成片段，支持通过Token，字符，句子等分段方式。
 3. 知识清洗：从冗余标签，格式错误，屏蔽隐私信息和违规信息等角度对原始文本信息进行清洗，使文本信息更加清洁可用。
 4. QA构建：利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的QA，更有利于RAG准确推理。
@@ -23,7 +23,43 @@ permalink: /zh/guide/kbcpipeline/
 
 ### 1. 信息提取
 
-流水线第一步是通过FileOrURLToMarkdownConverterBatch从用户原始文档或URL中提取文本知识。此步骤至关重要，它将各种格式的原始文档提取成统一的markdown格式文本，方便后续清洗步骤进行。
+流水线第一步是通过FileOrURLToMarkdownConverterFlash、FileOrURLToMarkdownConverterAPI或者FileOrURLToMarkdownConverterLocal三个算子从用户原始文档或URL中提取文本知识。此步骤至关重要，它将各种格式的原始文档提取成统一的markdown格式文本，方便后续清洗步骤进行。
+
+#### 1.1 FileOrURLToMarkdownConverterFlash算子
+
+本系统中若采用FileOrURLToMarkdownConverterFlash算子则PDF文件的提取基于[Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU)，需要额外安装flash-mineru库。（flash-mineru在mineru的基础上实现了多进程的推理加速，解析速度远快于mineru，若要进行本地解析推荐使用此算子）。
+
+```shell
+pip install 'flash-mineru[vllm]'
+# 或者
+pip install 'open-dataflow[flash-mineru]'
+```
+
+然后还需要下载预训练好的MinerU模型进行本地推理，可以参照后文FileOrURLToMarkdownConverterLocal算子教程中的模型下载方式，也可以直接从huggingface下载（[mineru模型huggingface](https://huggingface.co/opendatalab/MinerU2.5-2509-1.2B)），或者从modelscope下载（[mineru模型modelscope](https://www.modelscope.ai/models/OpenDataLab/MinerU2.5-2509-1.2B)）。下载完成后，将模型路径配置到FileOrURLToMarkdownConverterFlash算子中即可。
+
+**输入**：原始文档文件或URL（使用Flash-MinerU） **输出**：提取后的markdown文本
+
+**示例**：
+
+```python
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
+    intermediate_dir = "intermediate", # 处理产生的中间产物目录
+    mineru_model_path=None, # FlashMinerU 使用的模型路径（必填；如 MinerU2.5-xxx 权重目录）
+    batch_size = 4, # 批处理大小
+    replicas = 2, # 对pdf进行推理的副本数量
+    num_gpus_per_replica = 1, # 每个副本占用的GPU数量
+    engine_gpu_util_rate_to_ray_cap = 0.9 # Ray 资源利用率上限系数（flash-mineru本质上是利用ray实现多进程推理），例如设置成0.9表示ray会预留10%的资源，由于需要在保证计算效率的条件下留出一些资源给ray的管理进程同时防止OOM，通常设置在0.8~1.0之间。
+)
+self.knowledge_cleaning_step1.run(
+    storage=self.storage.step(),
+    # input_key=,
+    # output_key=,
+)
+```
+
+#### 1.2 FileOrURLToMarkdownConverterLocal算子
+
+本系统中若采用FileOrURLToMarkdownConverterLocal算子则PDF文件的提取基于[MinerU](https://github.com/opendatalab/MinerU),需进行额外配置，用户可通过如下方式配置。
 
 <!-- > *由于 `MinerU` 主要基于 `SGLang` 进行部署，`open-dataflow[minerU]` 环境主要基于 `Dataflow[SGLang]` 进行处理，文未有基于 `Dataflow[vllm]` 的处理教程。* -->
 
@@ -35,8 +71,6 @@ cd DataFlow
 pip install -e .
 pip install 'mineru[all]'
 ```
-
-本系统中PDF文件的提取基于[MinerU](https://github.com/opendatalab/MinerU),需进行额外配置，用户可通过如下方式配置。
 
 > #### 使用本地模型
 >
@@ -95,17 +129,16 @@ pip install 'mineru[all]'
 >
 > #### 5. 工具使用
 >
-> `FileOrURLToMarkdownConverter` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
+> `FileOrURLToMarkdownConverterLocal` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
 >
 > * 如果用户使用 `MinerU1`：请将 `MinerU_Backend` 参数设置为 `"pipeline"`。这将启用传统的流水线处理方式。
 > * 如果用户使用 `MinerU2.5` **(默认推荐)**：请将 `MinerU_Backend` 参数设置为 `"vlm-vllm-engine"`或`"vlm-transformers"`或`"vlm-http-client"`。这将启用基于多模态语言模型的新引擎。
 >
 > ```python
-> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
+> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(
 >    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
->    lang="en",
->    mineru_backend="vlm-sglang-engine",
->    raw_file = raw_file,
+>    mineru_backend="vlm-auto-engine",
+>    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
 > )
 > ```
 >
@@ -116,10 +149,12 @@ pip install 'mineru[all]'
 **示例**：
 
 ```python
-self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
-    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en",
-    mineru_backend="vlm-vllm-engine",
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(self, 
+    intermediate_dir="intermediate", 
+    mineru_backend="vlm-auto-engine",
+    mineru_source="local",
+    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
+    mineru_download_model_type="vlm"
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),
@@ -127,6 +162,7 @@ self.knowledge_cleaning_step1.run(
     # output_key=,
 )
 ```
+
 
 ### 2. 文本分块
 
@@ -238,7 +274,7 @@ pip install "numpy>=1.24,<2.0.0"
 ```python
 from dataflow.operators.knowledge_cleaning import (
     KBCChunkGenerator,
-    FileOrURLToMarkdownConverterBatch,
+    FileOrURLToMarkdownConverterFlash,
     KBCTextCleaner,
     # KBCMultiHopQAGenerator,
 )
@@ -256,10 +292,13 @@ class KBCleaning_PDFvllm_GPUPipeline():
             cache_type="json",
         )
 
-        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
-            intermediate_dir="../../example_data/KBCleaningPipeline/raw/",
-            lang="en",
-            mineru_backend="vlm-vllm-engine",
+        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
+            intermediate_dir = "intermediate",
+            mineru_model_path = "<path_to_local>/MinerU2.5-2509-1.2B", 
+            batch_size = 8,
+            replicas = 2,
+            num_gpus_per_replica = 1,
+            engine_gpu_util_rate_to_ray_cap = 0.9
         )
 
         self.knowledge_cleaning_step2 = KBCChunkGenerator(

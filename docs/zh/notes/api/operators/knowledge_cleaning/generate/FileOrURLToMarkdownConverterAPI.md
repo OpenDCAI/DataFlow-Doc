@@ -1,17 +1,17 @@
 ---
-title: FileOrURLToMarkdownConverterBatch
+title: FileOrURLToMarkdownConverterAPI
 createTime: 2025/10/09 17:09:04
-permalink: /zh/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconverterbatch/
+permalink: /zh/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconverterapi/
 ---
 
 ## 📘 概述
 
-`FileOrURLToMarkdownConverterBatch` 是一个知识提取算子，它支持从多种文件格式（如PDF、Office文档、网页、纯文本）以及URL中提取结构化内容，并统一转换为标准的Markdown格式。算子能够自动识别文件类型并调用最优的解析引擎（如MinerU、trafilatura等）进行处理，保留原文的布局与核心信息。
+`FileOrURLToMarkdownConverterAPI` 是一个使用MinerU官方API进行知识提取的算子，它支持从多种文件格式（如PDF、Office文档、网页、纯文本）以及URL中提取结构化内容，并统一转换为标准的Markdown格式。算子能够自动识别文件类型并调用最优的解析引擎（如MinerU、trafilatura等）进行处理，保留原文的布局与核心信息。
 
 ## __init__函数
 
 ```python
-def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", mineru_backend: str = "vlm-vllm-engine", ):
+def __init__(self, intermediate_dir: str = "intermediate", mineru_backend: str = "vlm", api_key:str = None):
 ```
 
 ### init参数说明
@@ -19,8 +19,8 @@ def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", min
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **intermediate_dir** | str | "intermediate" | 用于存储转换过程中生成的中间文件的目录路径。 |
-| **lang** | str | "en" | 指定文档的主要语言（如'zh'为中文，'en'为英文），用于优化解析效果。 |
-| **mineru_backend** | str | "vlm-sglang-engine" | 设置 MinerU 的后端引擎，用于处理PDF等复杂文档。可选值为 "pipeline" 或 "vlm-transformers", 'vlm-vllm-engine', vlm-http-client'。 |
+| **api_key** | str | None | 指定API密钥，用于访问MinerU外部服务。 |
+| **mineru_backend** | str | "vlm" | 设置 MinerU 的后端引擎，用于处理PDF等复杂文档。可选值为 "pipeline" 或 "vlm", 'MinerU-HTML'。 |
 
 ### Prompt模板说明
 
@@ -45,10 +45,10 @@ def run(self, storage: DataFlowStorage, input_key: str = "source", output_key: s
 ## 🧠 示例用法
 
 ```python
-self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterAPI(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en",
-    mineru_backend="vlm-vllm-engine",
+    api_key="your-api-key-here",
+    mineru_backend="vlm",
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),
