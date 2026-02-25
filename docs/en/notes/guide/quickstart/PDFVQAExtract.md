@@ -22,7 +22,7 @@ Major stages:
 
 ## 2. Quick Start
 
-### Step 1: Install Dataflow (and MinerU)
+### Step 1: Install Dataflow
 Install Dataflow:
 ```shell
 pip install "open-dataflow[pdf2vqa]"
@@ -33,12 +33,6 @@ Or install Dataflow from source:
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd Dataflow
 pip install -e ".[pdf2vqa]"
-```
-
-Then install MinerU and download models:
-```shell
-pip install "mineru[vllm]>=2.5.0,<2.7.0"
-mineru-models-download
 ```
 
 ### Step 2: Create a workspace
@@ -55,13 +49,18 @@ dataflow init
 You can then add your pipeline script under `pipelines/` or any custom path.
 
 ### Step 4: Configure API credentials
+`DF_API_KEY` is for calling LLM API, and `MINERU_API_KEY` is for calling MinerU for layout analysis.
+`MINERU_API_KEY` can be obtained from https://mineru.net/apiManage/token, and `DF_API_KEY` can be obtained from your LLM provider (e.g., OpenAI, Google Gemini, etc.). Set them as environment variables:
+
 Linux / macOS:
 ```shell
 export DF_API_KEY="sk-xxxxx"
+export MINERU_API_KEY="sk2-xxxxx"
 ```
 Windows PowerShell:
 ```powershell
 $env:DF_API_KEY = "sk-xxxxx"
+$env:MINERU_API_KEY = "sk2-xxxxx"
 ```
 In the pipeline script, set your API endpoint:
 ```python
@@ -72,12 +71,7 @@ self.llm_serving = APILLMServing_request(
     max_workers=100,
 )
 ```
-and set MinerU backend ('vlm-vllm-engine' or 'vlm-transformers') and LLM max token length (recommended not to exceed 128000 to avoid LLM forgetting details).
-**Caution: The pipeline was only tested with the `vlm` backend; compatibility with the `pipeline` backend is uncertain due to format differences. Using the `vlm` backend is recommended.**
-The `vlm-vllm-engine` backend requires GPU support.
-```python
-self.mineru_executor = FileOrURLToMarkdownConverterBatch(intermediate_dir = "intermediate", mineru_backend="vlm-vllm-engine")
-```
+and set LLM max token length (recommended not to exceed 128000 to avoid LLM forgetting details).
 
 ```python
 self.vqa_extractor = ChunkedPromptedGenerator(
@@ -97,16 +91,12 @@ You can also import the operators into other workflows; the remainder of this do
 
 ### 1. Input data
 
-Each job is defined by a JSONL row. Two modes are supported:
+Each job is defined by a JSONL row. `input_pdf_paths` can be a single PDF or a list of PDFs (questions appear before answers). `name` is an identifier for the job. Questions and answers can be interleaved or separated; they can come from the same PDF or different PDFs.
 
-- **QA-Separated PDFs**
-  ```jsonl
-  {"question_pdf_path": "/abs/path/questions.pdf", "answer_pdf_path": "/abs/path/answers.pdf", "subject": "math", "output_dir": "./output/math"}
-  ```
-- **QA-Interleaved PDFs**
-  ```jsonl
-  {"question_pdf_path": "/abs/path/qa.pdf", "answer_pdf_path": "/abs/path/qa.pdf", "name": "math2"}
-  ```
+```jsonl
+{"input_pdf_paths": "./example_data/PDF2VQAPipeline/questionextract_test.pdf", "name": "math1"}
+{"input_pdf_paths": ["./example_data/PDF2VQAPipeline/math_question.pdf", "./example_data/PDF2VQAPipeline/math_answer.pdf"], "name": "math2"}
+```
 
 `FileStorage` handles batching/cache management:
 ```python
@@ -120,15 +110,48 @@ self.storage = FileStorage(
 
 ### 2. Document layout extraction (MinerU)
 
-For each PDF (question, answer, or mixed), the pipeline calls `_parse_file_with_mineru` inside `FileOrURLToMarkdownConverterBatch`. MinerU outputs:
+For each PDF (question, answer, or mixed), the pipeline calls `_parse_file_with_mineru` inside `FileOrURLToMarkdownConverterAPI`. MinerU outputs:
 
-- `<book>/<backend>/<book>_content_list.json`: structured layout tokens (texts, figures, tables, IDs)
-- `<book>/<backend>/images/`: cropped page images
+- `*_content_list.json`: structured layout tokens (texts, figures, tables, IDs)
+- `images/`: cropped page images
 
-The backend can be:
+---
+**Note**：
+If you want to use a locally deployed MinerU model, you can replace the operator with `FileOrURLToMarkdownConverterLocal` (original version from opendatalab) or `FileOrURLToMarkdownConverterFlash` (our accelerated version), and provide the corresponding model path and deployment parameters. 
 
-- `vlm-transformers`: CPU/GPU compatible
-- `vlm-vllm-engine`: high-throughput GPU mode (requires CUDA)
+For example:
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterAPI(intermediate_dir = "intermediate")
+```
+
+can be replaced with
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterLocal(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+)
+```
+
+or
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterFlash(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+    batch_size = 4,
+    replicas = 1,
+    num_gpus_per_replica = 1,
+    engine_gpu_util_rate_to_ray_cap = 0.9
+)
+```
+
+You can refer to https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/mineru_operators.py for specific parameters and usage.
+
+---
+
+Afterwards, the `MinerU2LLMInputOperator` flattens list items and re-indexes them to create LLM-friendly input.
 
 ### 3. QA extraction (VQAExtractor)
 
@@ -136,7 +159,7 @@ The backend can be:
 
 - Grouping and pairing Q&A based, and inserting images to proper positions.
 - Supports QA separated or interleaved PDFs.
-- Copies rendered images into `output_dir/question_images` and/or `answer_images`.
+- Copies rendered images into `cache_path/name/vqa_images`.
 - Parses `<qa_pair>`, `<question>`, `<answer>`, `<solution>`, `<chapter>`, `<label>` tags from the LLM response.
 
 ### 4. Post-processing and outputs
@@ -155,11 +178,10 @@ This operator includes a `strict_title_match` parameter:
 
 For each `output_dir` (under cache_path/name/), the pipeline writes:
 
-1. `vqa_extracted_questions.jsonl`
-2. `vqa_extracted_answers.jsonl`
-3. `vqa_merged_qa_pairs.jsonl`
-4. `vqa_merged_qa_pairs.md`
-5. `question_images/`, `answer_images/` (depending on mode)
+1. `extracted_vqa.jsonl` (extracted questions and answers, could be separate or interleaved depending on input)
+2. `merged_qa_pairs.jsonl` (fully merged question-answer pairs)
+3. `merged_qa_pairs.md` (markdown version of the merged QA pairs)
+4. `vqa_images/` (containing all images extracted for the QA pairs)
 
 Furthermore, the final step of the cache main file will contain all extracted qa pairs, making it easier to connect subsequent operators for downstream post-processing.
 
@@ -185,17 +207,19 @@ Example:
 ## 5. Pipeline Example
 
 ```python
-from dataflow.operators.knowledge_cleaning import FileOrURLToMarkdownConverterBatch
+from dataflow.operators.knowledge_cleaning import FileOrURLToMarkdownConverterAPI
 
 from dataflow.serving import APILLMServing_request
 from dataflow.utils.storage import FileStorage
-from dataflow.operators.pdf2vqa import MinerU2LLMInputOperator, LLMOutputParser, QA_Merger
+from dataflow.operators.pdf2vqa import MinerU2LLMInputOperator, LLMOutputParser, QA_Merger, PDF_Merger
 from dataflow.operators.core_text import ChunkedPromptedGenerator
 
 from dataflow.pipeline import PipelineABC
 from dataflow.prompts.pdf2vqa import QAExtractPrompt
 
-class VQA_extract_optimized_pipeline(PipelineABC):
+from pypdf import PdfWriter
+    
+class PDF_VQA_extract_optimized_pipeline(PipelineABC):
     def __init__(self):
         super().__init__()
         self.storage = FileStorage(
@@ -214,82 +238,59 @@ class VQA_extract_optimized_pipeline(PipelineABC):
         
         self.vqa_extract_prompt = QAExtractPrompt()
         
-        self.mineru_executor = FileOrURLToMarkdownConverterBatch(intermediate_dir = "intermediate", mineru_backend="vlm-vllm-engine")
+        self.pdf_merger = PDF_Merger(output_dir="./cache")
+        self.mineru_executor = FileOrURLToMarkdownConverterAPI(intermediate_dir = "intermediate")
         self.input_formatter = MinerU2LLMInputOperator()
         self.vqa_extractor = ChunkedPromptedGenerator(
             llm_serving=self.llm_serving,
             system_prompt = self.vqa_extract_prompt.build_prompt(),
             max_chunk_len=128000,
         )
-        self.llm_output_question_parser = LLMOutputParser(mode="question", output_dir="./cache", intermediate_dir="intermediate")
-        self.llm_output_answer_parser = LLMOutputParser(mode="answer", output_dir="./cache", intermediate_dir="intermediate")
+        self.llm_output_parser = LLMOutputParser(output_dir="./cache", intermediate_dir="intermediate")
         self.qa_merger = QA_Merger(output_dir="./cache", strict_title_match=False)
     def forward(self):
-        # The current processing logic is: MinerU processes questions -> MinerU processes answers -> Format question text -> Format answer text -> Input question text into LLM -> Input answer text into LLM -> Parse question output -> Parse answer output -> Merge QA pairs.
-        # Since QA pairs may originate from the same PDF or different PDFs, and DataFlow currently does not support branching, both question and answer PDFs must be processed even when they are the same PDF.
-        # This means if they come from the same PDF, it will be processed twice before the final QA merging step.
-        # Future optimizations will be considered to refine this workflow, avoid redundant processing of the same PDF, and improve performance.
-        
-        self.mineru_executor.run(
+        self.pdf_merger.run(
             storage=self.storage.step(),
-            input_key="question_pdf_path",
-            output_key="question_markdown_path",
+            input_pdf_list_key="input_pdf_paths",
+            input_name_key="name",
+            output_pdf_path_key="merged_pdf_path",
         )
         self.mineru_executor.run(
             storage=self.storage.step(),
-            input_key="answer_pdf_path",
-            output_key="answer_markdown_path",
+            input_key="merged_pdf_path",
+            output_key="vqa_markdown_path",
         )
         self.input_formatter.run(
             storage=self.storage.step(),
-            input_markdown_path_key="question_markdown_path",
-            output_converted_layout_key="converted_question_layout_path",
-        )
-        self.input_formatter.run(
-            storage=self.storage.step(),
-            input_markdown_path_key="answer_markdown_path",
-            output_converted_layout_key="converted_answer_layout_path",
+            input_markdown_path_key="vqa_markdown_path",
+            output_converted_layout_key="converted_vqa_layout_path",
         )
         self.vqa_extractor.run(
             storage=self.storage.step(),
-            input_path_key="converted_question_layout_path",
-            output_path_key="vqa_extracted_questions_path",
+            input_path_key="converted_vqa_layout_path",
+            output_path_key="extracted_llm_vqa_path",
         )
-        self.vqa_extractor.run(
+        self.llm_output_parser.run(
             storage=self.storage.step(),
-            input_path_key="converted_answer_layout_path",
-            output_path_key="vqa_extracted_answers_path",
-        )
-        self.llm_output_question_parser.run(
-            storage=self.storage.step(),
-            input_response_path_key="vqa_extracted_questions_path",
-            input_converted_layout_path_key="converted_question_layout_path",
+            input_response_path_key="extracted_llm_vqa_path",
+            input_converted_layout_path_key="converted_vqa_layout_path",
             input_name_key="name",
-            output_qalist_path_key="extracted_questions_path",
-        )
-        self.llm_output_answer_parser.run(
-            storage=self.storage.step(),
-            input_response_path_key="vqa_extracted_answers_path",
-            input_converted_layout_path_key="converted_answer_layout_path",
-            input_name_key="name",
-            output_qalist_path_key="extracted_answers_path",
+            output_qalist_path_key="extracted_vqa_path",
         )
         self.qa_merger.run(
             storage=self.storage.step(),
-            input_question_qalist_path_key="extracted_questions_path",
-            input_answer_qalist_path_key="extracted_answers_path",
+            input_qalist_path_key="extracted_vqa_path",
             input_name_key="name",
-            output_merged_qalist_path_key="output_merged_qalist_path",
+            output_merged_qalist_path_key="output_merged_vqalist_path",
             output_merged_md_path_key="output_merged_md_path",
-            output_qa_item_key="qa_pair",
+            output_qa_item_key="vqa_pair",
         )
 
 
 
 if __name__ == "__main__":
-    # Each line in the JSONL file contains `question_pdf_path`, `answer_pdf_path`, and `name` (e.g., math1, math2, physics1, chemistry1, ...).
-    # If the questions and answers are located within the same PDF, set both question_pdf_path and answer_pdf_path to the same file path.
-    pipeline = VQA_extract_optimized_pipeline()
+    # Each line in the jsonl contains input_pdf_paths, name (math1, math2, physics1, chemistry1, ...)
+    pipeline = PDF_VQA_extract_optimized_pipeline()
     pipeline.compile()
     pipeline.forward()
 ```

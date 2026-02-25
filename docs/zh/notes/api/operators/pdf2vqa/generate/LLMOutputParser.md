@@ -1,7 +1,7 @@
 ---
 title: LLMOutputParser
 createTime: 2026/01/20 20:15:00
-permalink: /zh/api/operators/core_text/parse/llmoutputparser/
+permalink: /zh/api/operators/pdf2vqa/generate/llmoutputparser/
 ---
 
 ## 📘 概述
@@ -16,8 +16,7 @@ permalink: /zh/api/operators/core_text/parse/llmoutputparser/
 ## `__init__` 函数
 
 ```python
-def __init__(self, 
-             mode: Literal['question', 'answer'], 
+def __init__(self,  
              output_dir: str, 
              intermediate_dir: str = "intermediate"
              )
@@ -28,7 +27,6 @@ def __init__(self,
 
 | 参数名 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| **mode** | str | 必需 | 解析模式。可选 `'question'` 或 `'answer'`，影响输出文件名及图片子目录名。 |
 | **output_dir** | str | 必需 | 结构化数据及图片的最终输出根目录。 |
 | **intermediate_dir** | str | "intermediate" | 中间件目录，用于寻找 MinerU 处理后的原始图片资源。 |
 
@@ -76,7 +74,7 @@ def run(self,
 算子会查找布局 JSON 中 `id` 为 1 和 3 的项：
 
 * 如果 `id: 1` 是文本 "什么是 AI？"，`id: 3` 是图片 `path/to/img.png`。
-* 还原后的内容为：`什么是 AI？\n![image](images/img.png)`。
+* 还原后的内容为：`什么是 AI？\n![image](vqa_images/img.png)`。
 
 ### 2. 输出文件结构
 
@@ -86,7 +84,7 @@ def run(self,
 cache_path/
 └── {name}/
     ├── extracted_questions.jsonl  # 结构化数据
-    └── question_images/           # 自动同步过来的图片
+    └── vqa_images/           # 自动同步过来的图片
         ├── img1.png
         └── ...
 
@@ -96,7 +94,7 @@ cache_path/
 
 ```json
 {
-  "question": "请看下图并分析：\n![image](question_images/fig1.png)",
+  "question": "请看下图并分析：\n![image](vqa_images/img1.png)",
   "answer": "这是解析后的答案文本",
   "solution": "详细的解题步骤...",
   "label": "1",

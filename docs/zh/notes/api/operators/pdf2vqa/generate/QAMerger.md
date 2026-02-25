@@ -1,7 +1,7 @@
 ---
 title: QA_Merger
 createTime: 2026/01/20 20:25:00
-permalink: /zh/api/operators/core_text/merge/qamerger/
+permalink: /zh/api/operators/pdf2vqa/generate/qamerger/
 ---
 
 ## 📘 概述

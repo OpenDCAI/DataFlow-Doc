@@ -1,7 +1,7 @@
 ---
 title: MinerU2LLMInputOperator
 createTime: 2026/01/20 20:10:00
-permalink: /zh/api/operators/core_text/convert/mineru2llminputoperator/
+permalink: /zh/api/operators/pdf2vqa/generate/mineru2llminputoperator/
 ---
 
 ## 📘 概述
