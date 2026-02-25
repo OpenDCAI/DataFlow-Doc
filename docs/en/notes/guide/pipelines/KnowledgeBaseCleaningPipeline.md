@@ -139,9 +139,8 @@ pip install 'mineru[all]'
 > ```python
 > self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(
 >    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
->    lang="en",
->    mineru_backend="vlm-sglang-engine",
->    raw_file = raw_file,
+>    mineru_backend="vlm-auto-engine",
+>    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
 > )
 > ```
 >
@@ -156,7 +155,7 @@ self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(self,
     intermediate_dir="intermediate", 
     mineru_backend="vlm-auto-engine",
     mineru_source="local",
-    mineru_model_path=None,
+    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
     mineru_download_model_type="vlm"
 )
 self.knowledge_cleaning_step1.run(
@@ -272,7 +271,7 @@ The following provides an example pipeline configured for the `Dataflow[vllm]` e
 ```python
 from dataflow.operators.knowledge_cleaning import (
     KBCChunkGenerator,
-    FileOrURLToMarkdownConverterBatch,
+    FileOrURLToMarkdownConverterFlash,
     KBCTextCleaner,
     # KBCMultiHopQAGenerator,
 )
@@ -290,10 +289,13 @@ class KBCleaning_PDFvllm_GPUPipeline():
             cache_type="json",
         )
 
-        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
-            intermediate_dir="../../example_data/KBCleaningPipeline/raw/",
-            lang="en",
-            mineru_backend="vlm-vllm-engine",
+        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
+            intermediate_dir = "intermediate",
+            mineru_model_path = "<path_to_local>/MinerU2.5-2509-1.2B", 
+            batch_size = 8,
+            replicas = 2,
+            num_gpus_per_replica = 1,
+            engine_gpu_util_rate_to_ray_cap = 0.9
         )
 
         self.knowledge_cleaning_step2 = KBCChunkGenerator(

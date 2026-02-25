@@ -129,17 +129,16 @@ pip install 'mineru[all]'
 >
 > #### 5. 工具使用
 >
-> `FileOrURLToMarkdownConverter` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
+> `FileOrURLToMarkdownConverterLocal` 算子提供了 MinerU 版本的选择接口，允许用户根据需求选择合适的后端引擎。
 >
 > * 如果用户使用 `MinerU1`：请将 `MinerU_Backend` 参数设置为 `"pipeline"`。这将启用传统的流水线处理方式。
 > * 如果用户使用 `MinerU2.5` **(默认推荐)**：请将 `MinerU_Backend` 参数设置为 `"vlm-vllm-engine"`或`"vlm-transformers"`或`"vlm-http-client"`。这将启用基于多模态语言模型的新引擎。
 >
 > ```python
-> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
+> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(
 >    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
->    lang="en",
->    mineru_backend="vlm-sglang-engine",
->    raw_file = raw_file,
+>    mineru_backend="vlm-auto-engine",
+>    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
 > )
 > ```
 >
@@ -154,7 +153,7 @@ self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(self,
     intermediate_dir="intermediate", 
     mineru_backend="vlm-auto-engine",
     mineru_source="local",
-    mineru_model_path=None,
+    mineru_model_path="<path_to_local>/MinerU2.5-2509-1.2B",
     mineru_download_model_type="vlm"
 )
 self.knowledge_cleaning_step1.run(
@@ -275,7 +274,7 @@ pip install "numpy>=1.24,<2.0.0"
 ```python
 from dataflow.operators.knowledge_cleaning import (
     KBCChunkGenerator,
-    FileOrURLToMarkdownConverterBatch,
+    FileOrURLToMarkdownConverterFlash,
     KBCTextCleaner,
     # KBCMultiHopQAGenerator,
 )
@@ -293,10 +292,13 @@ class KBCleaning_PDFvllm_GPUPipeline():
             cache_type="json",
         )
 
-        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
-            intermediate_dir="../../example_data/KBCleaningPipeline/raw/",
-            lang="en",
-            mineru_backend="vlm-vllm-engine",
+        self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
+            intermediate_dir = "intermediate",
+            mineru_model_path = "<path_to_local>/MinerU2.5-2509-1.2B", 
+            batch_size = 8,
+            replicas = 2,
+            num_gpus_per_replica = 1,
+            engine_gpu_util_rate_to_ray_cap = 0.9
         )
 
         self.knowledge_cleaning_step2 = KBCChunkGenerator(
