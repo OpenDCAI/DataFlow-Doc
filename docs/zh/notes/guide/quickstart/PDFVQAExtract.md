@@ -115,7 +115,43 @@ self.storage = FileStorage(
 - `*_content_list.json`：结构化布局 token
 - `images/`：对应页面切图
 
-之后会使用MinerU2LLMInputOperator处理成给llm的输入，主要包括展平列表项并重新编号。
+---
+**Note**：
+如果想要使用本地部署的MinerU模型，可以替换算子为 `FileOrURLToMarkdownConverterLocal`（opendatalab原版） 或 `FileOrURLToMarkdownConverterFlash` （我们的加速版），并提供相应的模型路径和部署参数。
+
+例如：
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterAPI(intermediate_dir = "intermediate")
+```
+
+可以等价替换为
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterLocal(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+)
+```
+
+或者
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterFlash(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+    batch_size = 4,
+    replicas = 1,
+    num_gpus_per_replica = 1,
+    engine_gpu_util_rate_to_ray_cap = 0.9
+)
+```
+
+具体参数和使用方法可以参考 https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/mineru_operators.py 。
+
+---
+
+之后会使用`MinerU2LLMInputOperator`处理成给llm的输入，主要包括展平列表项并重新编号。
 
 ### 3. 问答抽取（VQAExtractor）
 

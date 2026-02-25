@@ -115,6 +115,42 @@ For each PDF (question, answer, or mixed), the pipeline calls `_parse_file_with_
 - `*_content_list.json`: structured layout tokens (texts, figures, tables, IDs)
 - `images/`: cropped page images
 
+---
+**Note**：
+If you want to use a locally deployed MinerU model, you can replace the operator with `FileOrURLToMarkdownConverterLocal` (original version from opendatalab) or `FileOrURLToMarkdownConverterFlash` (our accelerated version), and provide the corresponding model path and deployment parameters. 
+
+For example:
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterAPI(intermediate_dir = "intermediate")
+```
+
+can be replaced with
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterLocal(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+)
+```
+
+or
+
+```python
+self.mineru_executor = FileOrURLToMarkdownConverterFlash(
+    intermediate_dir = "intermediate",
+    mineru_model_path = "path/to/mineru/model",
+    batch_size = 4,
+    replicas = 1,
+    num_gpus_per_replica = 1,
+    engine_gpu_util_rate_to_ray_cap = 0.9
+)
+```
+
+You can refer to https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/knowledge_cleaning/generate/mineru_operators.py for specific parameters and usage.
+
+---
+
 Afterwards, the `MinerU2LLMInputOperator` flattens list items and re-indexes them to create LLM-friendly input.
 
 ### 3. QA extraction (VQAExtractor)
