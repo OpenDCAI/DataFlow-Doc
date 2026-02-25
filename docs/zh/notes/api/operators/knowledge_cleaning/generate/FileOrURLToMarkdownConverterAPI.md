@@ -6,7 +6,7 @@ permalink: /zh/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconv
 
 ## 📘 概述
 
-`FileOrURLToMarkdownConverterAPI` 是一个知识提取算子，它支持从多种文件格式（如PDF、Office文档、网页、纯文本）以及URL中提取结构化内容，并统一转换为标准的Markdown格式。算子能够自动识别文件类型并调用最优的解析引擎（如MinerU、trafilatura等）进行处理，保留原文的布局与核心信息。
+`FileOrURLToMarkdownConverterAPI` 是一个使用MinerU官方API进行知识提取的算子，它支持从多种文件格式（如PDF、Office文档、网页、纯文本）以及URL中提取结构化内容，并统一转换为标准的Markdown格式。算子能够自动识别文件类型并调用最优的解析引擎（如MinerU、trafilatura等）进行处理，保留原文的布局与核心信息。
 
 ## __init__函数
 
