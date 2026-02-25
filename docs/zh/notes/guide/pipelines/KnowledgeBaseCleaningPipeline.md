@@ -48,7 +48,7 @@ self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
     batch_size = 4, # 批处理大小
     replicas = 2, # 对pdf进行推理的副本数量
     num_gpus_per_replica = 1, # 每个副本占用的GPU数量
-    engine_gpu_util_rate_to_ray_cap = 0.9 # Ray 资源利用率上限系数（flash-mineru本质上是利用ray实现多进程推理）
+    engine_gpu_util_rate_to_ray_cap = 0.9 # Ray 资源利用率上限系数（flash-mineru本质上是利用ray实现多进程推理），例如设置成0.9表示ray会预留10%的资源，由于需要在保证计算效率的条件下留出一些资源给ray的管理进程同时防止OOM，通常设置在0.8~1.0之间。
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),
@@ -164,7 +164,6 @@ self.knowledge_cleaning_step1.run(
 )
 ```
 
-#### 1.3 FileOrURLToMarkdownConverterAPI算子
 
 ### 2. 文本分块
 

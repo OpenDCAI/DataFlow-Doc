@@ -1,12 +1,12 @@
 ---
-title: FileOrURLToMarkdownConverterBatch
+title: FileOrURLToMarkdownConverterAPI
 createTime: 2025/10/09 16:52:48
-permalink: /en/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconverterbatch/
+permalink: /en/api/operators/knowledge_cleaning/generate/fileorurltomarkdownconverterapi/
 ---
 
 ## 📘 Overview
 
-`FileOrURLToMarkdownConverterBatch` is a knowledge extraction operator that supports extracting structured content from multiple file formats (e.g., PDF, Office documents, web pages, plain text) and URLs, converting them into a unified Markdown format. The operator automatically detects the file type and invokes the optimal parsing engine (such as MinerU or trafilatura) to preserve the original layout and key information.
+`FileOrURLToMarkdownConverterAPI` is a knowledge extraction operator that supports extracting structured content from multiple file formats (e.g., PDF, Office documents, web pages, plain text) and URLs, converting them into a unified Markdown format. The operator automatically detects the file type and invokes the optimal parsing engine (such as MinerU or trafilatura) to preserve the original layout and key information.
 
 ## **init** Function
 
@@ -19,8 +19,8 @@ def __init__(self, intermediate_dir: str = "intermediate", lang: str = "en", min
 | Parameter            | Type | Default             | Description                                                                                                                                                                          |
 | :------------------- | :--- | :------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **intermediate_dir** | str  | "intermediate"      | Directory path used to store intermediate files generated during the conversion process.                                                                                             |
-| **lang**             | str  | "en"                | Specifies the main language of the document (e.g., 'zh' for Chinese, 'en' for English) to optimize parsing performance.                                                              |
-| **mineru_backend**   | str  | "vlm-sglang-engine" | Specifies the backend engine for MinerU, used for handling complex documents such as PDFs. Options include "pipeline", "vlm-transformers", "vlm-vllm-engine", and "vlm-http-client". |
+| **api_key** | str | None | Specifies the API key for accessing external MinerU services. |
+| **mineru_backend**   | str  | "vlm" | Specifies the backend engine for MinerU, used for handling complex documents such as PDFs. Options include "pipeline", "vlm-transformers", "MinerU-HTML". |
 
 ### Prompt Template Description
 
@@ -45,10 +45,10 @@ def run(self, storage: DataFlowStorage, input_key: str = "source", output_key: s
 ## 🧠 Example Usage
 
 ```python
-self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterBatch(
+self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterAPI(
     intermediate_dir="../example_data/KBCleaningPipeline/raw/",
-    lang="en",
-    mineru_backend="vlm-vllm-engine",
+    api_key="your-api-key-here",
+    mineru_backend="vlm",
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),

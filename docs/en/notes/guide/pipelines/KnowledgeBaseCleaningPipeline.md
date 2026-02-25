@@ -28,7 +28,7 @@ The first step of the pipeline is to extract textual knowledge from the user's o
 
 #### 1.1 FileOrURLToMarkdownConverterFlash operator
 
-If the FileOrURLToMarkdownConverterFlash operator is used in this system, PDF extraction is based on [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU), and the flash-mineru library needs to be additionally installed. (flash-mineru implements multi-process inference acceleration based on mineru, and the parsing speed is much faster than mineru. If local parsing is required, it is recommended to use this operator).
+If you use the FileOrURLToMarkdownConverterFlash operator, PDF extraction is based on [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU), and the additional flash-mineru library needs to be  installed. (flash-mineru implements multi-process inference acceleration based on mineru, and the parsing speed is much faster than mineru. If you want to parse pdfs locally, it is recommended to use this operator).
 
 ```shell
 pip install 'flash-mineru[vllm]'
@@ -49,7 +49,7 @@ self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterFlash(
     batch_size = 4, # Batch size
     replicas = 2, # Number of replicas for PDF inference
     num_gpus_per_replica = 1, # Number of GPUs occupied by each replica
-    engine_gpu_util_rate_to_ray_cap = 0.9 # Upper bound coefficient for Ray resource utilization (flash-mineru essentially uses ray for multi-process inference)
+    engine_gpu_util_rate_to_ray_cap = 0.9 # Ray Resource Utilization Upper Bound Coefficient (given that flash-mineru essentially utilizes Ray for multi-process inference). For example, setting this to 0.9 means Ray will reserve 10% of the system resources. To ensure computational efficiency while leaving sufficient resources for Ray's management processes(raylet) and preventing OOM (Out of Memory) errors, this value is typically set between 0.8 and 1.0.
 )
 self.knowledge_cleaning_step1.run(
     storage=self.storage.step(),
@@ -131,13 +131,13 @@ pip install 'mineru[all]'
 >
 > #### 5. Tool usage
 >
-> The `FileOrURLToMarkdownConverter` operator provides a MinerU version selection interface, allowing users to select the appropriate backend engine according to their needs.
+> The `FileOrURLToMarkdownConverterLocal` operator provides a MinerU version selection interface, allowing users to select the appropriate backend engine according to their needs.
 >
 > * If the user uses `MinerU1`: set the `MinerU_Backend` parameter to `"pipeline"`. This will enable the traditional pipeline processing method.
 > * If the user uses `MinerU2.5` **(default recommended)**: set the `MinerU_Backend` parameter to `"vlm-vllm-engine"` or `"vlm-transformers"` or `"vlm-http-client"`. This will enable the new engine based on a multimodal language model.
 >
 > ```python
-> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverter(
+> self.knowledge_cleaning_step1 = FileOrURLToMarkdownConverterLocal(
 >    intermediate_dir="../example_data/KBCleaningPipeline/raw/",
 >    lang="en",
 >    mineru_backend="vlm-sglang-engine",
@@ -165,9 +165,6 @@ self.knowledge_cleaning_step1.run(
     # output_key=,
 )
 ```
-
-#### 1.3 FileOrURLToMarkdownConverterAPI operator
-
 
 ------
 
