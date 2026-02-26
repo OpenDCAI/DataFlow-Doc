@@ -183,7 +183,7 @@ python run_dfa_pipeline_recommend.py
 
 After the script is executed, the console will print the execution logs and the final execution status. After the script runs, `my_pipeline.py`, `final_state.json` and `graph.png` will be generated under `CACHE_DIR`.
 
-##### 4. Practical Case: Pre-training Data Cleaning Pipeline
+#### 3.3 Practical Case: Pre-training Data Cleaning Pipeline
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing) we provide to run the program:
 
@@ -300,7 +300,7 @@ Use `script/run_dfa_pipeline_refine.py` to fine-tune the structure of an existin
 python script/run_dfa_pipeline_refine.py
 ```
 
-##### 3. Practical Case: Simplify the Pipeline
+#### 3.3 Practical Case: Simplify the Pipeline
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing) we provide to run the program:
 

@@ -150,7 +150,7 @@ During script execution, the following key information will be output:
 
 * **[Debug Runtime Preview]**: `stdout`/`stderr` captured during runtime, as well as the selected input field key name (`input_key`)
 
-#### 4. Practical Case: Writing a Sentiment Analysis Operator
+### 4.3 Practical Case: Writing a Sentiment Analysis Operator
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1oTkwMNwxMFGAe9rNtYCC47CQ9HxsA0uH?usp=sharing) we provide to run the program:
 

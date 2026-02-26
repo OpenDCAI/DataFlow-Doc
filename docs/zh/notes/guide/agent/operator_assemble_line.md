@@ -110,7 +110,7 @@ python script/run_dfa_op_assemble.py
 - **[Code Preview]**: 生成代码的前 20 行预览。
 - **[Execution]**: 执行情况。
 
-#### 5. 实战 Case：通用文本推理与伪答案生成
+### 3.3 实战 Case：通用文本推理与伪答案生成
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1W3Wb1sTyea1xDAGmVu3Tyn7fcvrsppAp?usp=sharing)样例来运行：
 

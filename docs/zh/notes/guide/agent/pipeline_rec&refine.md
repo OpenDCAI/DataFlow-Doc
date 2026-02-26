@@ -168,7 +168,7 @@ python script/run_dfa_pipeline_recommend.py
 
 脚本执行完毕后，控制台会打印执行的日志和最终执行状态，脚本运行后会在 `CACHE_DIR` 下生成 `my_pipeline.py`, `final_state.json` 和 `graph.png`。
 
-##### 4. 实战 Case：预训练数据清洗流水线
+#### 3.3 实战 Case：预训练数据清洗流水线
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing)样例来运行：
 
@@ -285,7 +285,7 @@ python script/run_dfa_pipeline_refine.py
 
 ```
 
-##### 3. 实战 Case：简化流水线
+#### 3.3 实战 Case：简化流水线
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1MMJxRpfYi7Zd-jc_pyhvM1Y2WoQXOFcu?usp=sharing)样例来运行：
 
