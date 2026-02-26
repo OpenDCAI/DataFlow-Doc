@@ -124,7 +124,7 @@ python script/run_dfa_pipeline_prompt.py
 
 脚本执行完毕后，控制台会打印生成过程。您可以在 `CACHE_DIR` 目录下找到生成的文件
 
-#### 4. 实战 Case：复用ReasoningQuestionFilter过滤器，编写适用金融问题的过滤器提示词
+### 4.3 实战 Case：复用ReasoningQuestionFilter过滤器，编写适用金融问题的过滤器提示词
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1cU5Eg6tuc7WVDG33tU9Wplza52e54kts?usp=sharing)样例来运行：
 

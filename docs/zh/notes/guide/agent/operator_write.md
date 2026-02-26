@@ -130,7 +130,7 @@ python script/run_dfa_operator_write.py
   * `Success: False`：表示运行失败。
 * **[Debug Runtime Preview]**：运行时捕获的 `stdout`/`stderr` 以及选定的输入字段键名 (`input_key`)
 
-#### 4. 实战 Case：编写一个情感分析算子
+### 4.3 实战 Case：编写一个情感分析算子
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1oTkwMNwxMFGAe9rNtYCC47CQ9HxsA0uH?usp=sharing)样例来运行：
 

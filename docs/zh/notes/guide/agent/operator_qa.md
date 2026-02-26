@@ -116,7 +116,7 @@ python script/run_dfa_operator_qa.py
    * 输入 `history` 查看历史对话。
 * **单次模式**：控制台将直接打印 Agent 的思考过程、检索到的算子列表以及最终回答。如果配置了 `OUTPUT_JSON`，还会提示文件保存成功。
 
-#### 4. 实战 Case：查找“清洗数据”的算子
+### 4.3 实战 Case：查找“清洗数据”的算子
 
 你可以参考以下教程学习，也可以参考我们提供的[Google Colab](https://colab.research.google.com/drive/1maDKWp-3zEQNScmL_S7MHUdUC1xyCIcK?usp=sharing)样例来运行：
 

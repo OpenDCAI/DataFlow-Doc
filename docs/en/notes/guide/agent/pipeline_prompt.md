@@ -124,7 +124,7 @@ python script/run_dfa_pipeline_prompt.py
 
 After the script is executed, the console will print the generation process. You can find the generated files in the `CACHE_DIR` directory.
 
-#### 4. Practical Case: Reuse the ReasoningQuestionFilter to Write a Filter Prompt for Financial Questions
+### 4.3 Practical Case: Reuse the ReasoningQuestionFilter to Write a Filter Prompt for Financial Questions
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1cU5Eg6tuc7WVDG33tU9Wplza52e54kts?usp=sharing) we provide to run the program:
 

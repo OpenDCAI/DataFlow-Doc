@@ -110,7 +110,7 @@ After the script is executed, the console will print:
 - **[Code Preview]**: Preview of the first 20 lines of the generated code.
 - **[Execution]**: Execution status.
 
-#### 5. Practical Case: General Text Reasoning and Pseudo-Answer Generation
+### 3.3 Practical Case: General Text Reasoning and Pseudo-Answer Generation
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1W3Wb1sTyea1xDAGmVu3Tyn7fcvrsppAp?usp=sharing) we provide to run the program:
 

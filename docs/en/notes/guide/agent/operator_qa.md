@@ -114,7 +114,7 @@ After the script is executed, the console behaves differently depending on the m
   * Enter `history` to view conversation history.
 * **One-time Mode**: The console directly prints the Agent's thinking process, the retrieved list of operators and the final answer. If `OUTPUT_JSON` is configured, a prompt of successful file saving will also be displayed.
 
-#### 4. Practical Case: Find Operators for "Data Cleaning"
+### 4.3 Practical Case: Find Operators for "Data Cleaning"
 
 You can refer to the following tutorials for learning, and also use the sample of [Google Colab](https://colab.research.google.com/drive/1maDKWp-3zEQNScmL_S7MHUdUC1xyCIcK?usp=sharing) we provide to run the program:
 
