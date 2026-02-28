@@ -1,5 +1,5 @@
 ---
-title: Case 6. PDF VQA Extraction Pipeline
+title: Case 7. PDF VQA Extraction Pipeline
 createTime: 2025/11/17 14:01:55
 permalink: /en/guide/vqa_extract_optimized/
 icon: heroicons:document-text

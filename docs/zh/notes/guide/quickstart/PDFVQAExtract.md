@@ -1,5 +1,5 @@
 ---
-title: 案例6. PDF中的VQA提取流水线
+title: 案例7. PDF中的VQA提取流水线
 createTime: 2025/11/17 14:01:55
 permalink: /zh/guide/vqa_extract_optimized/
 icon: heroicons:document-text

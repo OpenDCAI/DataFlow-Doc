@@ -1,5 +1,5 @@
 ---
-title: 案例7. 私有化异构知识库清洗&一键定制训练集
+title: 案例8. 批量PDF提取QA
 createTime: 2025/07/18 17:31:15
 permalink: /zh/guide/7s1yn8u5/
 icon: basil:lightning-alt-outline
@@ -8,7 +8,7 @@ icon: basil:lightning-alt-outline
 
 ---
 
-# 私有化异构知识库清洗&一键定制训练集
+# 批量PDF提取QA
 
 ## 第一步:安装dataflow环境
 
@@ -18,8 +18,6 @@ icon: basil:lightning-alt-outline
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
 pip install -e .
-pip install 'mineru[all]'
-mineru-models-download
 ```
 
 ​	从PyPi安装：
@@ -27,7 +25,6 @@ mineru-models-download
 ```shell
 pip install open-dataflow
 pip install 'mineru[all]'
-mineru-models-download
 ```
 
 
@@ -51,6 +48,7 @@ dataflow init
 cd api_pipelines
 export HF_ENDPOINT=https://hf-mirror.com
 export DF_API_KEY=xxx
+export MINERU_API_KEY=您的MINERU API KEY
 ```
 
 ## 第四步:一键运行
@@ -62,7 +60,7 @@ python kbcleaning_pipeline.py
 
 运行时，该流水线会先后调用：
 
-1. FileOrURLToMarkdownConverterBatch  把原始文件/URL提取成Markdown
+1. FileOrURLToMarkdownConverterAPI  把原始文件/URL提取成Markdown
 2. KBCChunkGenerator  将文本分段
 3. KBCTextCleaner  针对分段文本做全面清洗
 4. Text2MultiHopQAGenerator  基于清洗后知识合成QA数据

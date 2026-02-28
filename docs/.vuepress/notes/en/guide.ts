@@ -41,6 +41,7 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'sft_synthesis',
                 'conversation_synthesis',
                 'reasoning_general',
+                'pdf2markdown',
                 'prompted_vqa',
                 'PDFVQAExtract',
                 'knowledge_cleaning',

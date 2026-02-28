@@ -1,17 +1,17 @@
 ---
-title: Knowledge Base Cleaning Pipeline
+title: PDF2QA Pipeline
 createTime: 2025/07/05 12:23:14
 icon: fa6-regular:bookmark
 permalink: /en/guide/r51ooua8/
 ---
 
-# Knowledge Base Cleaning & QA Generation Pipeline
+# PDF2QA Pipeline
 
 ## 1. Overview
 
-The core objective of the knowledge base cleaning pipeline is to provide **end-to-end** information extraction, normalization, and necessary metadata generation services for raw documents provided by users, which often come in heterogeneous formats and contain high levels of informational noise. The extracted data can be directly used for RAG, pre-training, and various downstream tasks for large language models. Additionally, the pipeline converts the cleaned knowledge into a set of Multi-Hop QAs using a sliding window approach. According to experiments from [MIRIAD](https://github.com/eth-medical-ai-lab/MIRIAD), this QA-formatted knowledge significantly enhances the accuracy of RAG-based reasoning.
+The core objective of the PDF2QA pipeline is to provide **end-to-end** information extraction, normalization, and necessary metadata generation services for raw documents provided by users, which often come in heterogeneous formats and contain high levels of informational noise. The extracted data can be directly used for RAG, pre-training, and various downstream tasks for large language models. Additionally, the pipeline converts the cleaned knowledge into a set of Multi-Hop QAs using a sliding window approach. According to experiments from [MIRIAD](https://github.com/eth-medical-ai-lab/MIRIAD), this QA-formatted knowledge significantly enhances the accuracy of RAG-based reasoning.
 
-The knowledge base cleaning pipeline supports the following file formats: **PDF, Markdown, HTML, and webpage information crawled from URLs**.
+The PDF2QA pipeline supports the following file formats: **PDF, Markdown, HTML, and webpage information crawled from URLs**.
 
 The main workflow of the pipeline includes:
 
@@ -252,7 +252,7 @@ Users can execute the following scripts to meet different data requirements. Not
 
 > *With `Dataflow[vllm]`, you can run the `gpu_pipelines/*_vllm.py` scripts, while with `Dataflow[sglang]`, you can run the `gpu_pipelines/*_sglang.py` scripts.*
 
-- Knowledge base cleaning and construction for PDF files:
+- PDF2QA:
 
   ```shell
   python api_pipelines/kbcleaning_pipeline.py  # API版本
@@ -266,7 +266,7 @@ Users can execute the following scripts to meet different data requirements. Not
 
 ## 4. Pipeline Example
 
-The following provides an example pipeline configured for the `Dataflow[vllm]` environment, demonstrating how to use multiple operators for knowledge base cleaning. This example shows how to initialize a knowledge base cleaning pipeline and sequentially execute each extraction and cleaning step.
+The following provides an example pipeline configured for the `Dataflow[vllm]` environment, demonstrating how to use multiple operators for PDF2QA. This example shows how to initialize a PDF2QA pipeline and sequentially execute each extraction and cleaning step.
 
 ```python
 from dataflow.operators.knowledge_cleaning import (
