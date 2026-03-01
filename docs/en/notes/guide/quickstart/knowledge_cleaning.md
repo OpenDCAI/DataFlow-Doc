@@ -1,5 +1,5 @@
 ---
-title: Case 7. Private KB cleaning & one-click data generation
+title: Case 8. Converting Massive PDFs to QAs 
 createTime: 2025/07/18 17:31:06
 permalink: /en/guide/j95zcdmj/
 icon: basil:lightning-alt-outline
@@ -8,7 +8,7 @@ icon: basil:lightning-alt-outline
 ---
 
 
-# Private KB cleaning & one-click data generation
+# Converting Massive PDFs to QAs
 
 ## Step 1: Install the DataFlow environment
 
@@ -18,16 +18,12 @@ From source:
 git clone https://github.com/OpenDCAI/DataFlow.git
 cd DataFlow
 pip install -e .
-pip install 'mineru[all]'
-mineru-models-download
 ````
 
 From PyPi:
 
 ```shell
 pip install open-dataflow
-pip install 'mineru[all]'
-mineru-models-download
 ```
 
 ## Step 2: Create a new DataFlow working folder
@@ -49,6 +45,7 @@ dataflow init
 cd api_pipelines
 export HF_ENDPOINT=https://hf-mirror.com
 export DF_API_KEY=xxx
+export MINERU_API_KEY=your MINERU API KEY
 ```
 
 ## Step 4: One-click execution
@@ -60,7 +57,7 @@ python kbcleaning_pipeline.py
 
 During execution, this pipeline will sequentially call:
 
-1. FileOrURLToMarkdownConverterBatch  Converts original files/URLs into Markdown
+1. FileOrURLToMarkdownConverterAPI  Converts original files/URLs into Markdown
 2. KBCChunkGenerator  Segments the text into chunks
 3. KBCTextCleaner  Performs comprehensive cleaning on the segmented text
 4. KBCMultiHopQAGenerator  Synthesizes QA data based on the cleaned knowledge

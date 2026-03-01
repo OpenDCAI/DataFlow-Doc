@@ -1,5 +1,5 @@
 ---
-title: Case 5. Visual Question Answering (VQA)
+title: Case 6. Visual Question Answering (VQA)
 createTime: 2025/07/16 20:10:28
 icon: heroicons:camera
 permalink: /en/guide/l4872nj0/

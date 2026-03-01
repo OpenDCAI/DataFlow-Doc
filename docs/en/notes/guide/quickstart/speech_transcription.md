@@ -1,5 +1,5 @@
 ---
-title: Case 8. Speech transcription
+title: Case 9. Speech transcription
 createTime: 2025/08/22 16:38:49
 permalink: /en/guide/5pdipkiv/
 icon: fad:headphones

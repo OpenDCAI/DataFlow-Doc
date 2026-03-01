@@ -1,16 +1,16 @@
 ---
-title: 知识库清洗流水线
+title: PDF2QA流水线
 icon: fa6-regular:bookmark
 createTime: 2025/06/16 13:08:42
 permalink: /zh/guide/kbcpipeline/
 ---
-# 知识库清洗及QA合成流水线
+# PDF2QA流水线
 
 ## 1. 概述
 
-知识库清洗流水线的核心目标是对于用户提供的格式异构、信息噪声高的原始文档，提供**端到端的**信息提取、规范化以及必要元信息的生成服务。这样提取出的数据可以直接用于RAG、预训练，以及众多大模型下游任务。在此基础上，流水线通过滑动窗口的方式，把清洗好的知识转化成一组Multi-Hop QA。根据[MIRIAD](https://github.com/eth-medical-ai-lab/MIRIAD)的实验，这种QA格式的知识更有利于RAG准确推理。
+PDF2QA流水线的核心目标是对于用户提供的格式异构、信息噪声高的原始文档，提供**端到端的**信息提取、规范化以及必要元信息的生成服务。这样提取出的数据可以直接用于RAG、预训练，以及众多大模型下游任务。在此基础上，流水线通过滑动窗口的方式，把清洗好的知识转化成一组Multi-Hop QA。根据[MIRIAD](https://github.com/eth-medical-ai-lab/MIRIAD)的实验，这种QA格式的知识更有利于RAG准确推理。
 
-知识库清洗支持的文件格式包括**PDF, Markdown, HTML以及爬取URL**对应的网页信息。
+PDF2QA支持的文件格式包括**PDF, Markdown, HTML以及爬取URL**对应的网页信息。
 
 流水线的主要流程包括：
 
@@ -247,7 +247,7 @@ pip install "numpy>=1.24,<2.0.0"
 
 > *其中基础环境可以运行 `gpu_pipelines/*_vllm.py` 脚本，运行 `gpu_pipelines/*_sglang.py` 脚本要单独安装sglang*
 
-- 异构知识库清洗构建
+- 异构PDF2QA构建
 
   ```shell
   python api_pipelines/kbcleaning_pipeline.py  # API版本
@@ -269,7 +269,7 @@ pip install "numpy>=1.24,<2.0.0"
 
 ## 4. 流水线示例
 
-以下给出基于`Dataflow[vllm]`环境配置的示例流水线，演示如何使用多个算子进行知识库清洗。该示例展示了如何初始化一个知识库清洗流水线，并且顺序执行各个提取和清理步骤。
+以下给出基于`Dataflow[vllm]`环境配置的示例流水线，演示如何使用多个算子进行PDF2QA。该示例展示了如何初始化一个知识库清洗流水线，并且顺序执行各个提取和清理步骤。
 
 ```python
 from dataflow.operators.knowledge_cleaning import (
