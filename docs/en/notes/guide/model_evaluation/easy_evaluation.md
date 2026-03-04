@@ -1,11 +1,11 @@
 ---
-title: easy_evaluation
+title: Model Evaluation (Beginner Edition)
 icon: hugeicons:chart-evaluation
 createTime: 2025/10/17 15:20:10
 permalink: /en/guide/97wq40d9/
 ---
 
-# 📊 Model Evaluation Pipeline Guide
+# 📊 Model Evaluation (Beginner Edition)
 
 This guide explains how to use the **DataFlow** evaluation pipeline to assess model-generated answers against ground-truth answers using either **semantic** or **exact match** comparison.  
 Two evaluation modes are supported:

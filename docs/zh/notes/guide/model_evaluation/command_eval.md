@@ -1,5 +1,5 @@
 ---
-title: EvalPipeline
+title: 模型评估（小白QA快速版）
 createTime: 2025/10/20 11:30:42
 icon: hugeicons:chart-evaluation
 permalink: /zh/guide/cqro9oa8/

@@ -90,8 +90,10 @@ export const Guide: ThemeNote = defineNoteConfig({
             icon: 'carbon:flow',
             prefix: 'model_evaluation',
             items: [
+                "overview_info",
                 "command_eval",
                 "easy_evaluation",
+                "unified_eval"
             ]
         },
         {

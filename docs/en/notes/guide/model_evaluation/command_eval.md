@@ -1,11 +1,11 @@
 ---
-title: Model Capability Assessment Pipeline
+title: Model Evaluation (QA Quickstart)
 createTime: 2025/08/30 14:27:02
 icon: hugeicons:chart-evaluation
 permalink: /en/guide/evaluation-pipeline/
 ---
 
-# Model Capability Assessment Pipeline
+# Model Evaluation (QA Quickstart)
 
 ⚠️Only supports QA pair format evaluation
 

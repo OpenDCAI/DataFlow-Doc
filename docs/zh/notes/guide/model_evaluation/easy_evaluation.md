@@ -1,5 +1,5 @@
 ---
-title: 模型评估流水线
+title: 模型评估（小白简易版）
 icon: hugeicons:chart-evaluation
 createTime: 2025/10/17 15:00:50
 permalink: /zh/guide/enty5ksn/
