@@ -10,7 +10,7 @@ permalink: /en/guide/qdq6vy95/
 
 Function call data synthesis operators are designed to synthesize structured function call data from dialogues or real-world task descriptions. These operators cover scenario extraction and expansion, task generation and validation, function generation, and multi-agent multi-turn conversation generation.
 
-All related operators are located in [dataflow/operators/conversations/func_call_operators.py](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/func_call_operators.py). The table below summarizes their applicable scenarios:
+All related operators are located in [dataflow/operators/conversations/](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/). The table below summarizes their applicable scenarios:
 
 <table class="tg">
   <thead>
@@ -249,4 +249,4 @@ Simulates multi-turn conversations involving User, Assistant, and Tool agents to
 
 ---
 
-For code examples, refer to the [Function Call Data Synthesis Pipeline](https://opendcai.github.io/DataFlow-Doc/en/guide/e6kz1s79/) or the [GitHub source file](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/func_call_operators.py).
+For code examples, refer to the [Function Call Data Synthesis Pipeline](https://opendcai.github.io/DataFlow-Doc/en/guide/e6kz1s79/) or the [GitHub source file](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/conversations/).

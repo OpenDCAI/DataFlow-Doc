@@ -1,5 +1,5 @@
 ---
-title: 案例5. 图像问答 (VQA)
+title: 案例6. 图像问答 (VQA)
 createTime: 2025/07/16 20:10:28
 icon: heroicons:camera
 permalink: /zh/guide/p5555dgx/

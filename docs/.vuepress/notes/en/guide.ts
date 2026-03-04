@@ -41,10 +41,10 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'sft_synthesis',
                 'conversation_synthesis',
                 'reasoning_general',
+                'pdf2markdown',
                 'prompted_vqa',
-                'mathquestion_extract',
+                'PDFVQAExtract',
                 'knowledge_cleaning',
-                'quick_general_text_evaluation',
                 'speech_transcription',
             ],
 
@@ -84,7 +84,6 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "KnowledgeBaseCleaningPipeline",
                 "FuncCallPipeline",
                 "Pdf2ModelPipeline",
-                "PDFVQAExtractPipeline",
             ]
         },
         {
@@ -95,17 +94,6 @@ export const Guide: ThemeNote = defineNoteConfig({
             items: [
                 "command_eval",
                 "easy_evaluation",
-            ]
-        },
-        {
-            text: "General Operators",
-            collapsed: false,
-            icon: 'material-symbols:analytics-outline',
-            prefix: 'general_operators',
-            items: [
-                "text_evaluation_operators",
-                "text_process_operators",
-                "text_generate_operators",
             ]
         },
         {
@@ -129,7 +117,13 @@ export const Guide: ThemeNote = defineNoteConfig({
             prefix: 'agent',
             items: [
                 "agent_for_data",
-                "DataFlow-AgentPipelineOrchestration"
+                "DataFlow-AgentPipelineOrchestration",
+                "operator_assemble_line",
+                "operator_qa",
+                "operator_write",
+                "pipeline_prompt",
+                "pipeline_rec&refine",
+                "web_collection"
             ]
         },
     ],

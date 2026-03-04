@@ -1,27 +1,29 @@
 ---
-title: Knowledge Base Construction and QA Operators
+title: PDF2QA Operators
 createTime: 2025/06/24 11:43:42
 permalink: /en/guide/Knowledgebase_QA_operators/
 ---
 
-# Knowledge Base Construction and QA Operators
+# PDF2QA Operators
 
 ## Overview
 
-The Knowledge Base Cleaning Operator is designed for knowledge extraction, organization, and refinement for downstream tasks such as RAG, RARE, and RAFT. It mainly includes: **Knowledge Extractor Operator**, **Corpus Text Splitter Operator**, **Knowledge Cleaner Operator** and **Multi-Hop QA Generation Operator**. These operators can be used to process various raw file formats and crawl web content from specific URLs, organizing this textual knowledge into readable, easy-to-use, and secure RAG knowledge bases.
+The PDF2QA Operator is designed for knowledge extraction, organization, and refinement for downstream tasks such as RAG, RARE, and RAFT. It mainly includes: **Knowledge Extractor Operator**, **Corpus Text Splitter Operator**, **Knowledge Cleaner Operator** and **Multi-Hop QA Generation Operator**. These operators can be used to process various raw file formats and crawl web content from specific URLs, organizing this textual knowledge into readable, easy-to-use, and secure RAG knowledge bases.
 
 The operator notation in this document inherits from [Reasoning Operators](https://opendcai.github.io/DataFlow-Doc/zh/guide/Reasoning_operators/).
 🚀 Independent Innovation: Core algorithms are originally developed, either filling gaps in existing algorithms or further improving performance to break through current bottlenecks.
 
 ✨ Open-Source Premiere: The operator is integrated into mainstream community frameworks for the first time, making it more accessible to developers and promoting open-source sharing.
 
-## Knowledge Base Cleaning Operator
+## PDF2QA Operator
 
-The Knowledge Base Cleaning Operator can perform extraction, organization, and cleaning tasks for multiple heterogeneous text knowledge sources.
+The PDF2QA Operator can perform extraction, organization, and cleaning tasks for multiple heterogeneous text knowledge sources.
 
 | Name                  | Applicable Type | Description                                                  | Official Repository/Paper                              |
 | --------------------- | :-------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| FileOrURLToMarkdownConverterBatch🚀✨ | Knowledge Extraction | This operator extracts various heterogeneous text knowledge into markdown format for subsequent processing. | -                                                      |
+| FileOrURLToMarkdownConverterFlash🚀🚀✨ | Knowledge Extraction | This operator is used to extract various heterogeneous text knowledge into Markdown format for easy subsequent processing. (Based on Flash-MinerU) | [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU) |
+| FileOrURLToMarkdownConverterAPI🚀✨ | Knowledge Extraction | This operator is used to extract various heterogeneous text knowledge into Markdown format for easy subsequent processing. (Based on MinerU Official API) | [MinerU](https://github.com/opendatalab/MinerU) |
+| FileOrURLToMarkdownConverterLocal✨ | Knowledge Extraction | This operator is used to extract various heterogeneous text knowledge into Markdown format for easy subsequent processing. (Based on MinerU) | [MinerU](https://github.com/opendatalab/MinerU) |
 | KBCChunkGenerator✨   | Corpus Segmentation | This operator provides multiple methods to split full texts into appropriately sized segments for subsequent operations like indexing. | -                                                      |
 | KBCTextCleaner🚀✨    | Knowledge Cleaning | This operator uses LLM to clean organized raw text, including but not limited to normalization and privacy removal. | -                                                      |
 | Text2MultiHopQAGenerator🚀✨ | Knowledge Paraphrasing | This operator uses a three-sentence sliding window to paraphrase cleaned knowledge bases into a series of multi-step reasoning QAs, which better facilitates accurate RAG reasoning. | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |

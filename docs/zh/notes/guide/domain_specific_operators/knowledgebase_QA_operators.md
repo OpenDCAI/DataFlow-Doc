@@ -1,27 +1,29 @@
 ---
-title: 知识库清洗和QA合成算子
+title: PDF2QA算子
 createTime: 2025/06/24 11:43:42
 permalink: /zh/guide/Knowledgebase_QA_operators/
 ---
 
-# 知识库清洗与QA合成算子
+# PDF2QA算子
 
 ## 概述
 
-知识库清洗算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(FileOrURLToMarkdownConverterBatch**)，**语料分块算子(KBCChunkGenerator)**和**知识清洗算子(KBCTextCleaner)**, **文本到多轮QA生成器(Text2MultiHopQAGenerator)**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
+PDF2QA算子适用于面向RAG，RARE，RAFT等下游任务的知识库提取，整理，精调，主要包括：**知识提取算子(FileOrURLToMarkdownConverterBatch**)，**语料分块算子(KBCChunkGenerator)**和**知识清洗算子(KBCTextCleaner)**, **文本到多轮QA生成器(Text2MultiHopQAGenerator)**。这些算子能够用于多种原始格式的文件整理，以及爬取特定URL对应的网页内容，并将这些文本知识整理成可读、易用、安全的RAG知识库。
 
 本文中算子标记继承自[强推理算子](https://opendcai.github.io/DataFlow-Doc/zh/guide/Reasoning_operators/)
 
 - 🚀 **自主创新**：核心算法原创研发，填补现有算法空白或是进一步提升性能，突破当下性能瓶颈。
 - ✨ **开源首发**：首次将该算子集成到社区主流框架中，方便更多开发者使用，实现开源共享。
 
-## 知识库清洗算子
+## PDF2QA算子
 
-知识库清洗算子能完成多种异构文本知识源的提取、整理和清洗工作。
+PDF2QA算子能完成多种异构文本知识源的提取、整理和清洗工作。
 
 | 名称                  | 适用类型 | 简介                                                         | 官方仓库或论文                                         |
 | --------------------- | :------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| FileOrURLToMarkdownConverterBatch🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。 | -                                                      |
+| FileOrURLToMarkdownConverterFlash🚀🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于Flash-MinerU） | [Flash-MinerU](https://github.com/OpenDCAI/Flash-MinerU)                                                      |
+| FileOrURLToMarkdownConverterAPI🚀✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于MinerU官方API） | [MinerU](https://github.com/opendatalab/MinerU)                                                      |
+| FileOrURLToMarkdownConverterLocal✨  | 知识提取 | 该算子用于将各种异构文本知识提取成markdown格式，方便后续处理。（基于MinerU） | [MinerU](https://github.com/opendatalab/MinerU)                                                        |
 | KBCChunkGenerator✨   | 语料分段 | 该算子提供多种方式，用于将文本全文切分成合适大小的片段，方便后续索引等操作。 | -                                                      |
 | KBCTextCleaner🚀✨    | 知识清洗 | 该算子利用LLM对整理好的原始文本进行清洗，包括但不限于规范化，去隐私等操作。 | -                                                      |
 | Text2MultiHopQAGenerator🚀✨ | 知识转述 | 该算子利用长度为三个句子的滑动窗口，将清洗好的知识库转写成一系列需要多步推理的QA，更有利于RAG准确推理。 | [MIRAID](https://github.com/eth-medical-ai-lab/MIRIAD) |
