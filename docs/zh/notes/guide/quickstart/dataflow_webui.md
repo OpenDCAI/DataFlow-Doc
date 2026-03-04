@@ -23,7 +23,7 @@ icon: solar:global-outline
 ```shell
 dataflow webui
 ```
-也可以手动修改端口和url等配置，具体指令可通过`-h`来查看
+也可以手动修改端口和url等配置，也可以手动使用本地zip或者解压后的路径来避免网络下载WebUI组件，具体指令可通过`-h`来查看
 ```shell
 dataflow webui -h
 ```
@@ -36,3 +36,15 @@ dataflow webui -h
 
 
 > 特别的，如果你对具体的前后端实现，于自动化release的Github Action配置感兴趣的话，想要看源码，请参考：[https://github.com/OpenDCAI/DataFlow-webui](https://github.com/OpenDCAI/DataFlow-webui)
+
+## 结合DataFlow-Ecosystem扩展WebUI算子库
+上一节中实现的DataFlow-Extension算子库，可以通过注册的方式将其引入到WebUI中使用。
+
+首先在下载并解压后的DataFlow-WebUI路径下找到`backend/app/core/config.py`文件，在其中的`_DATAFLOW_EXTENSIONS`添加DataFlow-Extension的**Python包名字符串**，并确保你已经在当前的python环境中安装了该包。比如我自定义的包名为`df_sunnyhaze`，则应该改为：
+```python
+    # Please input your custom DataFlow extensions here, the system will try to dynamically load them at runtime
+    _DATAFLOW_EXTENSIONS = [
+        "df_sunnyhaze"
+    ]
+```
+可以导入多种依赖包，添加后重启WebUI服务，就可以在WebUI的算子库中看到DataFlow-Extension中的算子了。

@@ -24,9 +24,9 @@ First, follow the [installation guide](/en/guide/install/) to install the main D
 
 ```shell
 dataflow webui
-````
+```
 
-You can also manually modify the port, URL, and other configurations. For detailed options, use the `-h` flag:
+You can also manually modify the port, URL, or use downloaded ZIP file or exist file path to run WebUI. For detailed options, use the `-h` flag:
 
 ```shell
 dataflow webui -h
@@ -51,3 +51,17 @@ We provide tutorial documentation on how to use the WebUI. Please refer to:
 > If you are interested in the specific frontend and backend implementation, or in the GitHub Actions configuration for automated releases, and would like to explore the source code, please refer to:
 > [https://github.com/OpenDCAI/DataFlow-webui](https://github.com/OpenDCAI/DataFlow-webui)
 
+
+## Extending WebUI Operator Library with DataFlow-Ecosystem
+The DataFlow-Extension operator library implemented in the previous section can be introduced into the WebUI for use through registration.
+
+First, locate the `backend/app/core/config.py` file in the downloaded and extracted DataFlow-WebUI directory. In the `_DATAFLOW_EXTENSIONS` section, add the **string of Python package name** of your DataFlow-Extension, and ensure that the package is installed in your current Python environment. For example, if your custom package name is `df_sunnyhaze`, it should be modified as follows:
+
+```python
+    # Please input your custom DataFlow extensions here, the system will try to dynamically load them at runtime
+    _DATAFLOW_EXTENSIONS = [
+        "df_sunnyhaze"
+    ]
+```
+
+You can import multiple dependency packages. After adding them, restart the WebUI service, and you should see the operators from DataFlow-Extension in the WebUI operator library.
