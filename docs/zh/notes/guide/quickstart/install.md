@@ -14,6 +14,7 @@ permalink: /zh/guide/install/
 - **开发者 / 尝鲜用户**：希望体验最新开发功能，或参与 DataFlow 开发  
   → 使用 **GitHub Clone + 可编辑安装（dev 模式）**
 
+> 我们推荐使用 [uv](https://github.com/astral-sh/uv) 进行安装。
 ---
 
 ## 安装方式一：普通用户（PyPI 稳定版）
@@ -24,17 +25,20 @@ permalink: /zh/guide/install/
 
 仅使用 API 或 CPU：
 ```shell
-pip install open-dataflow
+pip install uv
+uv pip install open-dataflow
 ```
 
 使用本地 GPU 推理（按后端选择）：
 
 ```shell
-pip install open-dataflow[vllm]
+pip install uv
+uv pip install open-dataflow[vllm]
 ```
 
 ```shell
-pip install open-dataflow[sglang]
+pip install uv
+uv pip install open-dataflow[sglang]
 ```
 
 > DataFlow 支持 Python >= 3.10，GPU 相关依赖可能随 vLLM / SGLang 版本变化。
@@ -67,17 +71,20 @@ You are using the latest version: 0.0.2.
 ```shell
 git clone https://github.com/OpenDCAI/DataFlow
 cd DataFlow
-pip install -e .
+pip install uv
+uv pip install -e .
 ```
 
 使用本地 GPU 推理（按后端选择）：
 
 ```shell
-pip install -e .[vllm]
+pip install uv
+uv pip install -e .[vllm]
 ```
 
 ```shell
-pip install -e .[sglang]
+pip install uv
+uv pip install -e .[sglang]
 ```
 
 > 同样要求 Python >= 3.10。
@@ -114,6 +121,6 @@ dataflow env
 ### 如何选择？
 
 * ✅ **只用、不改代码** → PyPI 安装（简单、稳定）
-* 🛠️ **要改源码 / 写新算子 / 提 PR** → GitHub Clone + `pip install -e .`
+* 🛠️ **要改源码 / 写新算子 / 提 PR** → GitHub Clone + `uv pip install -e .`
 
 选择适合你的方式即可开始使用 DataFlow 🚀

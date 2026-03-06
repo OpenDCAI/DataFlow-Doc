@@ -15,6 +15,7 @@ This section describes the two common ways to install DataFlow.
 - **Developers / early adopters**: You want the latest features or plan to contribute to DataFlow  
   → **Clone from GitHub and install in editable (dev) mode**
 
+> We recommend using [uv](https://github.com/astral-sh/uv) for installation.
 ---
 
 ## Option 1: General Users (PyPI Stable Release)
@@ -25,17 +26,20 @@ Recommended for **quick start and day-to-day usage**, with no need to modify the
 
 API / CPU only:
 ```shell
-pip install open-dataflow
+pip install uv
+uv pip install open-dataflow
 ```
 
 Local GPU inference (choose your backend):
 
 ```shell
-pip install open-dataflow[vllm]
+pip install uv
+uv pip install open-dataflow[vllm]
 ```
 
 ```shell
-pip install open-dataflow[sglang]
+pip install uv
+uv pip install open-dataflow[sglang]
 ```
 
 > DataFlow requires Python ≥ 3.10. GPU-related dependencies may vary with vLLM or SGLang versions.
@@ -68,17 +72,21 @@ CPU only:
 ```shell
 git clone https://github.com/OpenDCAI/DataFlow
 cd DataFlow
-pip install -e .
+
+pip install uv
+uv pip install -e .
 ```
 
 Local GPU inference (choose your backend):
 
 ```shell
-pip install -e .[vllm]
+pip install uv
+uv pip install -e .[vllm]
 ```
 
 ```shell
-pip install -e .[sglang]
+pip install uv
+uv pip install -e .[sglang]
 ```
 
 > Python ≥ 3.10 is required.
