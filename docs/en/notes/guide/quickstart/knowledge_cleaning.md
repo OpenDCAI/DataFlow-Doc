@@ -61,6 +61,7 @@ During execution, this pipeline will sequentially call:
 2. KBCChunkGenerator  Segments the text into chunks
 3. KBCTextCleaner  Performs comprehensive cleaning on the segmented text
 4. KBCMultiHopQAGenerator  Synthesizes QA data based on the cleaned knowledge
+5. QAExtractor  Converting Synthesized QA Data to Alpaca Format
 
 For detailed descriptions of each operator, refer to the "Knowledge Base Cleaning and QA Generation" section. Once executed, a JSON file will be generated in the `.cache` directory with contents as shown below.
 
@@ -92,6 +93,8 @@ For detailed descriptions of each operator, refer to the "Knowledge Base Cleanin
 > ```
 
 ## Example of Synthesized Data
+
+Below is an example of the QA data synthesized from the cleaned knowledge base in Step 4:
 
 ```json
 [

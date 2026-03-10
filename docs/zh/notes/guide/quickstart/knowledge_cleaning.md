@@ -64,6 +64,7 @@ python kbcleaning_pipeline.py
 2. KBCChunkGenerator  将文本分段
 3. KBCTextCleaner  针对分段文本做全面清洗
 4. Text2MultiHopQAGenerator  基于清洗后知识合成QA数据
+5. QAExtractor 将合成的QA数据转化为Alpaca格式
 
 对于算子的具体功能介绍可以参考"知识库清洗和QA合成"部分，此处调用后会在`.cache 目录下`中生成一个json文件，文件内容如下文所示。
 
@@ -95,6 +96,8 @@ python kbcleaning_pipeline.py
 > ```
 
 ## 合成数据示例
+
+这里展示的是本流水线Step4基于清洗后知识合成的QA数据示例：
 
 ```json
 [

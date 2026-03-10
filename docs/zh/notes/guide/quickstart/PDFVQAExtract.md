@@ -198,6 +198,28 @@ self.mineru_executor = FileOrURLToMarkdownConverterFlash(
 }
 ```
 
+最终调用VQAFormatter算子，将问答对转化为标准ShareGPT格式的数据，方便随后可能进行的微调步骤。
+
+示例：
+```json
+{
+    "messages": [
+        {
+            "role": "user",
+            "content": "<image> $\\\\triangle ABC$ 的内切圆切 $BC$ 于 $D..."
+        },
+        {
+            "role": "assistant",
+            "content": "证明 \\n设 $\\\\triangle ABC$ 三对应边为 $a$, $b, c, p = ..."
+        }
+    ],
+    "images": [
+        "/path/to/image/.jpg"
+    ]
+}
+
+```
+
 ## 5. 流水线示例
 
 ```python
@@ -205,7 +227,7 @@ from dataflow.operators.knowledge_cleaning import FileOrURLToMarkdownConverterAP
 
 from dataflow.serving import APILLMServing_request
 from dataflow.utils.storage import FileStorage
-from dataflow.operators.pdf2vqa import MinerU2LLMInputOperator, LLMOutputParser, QA_Merger, PDF_Merger
+from dataflow.operators.pdf2vqa import MinerU2LLMInputOperator, LLMOutputParser, QA_Merger, PDF_Merger, VQAFormatter
 from dataflow.operators.core_text import ChunkedPromptedGenerator
 
 from dataflow.pipeline import PipelineABC
@@ -242,6 +264,7 @@ class PDF_VQA_extract_optimized_pipeline(PipelineABC):
         )
         self.llm_output_parser = LLMOutputParser(output_dir="./cache", intermediate_dir="intermediate")
         self.qa_merger = QA_Merger(output_dir="./cache", strict_title_match=False)
+        self.vqa_format_converter = VQAFormatter(output_json_file="./.cache/data/qa.json")
     def forward(self):
         self.pdf_merger.run(
             storage=self.storage.step(),
@@ -279,7 +302,12 @@ class PDF_VQA_extract_optimized_pipeline(PipelineABC):
             output_merged_md_path_key="output_merged_md_path",
             output_qa_item_key="vqa_pair",
         )
-
+        self.vqa_format_converter.run(
+            storage=self.storage.step(),
+            input_qa_item_key="vqa_pair",
+            output_messages_key="messages",
+            output_images_key="images",
+        )
 
 
 if __name__ == "__main__":
