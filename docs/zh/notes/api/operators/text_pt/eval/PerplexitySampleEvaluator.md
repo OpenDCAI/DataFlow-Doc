@@ -4,8 +4,6 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/text_pt/eval/perplexitysampleevaluator/
 ---
 
-好的，这是根据您提供的代码和模板生成的 `PerplexitySampleEvaluator` 算子的教程 Markdown。
-
 ## 📘 概述
 
 [PerplexitySampleEvaluator]() 是一个基于 Hugging Face 语言模型计算文本困惑度（Perplexity）的评估算子。困惑度是衡量语言模型预测样本好坏程度的指标，其值越低，通常表示文本的流畅性和可理解性越高。该算子可用于评估生成文本的质量。
