@@ -10,6 +10,8 @@ permalink: /en/api/operators/core_text/generate/text2multihopqagenerator/
 `Text2MultiHopQAGenerator` is a multi-hop question-answer pair generator operator designed to automatically produce questions and answers that require multi-step reasoning from a given text.
 This operator leverages a Large Language Model (LLM) to transform input text into a structured set of reasoning-based QA pairs. It is suitable for building complex QA datasets or evaluating a model’s reasoning ability.
 
+> **Output Validation:** After generation, the operator automatically filters out rows where the `output_key` (QA pairs) is empty or not a valid list. This ensures only successfully generated results are included in the output. The number of filtered rows is logged for traceability.
+
 ## **init** Function
 
 `__init__(self, llm_serving, seed=0, lang="en", prompt_template=None, num_q=5)`
@@ -60,10 +62,12 @@ self.knowledge_cleaning_step4.run(
 
 #### 🧾 Default Output Format
 
+> **Note:** Rows where the generated `QA_pairs` is empty or not a valid list are automatically removed from the output. The DataFrame index is reset after filtering. If any rows are filtered, an info-level log message is recorded with the count.
+
 | Field    | Type       | Description                                                                                   |
 | :------- | :--------- | :-------------------------------------------------------------------------------------------- |
 | text     | str        | The processed original context text.                                                          |
-| qa_pairs | List[Dict] | List of generated multi-hop QA pairs, each containing question, answer, reasoning steps, etc. |
+| qa_pairs | List[Dict] | List of generated multi-hop QA pairs, each containing question, answer, reasoning steps, etc. (guaranteed non-empty) |
 | metadata | Dict       | Metadata containing source, timestamp, complexity, and other information.                     |
 
 Example Input:
