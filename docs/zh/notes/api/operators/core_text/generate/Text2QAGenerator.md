@@ -8,6 +8,8 @@ permalink: /zh/api/operators/core_text/generate/text2qagenerator/
 
 [Text2QAGenerator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/reasoning/generate/reasoning_answer_generator.py) 是一个基于大语言模型（LLM）的问答对生成算子。它接收包含文档片段的输入，并自动生成具体的问题（Question）和答案（Answer）对。该算子首先会根据输入文本生成用于指导提问的提示词，然后再利用这些提示词和原文生成最终的QA对。
 
+> **输出校验：** 生成完成后，算子会自动过滤掉生成的问题或答案为空的行（即 QA 生成失败的行）。被丢弃的行数会以警告日志形式记录，便于追踪。
+
 ## `__init__`函数
 
 ```python
@@ -58,9 +60,11 @@ def run(
 
 #### 🧾 默认输出格式（Output Format）
 
+> **注意：** 生成的问题或答案为空的行会被自动移除。如有行被丢弃，将在日志中以警告信息记录丢弃数量。
+
 | 字段                 | 类型 | 说明                   |
 | :------------------- | :--- | :--------------------- |
 | (input_key)          | str  | 输入的文档文本（保留）。 |
 | generated_prompt   | str  | 中间生成的提问提示词。 |
-| generated_question | str  | 模型生成的问题。       |
-| generated_answer   | str  | 模型生成的答案。       |
+| generated_question | str  | 模型生成的问题（保证非空）。 |
+| generated_answer   | str  | 模型生成的答案（保证非空）。 |
