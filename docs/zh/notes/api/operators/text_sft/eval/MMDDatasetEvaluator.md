@@ -15,8 +15,8 @@ def __init__(
     self,
     ref_frame: DataFlowStorage,
     *,
-    ref_max_sample_num: int = 5000,
-    ref_shuffle_seed: int = 42,
+    max_sample_num: int = 5000,
+    shuffle_seed: int = 42,
     ref_instruction_key: str = "input",
     ref_output_key: str = "output",
     kernel_type: Literal["RBF"] = "RBF",
@@ -45,8 +45,8 @@ def __init__(
 | 参数名 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | **ref_frame** | DataFlowStorage | 必需 | 参考数据集（DataFlowStorage），作为分布比较的基准。 |
-| **ref_max_sample_num** | int | `5000` | 从参考数据集中采样的最大样本数。 |
-| **ref_shuffle_seed** | int | `42` | 参考数据集采样的随机种子。 |
+| **max_sample_num** | int | `5000` | 从参考数据集和评估数据集中采样的最大样本数。 |
+| **shuffle_seed** | int | `42` | 数据集采样的随机种子。 |
 | **ref_instruction_key** | str | `'input'` | 参考数据集中指令字段的列名。 |
 | **ref_output_key** | str | `'output'` | 参考数据集中输出字段的列名。 |
 | **kernel_type** | str | `'RBF'` | 核函数类型，当前仅支持 `'RBF'`。 |
@@ -76,8 +76,6 @@ def run(
     storage: DataFlowStorage,
     input_instruction_key: str,
     input_output_key: str,
-    max_sample_num: int | None = None,
-    shuffle_seed: int | None = None,
 ) -> tuple[float, dict[str, Any]]
 ```
 
@@ -90,8 +88,6 @@ def run(
 | **storage** | DataFlowStorage | 必需 | 包含评估数据集的数据流存储实例。 |
 | **input_instruction_key** | str | 必需 | 评估数据集中指令字段的列名。 |
 | **input_output_key** | str | 必需 | 评估数据集中输出字段的列名。 |
-| **max_sample_num** | int | `None` | 评估数据集的最大采样数；未设置时默认使用 `ref_max_sample_num`。 |
-| **shuffle_seed** | int | `None` | 评估数据集采样的随机种子；未设置时默认使用 `ref_shuffle_seed`。 |
 
 ## 🧠 示例用法
 
@@ -106,6 +102,8 @@ eval_storage = FileStorage(first_entry_file_name="eval_data.jsonl")
 # 初始化评估器
 evaluator = MMDDatasetEvaluator(
     ref_frame=ref_storage.step(),
+    max_sample_num=5000,
+    shuffle_seed=42,
     ref_instruction_key="instruction",
     ref_output_key="output",
     embedding_type="sentence_transformers",

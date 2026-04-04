@@ -15,8 +15,8 @@ def __init__(
     self,
     ref_frame: DataFlowStorage,
     *,
-    ref_max_sample_num: int = 5000,
-    ref_shuffle_seed: int = 42,
+    max_sample_num: int = 5000,
+    shuffle_seed: int = 42,
     ref_instruction_key: str = "input",
     ref_output_key: str = "output",
     kernel_type: Literal["RBF"] = "RBF",
@@ -43,8 +43,8 @@ def __init__(
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | **ref_frame** | DataFlowStorage | Required | The reference dataset used as the distribution baseline. |
-| **ref_max_sample_num** | int | `5000` | Maximum number of samples to draw from the reference dataset. |
-| **ref_shuffle_seed** | int | `42` | Random seed for sampling the reference dataset. |
+| **max_sample_num** | int | `5000` | Maximum number of samples to draw from both the reference and evaluation datasets. |
+| **shuffle_seed** | int | `42` | Random seed for sampling. |
 | **ref_instruction_key** | str | `'input'` | Column name for the instruction field in the reference dataset. |
 | **ref_output_key** | str | `'output'` | Column name for the output field in the reference dataset. |
 | **kernel_type** | str | `'RBF'` | Kernel function type; currently only `'RBF'` is supported. |
@@ -74,8 +74,6 @@ def run(
     storage: DataFlowStorage,
     input_instruction_key: str,
     input_output_key: str,
-    max_sample_num: int | None = None,
-    shuffle_seed: int | None = None,
 ) -> tuple[float, dict[str, Any]]
 ```
 
@@ -84,8 +82,6 @@ def run(
 | **storage** | DataFlowStorage | Required | The DataFlowStorage instance containing the evaluation dataset. |
 | **input_instruction_key** | str | Required | Column name for the instruction field in the evaluation dataset. |
 | **input_output_key** | str | Required | Column name for the output field in the evaluation dataset. |
-| **max_sample_num** | int | `None` | Maximum samples from the evaluation dataset; falls back to `ref_max_sample_num` if not set. |
-| **shuffle_seed** | int | `None` | Random seed for sampling the evaluation dataset; falls back to `ref_shuffle_seed` if not set. |
 
 ## 🧠 Example Usage
 
@@ -100,6 +96,8 @@ eval_storage = FileStorage(first_entry_file_name="eval_data.jsonl")
 # Initialize the evaluator
 evaluator = MMDDatasetEvaluator(
     ref_frame=ref_storage.step(),
+    max_sample_num=5000,
+    shuffle_seed=42,
     ref_instruction_key="instruction",
     ref_output_key="output",
     embedding_type="sentence_transformers",
