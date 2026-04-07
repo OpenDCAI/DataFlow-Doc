@@ -4,6 +4,8 @@ createTime: 2026/04/06 00:00:00
 permalink: /en/guide/skills/dataflow-operator-builder/
 ---
 
+Video tutorial: [Build DataFlow Operator](https://files.catbox.moe/uzk3ag.mp4)
+
 ## 1. Overview
 
 **Operator Builder (`dataflow-operator-builder`)** is a Claude Code Skill that generates a complete, production-grade scaffold for custom DataFlow operators in one step. It targets developers who frequently create new operators, automating the repetitive workflow of "define spec → generate code → register → test."

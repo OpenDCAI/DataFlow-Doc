@@ -4,6 +4,8 @@ createTime: 2026/04/06 00:00:00
 permalink: /zh/guide/skills/dataflow-operator-builder/
 ---
 
+视频教程：[Build DataFlow Operator](https://files.catbox.moe/uzk3ag.mp4)
+
 ## 1. 概述
 
 **Operator Builder (`dataflow-operator-builder`)** 是一个 Claude Code Skill，用于一键生成生产级 DataFlow 自定义算子的完整脚手架。它面向需要频繁创建新算子的开发者，将"定义规格 → 生成代码 → 注册 → 测试"这一重复流程自动化。

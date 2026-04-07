@@ -4,6 +4,8 @@ createTime: 2026/04/06 00:00:00
 permalink: /en/guide/skills/prompt-template-builder/
 ---
 
+Video tutorial: [DataFlow Prompt Template Builder](https://files.catbox.moe/d1pdr9.mp4)
+
 ## 1. Overview
 
 **Prompt Template Builder (`prompt-template-builder`)** is a Claude Code Skill for building or revising `prompt_template` classes for existing DataFlow operators. It addresses the core problem of "operator logic reuse + prompt customization" — when you want to apply the same operator to different business scenarios, you only need to create a new prompt template instead of rewriting the operator code.
