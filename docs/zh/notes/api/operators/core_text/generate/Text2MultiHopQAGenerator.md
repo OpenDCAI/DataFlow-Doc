@@ -4,8 +4,10 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/core_text/generate/text2multihopqagenerator/
 ---
 
-## 📘 概述 
+## 📘 概述
 `Text2MultiHopQAGenerator` 是一个多跳问答对生成算子，用于从给定的文本中自动生成需要多步推理才能回答的问题与答案。该算子通过调用大语言模型（LLM），将输入文本转化为一系列结构化的、包含推理步骤的多跳问答对，适用于构建复杂的问答数据集或评估模型的推理能力。
+
+> **输出校验：** 生成完成后，算子会自动过滤掉 `output_key`（QA 对列表）为空或非有效列表的行，确保输出中仅包含成功生成的结果。被过滤的行数会记录在日志中，便于追踪。
 
 ## __init__函数
 `__init__(self, llm_serving, seed=0, lang="en", prompt_template=None, num_q=5)`
@@ -50,10 +52,13 @@ self.knowledge_cleaning_step4.run(
 ```
 
 #### 🧾 默认输出格式（Output Format）
+
+> **注意：** 生成的 `QA_pairs` 为空或非有效列表的行会被自动移除，输出的 DataFrame 索引会被重置。如有行被过滤，将在日志中记录过滤数量。
+
 | 字段 | 类型 | 说明 |
 | :------------- | :----------------- | :--------------------------------------- |
 | text | str | 处理后的原始上下文文本。 |
-| qa_pairs | List[Dict] | 生成的多跳问答对列表，每个元素包含问题、答案、推理步骤等。 |
+| qa_pairs | List[Dict] | 生成的多跳问答对列表，每个元素包含问题、答案、推理步骤等（保证非空）。 |
 | metadata | Dict | 包含数据来源、时间戳、复杂度等信息的元数据。 |
 
 示例输入：

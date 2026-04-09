@@ -4,10 +4,6 @@ createTime: 2025/10/09 17:09:04
 permalink: /zh/api/operators/text_sft/eval/alpagasussampleevaluator/
 ---
 
-好的，这是根据您提供的代码和模板生成的 `AlpagasusSampleEvaluator` 算子的教程 Markdown 代码。
-
-***
-
 ## 📘 概述
 
 [AlpagasusSampleEvaluator](https://github.com/OpenDCAI/DataFlow/blob/main/dataflow/operators/evaluator/alpagasus_sample_evaluator.py) 是一个基于大语言模型（LLM）的样本评估算子。它通过调用 GPT 等模型来评估指令驱动型任务的质量，并为每个样本生成一个量化得分。该算子主要用于自动化评估生成数据的质量，得分越高表明指令-输入-输出三元组的质量越高。
