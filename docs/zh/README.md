@@ -23,4 +23,10 @@ config:
           theme: alt
           text: Github →
           link: https://github.com/OpenDCAI/DataFlow
+          icon: simple-icons:github
+        -
+          theme: alt
+          text: AtomGit →
+          link: https://atomgit.com/sunny_haze/DataFlow/
+          icon: /G-red.svg
 ---
