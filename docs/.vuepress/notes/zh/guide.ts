@@ -127,6 +127,16 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "web_collection"
             ]
         },
+        {
+            text: "DataFlow Skills",
+            collapsed: false,
+            icon: 'material-symbols:auto-awesome',
+            prefix: 'skills',
+            items: [
+                "generating_dataflow_pipeline",
+                "core_text"
+            ]
+        },
         // {
         //     text: '写作',
         //     icon: 'fluent-mdl2:edit-create',
