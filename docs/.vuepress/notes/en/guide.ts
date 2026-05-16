@@ -128,5 +128,15 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "web_collection"
             ]
         },
+        {
+            text: "DataFlow Skills",
+            collapsed: false,
+            icon: 'carbon:skill-level-advanced',
+            prefix: 'skills',
+            items: [
+                "dataflow-operator-builder",
+                "prompt-template-builder",
+            ]
+        },
     ],
 })
