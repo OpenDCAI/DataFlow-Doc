@@ -111,22 +111,6 @@ export const Guide: ThemeNote = defineNoteConfig({
                 // "video_process",
             ]
         },
-        {
-            text: "Agent for Dataflow",
-            collapsed: false,
-            icon: 'mdi:face-agent',
-            prefix: 'agent',
-            items: [
-                "agent_for_data",
-                "DataFlow-AgentPipelineOrchestration",
-                "operator_assemble_line",
-                "operator_qa",
-                "operator_write",
-                "pipeline_prompt",
-                "pipeline_rec&refine",
-                "web_collection"
-            ]
-        },
         // {
         //     text: '写作',
         //     icon: 'fluent-mdl2:edit-create',

@@ -111,21 +111,5 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "funccall_operators"
             ]
         },
-        {
-            text: "Agent for Dataflow",
-            collapsed: false,
-            icon: 'mdi:face-agent',
-            prefix: 'agent',
-            items: [
-                "agent_for_data",
-                "DataFlow-AgentPipelineOrchestration",
-                "operator_assemble_line",
-                "operator_qa",
-                "operator_write",
-                "pipeline_prompt",
-                "pipeline_rec&refine",
-                "web_collection"
-            ]
-        },
     ],
 })
