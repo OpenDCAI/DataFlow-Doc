@@ -26,8 +26,8 @@ export const Guide: ThemeNote = defineNoteConfig({
                 'second_pipeline',
                 'dataflow_init',
                 'df_ecosystem',
-                'dataflow_webui'
-
+                'dataflow_webui',
+                'dataflow_skills'
             ],
         },
         //         {
@@ -109,22 +109,6 @@ export const Guide: ThemeNote = defineNoteConfig({
                 "agenticrag_operators",
                 "funccall_operators"
                 // "video_process",
-            ]
-        },
-        {
-            text: "Agent for Dataflow",
-            collapsed: false,
-            icon: 'mdi:face-agent',
-            prefix: 'agent',
-            items: [
-                "agent_for_data",
-                "DataFlow-AgentPipelineOrchestration",
-                "operator_assemble_line",
-                "operator_qa",
-                "operator_write",
-                "pipeline_prompt",
-                "pipeline_rec&refine",
-                "web_collection"
             ]
         },
         // {
