@@ -33,7 +33,7 @@ def run(self, storage, input_key="conversations", output_key="messages", input_s
 | input_system_key | str \| None | None | Top-level system column; `None` disables reading it. |
 
 ### Behavior
-Only text `from`/`value` messages are supported; weights and multimodal fields are not supported. An enabled system column must exist. The constructor prompt and top-level system value are combined according to the operator rules. Original fields, order, and row count are preserved.
+Only text `from`/`value` messages are supported; weights and multimodal fields are not supported. An enabled system column must exist. The constructor prompt or top-level system value becomes the first system message; both cannot be set together, and a conversation that already contains a system message cannot receive another one. Original fields, order, and row count are preserved.
 
 ## 🧠 Example Usage
 ```python

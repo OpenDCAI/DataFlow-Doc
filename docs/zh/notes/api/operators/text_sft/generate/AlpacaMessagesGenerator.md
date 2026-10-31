@@ -36,7 +36,7 @@ def run(self, storage, input_key="instruction", input_answer_key="output", outpu
 | input_system_key | str \| None | None | 可选顶层 system 列名；`None` 表示不读取该列。 |
 
 ### 行为说明
-`instruction` 和 `output` 必须是非空字符串；启用的可选列必须存在且满足对应格式。context 会作为用户消息中的上下文，history 会转换为历史消息，system 列或构造参数会提供 system 消息。保留原有字段、行顺序和行数；非法输入直接抛出异常。
+`instruction` 和 `output` 必须是非空字符串；启用的可选列必须存在且满足对应格式。context 会作为用户消息中的上下文，history 会转换为历史消息，system 列或构造参数会提供 system 消息；两者不能同时设置，否则抛出冲突错误。保留原有字段、行顺序和行数；非法输入直接抛出异常。
 
 ## 🧠 示例用法
 ```python

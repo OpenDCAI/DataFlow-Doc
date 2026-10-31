@@ -31,7 +31,7 @@ def run(self, storage, input_key="conversations", input_system_key=None, output_
 | output_error_key | str | "source_error" | 新增错误详情列名。 |
 
 ### 行为说明
-只接受文本 `from`/`value` 消息；启用的顶层 system 列必须存在。`input_system_key=None` 表示不读取顶层 system 列。合法记录写入 `True` 和 `None`，非法记录写入 `False` 和错误对象；原记录全部保留。
+只接受文本 `from`/`value` 消息；启用的顶层 system 列必须存在，且不能与对话中已有的 system 消息重复。`input_system_key=None` 表示不读取顶层 system 列。合法记录写入 `True` 和 `None`，非法记录写入 `False` 和错误对象；原记录全部保留。
 
 ## 🧠 示例用法
 ```python

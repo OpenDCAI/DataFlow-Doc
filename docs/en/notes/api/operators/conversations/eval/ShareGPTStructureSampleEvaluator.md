@@ -31,7 +31,7 @@ def run(self, storage, input_key="conversations", input_system_key=None, output_
 | output_error_key | str | "source_error" | New error-detail column. |
 
 ### Behavior
-Only text `from`/`value` messages are accepted; an enabled top-level system column must exist. `input_system_key=None` disables reading that column. Valid rows receive `True` and `None`; invalid rows receive `False` and an error object. All original rows are retained.
+Only text `from`/`value` messages are accepted; an enabled top-level system column must exist and cannot duplicate a system message already present in the conversation. `input_system_key=None` disables reading that column. Valid rows receive `True` and `None`; invalid rows receive `False` and an error object. All original rows are retained.
 
 ## 🧠 Example Usage
 ```python

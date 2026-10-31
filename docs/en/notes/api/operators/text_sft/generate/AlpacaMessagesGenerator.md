@@ -36,7 +36,7 @@ def run(self, storage, input_key="instruction", input_answer_key="output", outpu
 | input_system_key | str \| None | None | Optional top-level system column; `None` disables reading it. |
 
 ### Behavior
-`instruction` and `output` must be nonblank strings; enabled optional columns must exist and have the expected format. Context is included in the user message, history is converted to prior messages, and the system column or constructor prompt supplies a system message. Original fields, order, and row count are preserved; invalid input raises an exception.
+`instruction` and `output` must be nonblank strings; enabled optional columns must exist and have the expected format. Context is included in the user message, history is converted to prior messages, and the system column or constructor prompt supplies a system message; both cannot be set at the same time and cause a conflict error. Original fields, order, and row count are preserved; invalid input raises an exception.
 
 ## 🧠 Example Usage
 ```python

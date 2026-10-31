@@ -33,7 +33,7 @@ def run(self, storage, input_key="conversations", output_key="messages", input_s
 | input_system_key | str \| None | None | 顶层 system 列名；`None` 表示不读取该列。 |
 
 ### 行为说明
-只支持文本 `from`/`value` 消息，不支持权重字段或多模态字段。启用的顶层 system 列必须存在；构造参数 `system_prompt` 和顶层 system 按实现规则生成 system 消息。保留原有字段、行顺序和行数。
+只支持文本 `from`/`value` 消息，不支持权重字段或多模态字段。启用的顶层 system 列必须存在；构造参数 `system_prompt` 或顶层 system 会生成第一条 system 消息；两者不能同时设置，且输入对话已有 system 消息时不能再次添加。保留原有字段、行顺序和行数。
 
 ## 🧠 示例用法
 ```python
